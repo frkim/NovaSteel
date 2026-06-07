@@ -55,7 +55,7 @@
 - Open **audit/lineage** (Purview/Monitor): every prediction, recommendation and
   human approval is logged.
 - "EU-resident, GDPR + EU AI Act aligned, human-in-the-loop."
-- **Tie-back (Compliance Officer & DPO):** auditable and compliant by design.
+- **Tie-back (Compliance Officer & Data Protection Officer (DPO)):** auditable and compliant by design.
 
 ## 6. Close (30 sec)
 
@@ -67,8 +67,8 @@
 
 ## Role tie-back cheat sheet
 
-| Scene | COO | CFO | Head of Quality | Head of Sustainability / ESG | Compliance Officer & DPO |
-| ----- | --- | --- | --------------- | ----------------------------- | ------------------------ |
+| Scene | COO | CFO | Head of Quality | Head of Sustainability / ESG | Compliance Officer & Data Protection Officer (DPO) |
+| ----- | --- | --- | --------------- | ----------------------------- | ----------------------------------------------- |
 | A Predict | ✅ uptime | ✅ avoided €8M | — | — | audit log |
 | B Energy | reliability | ✅ −14% cost | — | ✅ −22% CO₂ | reporting integrity |
 | C Knowledge | continuity | productivity | ✅ +8% yield | brand narrative | GDPR/DPIA |

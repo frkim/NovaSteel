@@ -67,7 +67,7 @@ must satisfy:
 | Transparency | Users informed it is AI; explainable RUL drivers; cited answers |
 | Accountability | Named owners; AI Act risk file; audit logs; steering oversight |
 
-## 6. Compliance Officer & DPO Q&A (plain language)
+## 6. Compliance Officer & Data Protection Officer (DPO) Q&A (plain language)
 
 - **"Where is our data?"** — In EU Azure regions; personal data never leaves the
   EU.
@@ -86,6 +86,6 @@ must satisfy:
 
 ## 7. Open items to confirm
 
-- Final lawful basis & DPIA sign-off with the DPO.
+- Final lawful basis & DPIA sign-off with the Data Protection Officer (DPO).
 - AI Act classification reviewed by a qualified assessor.
 - Data-processing agreement and sub-processor list confirmed.
