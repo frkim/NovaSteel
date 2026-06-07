@@ -8,6 +8,7 @@ description: >-
   data-and-AI design reviews, service selection across Fabric/IoT/Apps/AI, and
   resolving integration seams between the platform, data, and AI agents.
 tools: ["edit", "search", "view", "glob", "grep"]
+model: Claude Opus 4.8 (High)
 ---
 
 # NovaSteel - Azure Data Expert Agent

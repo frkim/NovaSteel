@@ -8,6 +8,7 @@ description: >-
   Prepares answers for the CFO, COO, Head of Energy Management, and Head of
   Sustainability / ESG, and supports deck slides 5, 12 and 16.
 tools: ["edit", "search", "view", "glob", "grep"]
+model: Claude Opus 4.8 (High)
 ---
 
 # NovaSteel — Business Value / CFO Agent

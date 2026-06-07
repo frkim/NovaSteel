@@ -9,6 +9,7 @@ description: >-
   Head of Energy Management, Head of Data Science / ML Lead, and Shift
   Supervisors / Senior Operators, and supports deck slides 7, 8, 9 and 15.
 tools: ["edit", "search", "view", "glob", "grep"]
+model: Claude Opus 4.8 (High)
 ---
 
 # NovaSteel — AI/ML Engineer Agent

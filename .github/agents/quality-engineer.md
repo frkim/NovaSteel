@@ -8,6 +8,7 @@ description: >-
   Director / Site Manager, and Shift Supervisors / Senior Operators, and
   supports deck slides 9, 10 and 16.
 tools: ["edit", "search", "view", "glob", "grep"]
+model: Claude Opus 4.8 (High)
 ---
 
 # NovaSteel — Quality Engineer Agent

@@ -9,6 +9,7 @@ description: >-
   answers for the CTO / Head of IT/OT, CISO, Chief Data Officer (CDO), and OT
   Engineer / Automation Engineer, and supports deck slides 6, 14 and 15.
 tools: ["edit", "search", "view", "glob", "grep"]
+model: Claude Opus 4.8 (High)
 ---
 
 # NovaSteel — Data Platform Engineer Agent (Fabric + IoT)

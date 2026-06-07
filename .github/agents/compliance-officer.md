@@ -8,6 +8,7 @@ description: >-
   Compliance Officer, Data Protection Officer (DPO), CISO, and Head of
   Sustainability / ESG, and supports deck slides 13 and 16.
 tools: ["edit", "search", "view", "glob", "grep"]
+model: Claude Opus 4.8 (High)
 ---
 
 # NovaSteel — Compliance & Responsible AI Agent

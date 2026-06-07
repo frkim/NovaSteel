@@ -10,6 +10,7 @@ description: >-
   of Manufacturing / VP Operations, Plant Director / Site Manager, and CTO /
   Head of IT/OT, and supports deck slides 4, 6, 14 and 16.
 tools: ["edit", "search", "view", "glob", "grep"]
+model: Claude Opus 4.8 (High)
 ---
 
 # NovaSteel — Solution Architect Agent

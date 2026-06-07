@@ -9,6 +9,7 @@ description: >-
   agent. Use as the default entry point for any cross-cutting NovaSteel request,
   or when you are unsure which specialist should own a piece of work.
 tools: ["edit", "search", "view", "glob", "grep", "runSubagent"]
+model: Claude Opus 4.8 (High)
 ---
 
 # NovaSteel — Orchestrator Agent

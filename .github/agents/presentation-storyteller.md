@@ -8,6 +8,7 @@ description: >-
   CFO). Use to craft the story and the deck outline, and coordinate demo
   handoff with the demo-implementation agent.
 tools: ["edit", "search", "view", "glob", "grep"]
+model: Claude Opus 4.8 (High)
 ---
 
 # NovaSteel — Presentation Storyteller Agent

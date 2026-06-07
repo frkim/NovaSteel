@@ -7,6 +7,7 @@ description: >-
   Use for demo sequencing, environment readiness, synthetic datasets, dashboard
   states, and live proof mechanics for slide 15 and documentation/work/08-demo-script.md.
 tools: ["edit", "search", "view", "glob", "grep"]
+model: Claude Opus 4.8 (High)
 ---
 
 # NovaSteel - Demo Implementation Agent
