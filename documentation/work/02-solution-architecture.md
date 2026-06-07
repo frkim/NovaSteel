@@ -133,9 +133,9 @@ seven Fabric capability layers map to NovaSteel as:
 | ----- | ----------------------- | ----------------- |
 | Foundation & storage | OneLake, Shortcuts, Mirroring, OneLake Catalog | One governed copy of plant + ERP + market data |
 | Data engineering | Data Factory, Pipelines, Dataflows Gen2, Spark notebooks | Physics-informed Gold features, reproducible |
-| Data science & AI | Synapse Data Science, Experiments/Models, Copilot, AI agents | RUL + energy forecast + NL data agent |
-| Warehouse & DB | Data Warehouse, SQL Analytics Endpoint | Governed finance / emissions / quality marts |
-| Real-Time Intelligence | Eventstreams, KQL/Eventhouse, Activator | Sub-second furnace alerts, live telemetry (IoT hot path) |
+| Data science & AI | Data Science, Experiments/Models, AI functions, Copilot, Fabric data agents | RUL + energy forecast + NL data agent |
+| Warehouse & DB | Fabric Data Warehouse, SQL database, SQL Analytics Endpoint | Governed finance / emissions / quality marts |
+| Real-Time Intelligence | Eventstreams, Eventhouse/KQL, Activator, Anomaly detection, Digital twin builder | Sub-second furnace alerts, live telemetry (IoT hot path) |
 | Business intelligence | Power BI, Direct Lake | Always-fresh exec / engineer / ops dashboards |
 | Governance & admin | Purview, Entra, Fabric Admin, Git/DevOps | Lineage, EU residency, EU AI Act traceability |
 

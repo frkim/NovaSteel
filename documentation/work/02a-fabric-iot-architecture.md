@@ -69,7 +69,7 @@ flowchart LR
         end
         subgraph DS["3 · Data Science & AI"]
             EXP["Experiments + Models\n(RUL · energy forecast)"]
-            AGT["AI Agents +\nCopilot for Fabric"]
+            AGT["Fabric data agents +\nCopilot in Fabric"]
         end
         subgraph WH["4 · Warehouse & DB"]
             DW["Data Warehouse"]
@@ -121,8 +121,10 @@ The single, tenant-wide data lake. **One logical copy** of NovaSteel data, open
 | --- | --- |
 | **OneLake** | One lakehouse per domain (Furnace, Energy, Quality, Knowledge). **Medallion** zones — Bronze (raw sensor/historian), Silver (validated, conformed), Gold (features & marts). |
 | **Shortcuts** | Virtualise data **without copying**: ADLS Gen2 historian archives, SAP/ERP exports, and external **spot-price / grid-carbon** datasets surfaced in-place into OneLake. Cross-workspace shortcuts share Gold features to the BI and DS teams. |
-| **Mirroring** | Fabric-**managed near-real-time replication** of the operational **MES/ERP databases** (e.g. Azure SQL / PostgreSQL / Snowflake) into OneLake — production orders, heat schedules, refractory batch master data — with no custom ETL. (A managed copy lands in OneLake; this is replication, not virtualization.) |
-| **OneLake Catalog** | Tenant catalog to **discover, explore and govern** every lakehouse, KQL DB and warehouse item; the entry point operators and analysts use to find trusted, certified datasets. |
+| **Mirroring** | Fabric-**managed near-real-time replication** of the operational **MES/ERP databases** into OneLake — production orders, heat schedules, refractory batch master data — with no custom ETL. Mirroring now covers **SAP (GA)**, **Azure SQL / PostgreSQL / Snowflake / Cosmos DB**, plus **Azure Database for MySQL** and **Google BigQuery** (preview). (A managed copy lands in OneLake; this is replication, not virtualization.) |
+| **OneLake Catalog** | Tenant catalog to **discover, explore and govern** every lakehouse, Eventhouse/KQL DB and warehouse item; the **govern** tab adds centralized data-governance insights (preview). The entry point operators and analysts use to find trusted, certified datasets. |
+| **Open formats & interop** | OneLake exposes Delta tables as **Apache Iceberg** to Iceberg-compatible readers with no data movement (preview), and supports **zero-copy access from Azure Databricks** via OneLake catalog federation (preview) — keeping OneLake the single source of truth. |
+| **Storage tiers & lifecycle** | OneLake now supports **hot / cool / cold storage tiers** with **lifecycle-management policies** (preview) that auto-move infrequently accessed sensor history to cheaper tiers — useful for years of furnace telemetry retained for back-testing. |
 
 ### Design choices (Foundation & Storage)
 
@@ -135,17 +137,25 @@ The single, tenant-wide data lake. **One logical copy** of NovaSteel data, open
 
 ---
 
-## 2. Data Engineering & Integration — *Data Factory + Synapse Data Engineering*
+## 2. Data Engineering & Integration — *Data Factory + Data Engineering*
 
 Moves and shapes data from Bronze → Silver → Gold.
+
+> **Naming note:** Fabric has **dropped the "Synapse" prefix** from its workloads.
+> What was *Synapse Data Engineering / Data Science / Data Warehouse / Real-Time
+> Analytics* is now simply **Data Engineering**, **Data Science**, **Data
+> Warehouse** and **Real-Time Intelligence**. ("Synapse" now refers only to the
+> legacy *Azure* Synapse product being migrated **from** — e.g. Synapse Dedicated
+> SQL Pool → Fabric Data Warehouse, Synapse Data Explorer → Eventhouse.)
 
 | Capability | NovaSteel use |
 | --- | --- |
 | **Data Factory — Pipelines** | Orchestrate batch ingestion of historian extracts, refractory/heat master data and daily market files; schedule and trigger Bronze→Silver→Gold runs; copy activity from 100+ connectors. |
 | **Dataflows Gen2** | Low-code cleansing & conforming of plant tags (unit harmonisation, tag-name mapping across the four sites, deduplication) for analysts who don't write Spark. |
-| **Synapse Data Engineering** | Lakehouse home for the medallion build; manages the Spark compute and Delta tables. |
-| **Notebooks (Spark)** | PySpark transforms that compute **physics-informed features** — heat-flux estimates, thermal gradients, vibration spectral features, rolling statistics — and assemble the **Gold feature tables** consumed by ML. |
-| **Spark environment management** | Pinned **environments** (libraries, Spark pool sizing, session config) per workload so feature engineering for the RUL model is reproducible and CI-promotable across Dev→Test→Prod. |
+| **Data Engineering** | Lakehouse home for the medallion build; manages the Spark compute and Delta tables. **Fabric Runtime 2.0** (preview) brings **Apache Spark 4.0**, Delta Lake 4.0, Java 21 and Python 3.12; **Incremental Liquid Clustering** keeps large sensor tables well-laid-out at constant cost. |
+| **Notebooks (Spark)** | PySpark transforms that compute **physics-informed features** — heat-flux estimates, thermal gradients, vibration spectral features, rolling statistics — and assemble the **Gold feature tables** consumed by ML. **Copilot for Data Engineering & Data Science** (workspace-aware, with inline code completion) accelerates authoring. |
+| **Spark environment management** | Pinned **environments** (libraries, Spark pool sizing, session config) per workload so feature engineering for the RUL model is reproducible and CI-promotable across Dev→Test→Prod. **Resource Profiles** and **Custom Live Pools** (preview) give workload-aware, ready-to-run Spark capacity. |
+| **Shortcut transformations** | **Zero-ETL** conversion of structured files (incl. nested folders, GA) into always-in-sync Delta tables as data lands in OneLake — no pipeline required for simple historian/CSV ingestion. |
 
 ### Design choices (Data Engineering)
 
@@ -157,16 +167,17 @@ Moves and shapes data from Bronze → Silver → Gold.
 
 ---
 
-## 3. Data Science & AI — *Synapse Data Science*
+## 3. Data Science & AI — *Data Science*
 
 Trains, tracks and serves the predictive and generative models on Gold data.
 
 | Capability | NovaSteel use |
 | --- | --- |
-| **Synapse Data Science** | Workspace for the two predictive workloads: **furnace-lining RUL** (remaining-useful-life regression + "failure within 21 days" classifier) and **energy-demand forecasting** feeding the dispatch optimizer. |
-| **Experiments & Models** | **MLflow**-backed experiment tracking, model registry and versioning; compare runs, register the champion, promote with full lineage. Models scored in batch in Fabric and exported for **edge inference** at the furnace. |
-| **Copilot for Fabric** | Authoring & productivity assistant — generate Spark/SQL, explain pipelines, draft DAX — accelerating engineers and analysts across the workspace. |
-| **AI Agents** | A **Fabric data agent** grounded on the curated Gold lakehouse, Warehouse and KQL telemetry answers operational questions in natural language ("which furnaces trend toward early wear this week?"); pairs with the **GenAI knowledge-capture assistant** (Azure OpenAI + AI Search, see doc 02/03) for SOP retrieval. |
+| **Data Science** | Workspace for the two predictive workloads: **furnace-lining RUL** (remaining-useful-life regression + "failure within 21 days" classifier) and **energy-demand forecasting** feeding the dispatch optimizer. |
+| **Experiments & Models** | **MLflow**-backed experiment tracking, model registry and versioning; compare runs, register the champion, promote with full lineage. **Cross-workspace MLflow logging** (GA) enables clean Dev/Test/Prod MLOps. Models scored in batch in Fabric, served via **ML model endpoints** (preview, real-time online predictions) and exported for **edge inference** at the furnace. |
+| **AI functions** | Built-in **AI functions** (GA, now on **GPT-5 / Phi-4**) bring summarize / classify / extract / translate directly into Spark and **T-SQL** — used to structure shift logs and SOP text for the knowledge assistant. |
+| **Copilot in Fabric** | Now **available worldwide** — generate Spark/SQL, explain pipelines, draft DAX, and **Fix with Copilot** — accelerating engineers and analysts across the workspace. |
+| **Fabric data agents** | A **Fabric data agent** grounded on the curated Gold lakehouse, Warehouse and Eventhouse telemetry answers operational questions in natural language ("which furnaces trend toward early wear this week?"). Recent additions: a **Code Interpreter** tool (Python for forecasting/visuals), an **improved NL2SQL** engine, **service-principal** auth, and integration with **Microsoft 365 Copilot** (GA), **Microsoft Foundry / Azure AI Agent Service** and **Copilot Studio**. Pairs with the **GenAI knowledge-capture assistant** (Azure OpenAI + AI Search, see doc 02/03) for SOP retrieval. |
 
 ### Design choices (Data Science & AI ownership split)
 
@@ -181,13 +192,14 @@ Trains, tracks and serves the predictive and generative models on Gold data.
 
 ---
 
-## 4. Warehousing & Databases — *Synapse Data Warehouse*
+## 4. Warehousing & Databases — *Fabric Data Warehouse*
 
 Serves governed, SQL-shaped marts for BI and ad-hoc analytics.
 
 | Capability | NovaSteel use |
 | --- | --- |
-| **Synapse Data Warehouse** | T-SQL warehouse for curated **production, energy, emissions and quality marts** — the conformed star schemas behind executive and engineering reporting. |
+| **Fabric Data Warehouse** | T-SQL warehouse for curated **production, energy, emissions and quality marts** — the conformed star schemas behind executive and engineering reporting. Recent T-SQL additions: **AI functions** in-warehouse (preview), **IDENTITY columns**, **data clustering**, **configurable data retention** and **time travel** (incl. via the SQL analytics endpoint). |
+| **Fabric SQL database** | Operational, OLTP-style SQL database item (with **native vector** type) for low-latency app data and RAG patterns; **mirrored to OneLake** automatically for zero-ETL analytics. |
 | **SQL Analytics Endpoint** | Auto-provisioned **read** endpoint over every Lakehouse — query Gold Delta tables with T-SQL and connect any SQL/BI tool with no data movement. |
 | **Autonomous management** | Fabric's SaaS model auto-handles scaling, statistics and maintenance; capacity is the only sizing lever, so the team focuses on models not infrastructure. |
 
@@ -209,7 +221,9 @@ The streaming backbone for sensor telemetry — the heart of the IoT story.
 | **Eventstreams** | Ingest high-frequency furnace telemetry from **Azure IoT Operations / IoT Hub / Event Hubs** (thermal, vibration, off-gas, energy) plus external **spot-price & carbon-intensity** streams; route to KQL, OneLake (Bronze) and Activator with no code. |
 | **KQL databases (Eventhouse)** | Time-series store optimised for sensor data — sub-second queries over billions of readings; **anomaly detection**, thermal-drift trends and spectral analysis on live data; hot-cache analytics with **OneLake availability** for historical lake access. |
 | **IoT telemetry pattern (sensor ingestion & processing on RTI)** | The RTI building blocks handle device telemetry at scale — schema-on-read for heterogeneous tags across four plants, windowed aggregations in Eventstreams, and enrichment with asset/campaign context for downstream features. |
-| **Activator (Data Activator)** | No-code rules on KQL/eventstreams → trigger **alerts** (Teams/email) and workflows when a furnace crosses a thermal-wear threshold or energy/carbon spikes; closes the loop to operators. |
+| **Activator** | No-code rules on KQL/eventstreams → trigger **alerts** (Teams/email) and workflows when a furnace crosses a thermal-wear threshold or energy/carbon spikes. Now also **publishes governed business events** into the Real-Time hub (preview) and can pass parameters to pipelines/notebooks; closes the loop to operators. |
+| **Anomaly detection** | No-code, auto-model **anomaly detection** in RTI (preview) flags thermal drift, vibration spikes and off-gas excursions on live streams without hand-built thresholds. |
+| **Digital twin builder** | A Real-Time Intelligence item (preview) that builds **data-driven, real-time digital twins** of physical entities — model each **furnace / line** as an entity with live telemetry, relationships and contextual state to optimise operations. Directly supports NovaSteel's furnace digital-twin story. |
 
 ### Design choices (Real-Time Intelligence)
 
@@ -240,9 +254,9 @@ Head of Sustainability / ESG (11).
 
 | Capability | NovaSteel use |
 | --- | --- |
-| **Power BI** | Role-based dashboards: **executive** (energy €/ton, tCO₂, ETS exposure), **engineering** (furnace health, RUL lead-time, SPC quality charts), **operations** (live KQL real-time dashboards). |
+| **Power BI** | Role-based dashboards: **executive** (energy €/ton, tCO₂, ETS exposure), **engineering** (furnace health, RUL lead-time, SPC quality charts), **operations** (live real-time dashboards). |
 | **Direct Lake mode** | Reports read Gold Delta **directly from OneLake** — import-mode speed with **no import-copy refresh** for supported tables; metadata framing and DirectQuery fallback are monitored. Ideal for large sensor-derived marts. |
-| **Reporting & dashboards** | Real-time KQL dashboards for the control room; paginated reports for ETS/emissions compliance; embedded views surfaced in Teams alongside the knowledge assistant. |
+| **Real-Time Dashboards** | Control-room dashboards over Eventhouse with **Live Refresh** (GA, push-on-arrival) and an **AI-first, Copilot-generated** tile editor (preview) — describe a visual in natural language, no KQL required; paginated reports for ETS/emissions compliance; embedded views surfaced in Teams. |
 
 ### Design choices (Business Intelligence)
 
@@ -263,10 +277,10 @@ Act and ETS auditability.
 
 | Capability | NovaSteel use |
 | --- | --- |
-| **Data governance** | **Microsoft Purview** + **OneLake Catalog** for end-to-end **lineage** (sensor → feature → model → report), classification, sensitivity labels and **endorsement** (certified/promoted datasets). Supports EU AI Act traceability of training data. |
-| **Unified security** | **Entra ID** (SSO, conditional access), **workspace roles + OneLake data access roles**, row/column-level security on warehouse/semantic models, **Key Vault** for secrets, private networking; OT ingestion is **one-way out** of the plant (Purdue). |
-| **Administration** | **Fabric Admin portal** (tenant settings, capacity management & monitoring), capacity autoscale/throttling controls, usage metrics for cost attribution per domain. |
-| **DevOps** | **Git integration** + **deployment pipelines** promote workspaces **Dev → Test → Prod**; notebooks, pipelines, semantic models and reports are version-controlled and CI/CD-deployed (IaC for the surrounding Azure resources). |
+| **Data governance** | **Microsoft Purview** + **OneLake Catalog** for end-to-end **lineage** (sensor → feature → model → report), classification, sensitivity labels and **endorsement** (certified/promoted datasets). **DSPM for AI** (preview) monitors Copilot/data-agent prompts and responses for sensitive data. Supports EU AI Act traceability of training data. |
+| **Unified security** | **Entra ID** (SSO, conditional access), **OneLake security with data-access roles** (GA — folder/row/column-level), **Key Vault references** for connection secrets, **customer-managed keys (BYOK)**, tenant-level **Private Link** and workspace **outbound access protection**; OT ingestion is **one-way out** of the plant (Purdue). |
+| **Administration** | **Fabric Admin portal** (tenant settings, capacity management & monitoring), **capacity overage / surge protection** controls, **Chargeback app** and capacity-metrics health page for cost attribution per domain. |
+| **DevOps & agentic ops** | **Git integration** + **deployment pipelines** promote workspaces **Dev → Test → Prod**; new **Branched / Selective Branching** Git experiences (preview). **Fabric MCP servers** — **Local MCP** (GA) and **Remote MCP** (preview) — let AI coding agents operate on Fabric workspaces, items and OneLake with Entra auth and audit logging. |
 
 ### Design choices (Governance, Security & Admin)
 
@@ -307,9 +321,9 @@ Copilot → Teams assistant for operators & metallurgists` (detail in doc 03 §3
 | --- | --- | --- |
 | 1 Foundation & Storage | OneLake, Shortcuts, Mirroring, OneLake Catalog | Single governed copy of all plant + ERP + market data |
 | 2 Data Engineering | Data Factory, Pipelines, Dataflows Gen2, Spark Notebooks | Physics-informed Gold features, reproducible |
-| 3 Data Science & AI | Synapse DS, Experiments/Models, Copilot, AI Agents | RUL + energy forecast + NL data agent |
-| 4 Warehouse & DB | Data Warehouse, SQL Analytics Endpoint | Governed finance/emissions/quality marts |
-| 5 Real-Time Intelligence | Eventstreams, KQL DB / Eventhouse, Activator (IoT telemetry pattern) | Sub-second furnace alerts, live telemetry |
+| 3 Data Science & AI | Data Science, Experiments/Models, AI functions, Copilot, Fabric data agents | RUL + energy forecast + NL data agent |
+| 4 Warehouse & DB | Fabric Data Warehouse, SQL database, SQL Analytics Endpoint | Governed finance/emissions/quality marts |
+| 5 Real-Time Intelligence | Eventstreams, Eventhouse/KQL DB, Activator, Anomaly detection, Digital twin builder | Sub-second furnace alerts, live telemetry |
 | 6 Business Intelligence | Power BI, Direct Lake | Exec/engineer/ops dashboards, always fresh |
 | 7 Governance & Admin | Purview, Entra, Fabric Admin, Git/DevOps | Lineage, EU residency, AI Act traceability |
 
