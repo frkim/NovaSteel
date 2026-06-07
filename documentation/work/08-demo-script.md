@@ -6,6 +6,11 @@
 > Goal: in ~12 minutes, show the jury the **21-day furnace alert**, **energy/CO₂
 > optimization**, and the **knowledge assistant**, each tied back to its KPI.
 
+**Runnable implementation:** this script is implemented as a self-contained,
+dependency-free app in [`../../novasteel_demo.py`](../../novasteel_demo.py)
+(tests in `../../test_novasteel_demo.py`). Run `python novasteel_demo.py` from
+the repository root and open <http://127.0.0.1:5000/> to walk the scenes below.
+
 ---
 
 ## 0. Before the room (setup checklist)
