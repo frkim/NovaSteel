@@ -15,6 +15,7 @@
 | 00 | [Executive summary](00-executive-summary.md) | Whole jury | Why, what, value — on one page |
 | 01 | [Project charter](01-project-charter.md) | COO, sponsors | Scope, stakeholders, governance, KPIs |
 | 02 | [Solution architecture](02-solution-architecture.md) | COO, architects | The Azure reference architecture |
+| 02a | [Fabric + IoT architecture](02a-fabric-iot-architecture.md) | Architects, data teams | The Microsoft Fabric estate & IoT ingestion, by layer |
 | 03 | [Data & AI design](03-data-and-ai-design.md) | Quality Officer, data teams | The three AI workloads & Responsible AI |
 | 04 | [Implementation plan](04-implementation-plan.md) | COO, PMO | Phased roadmap, team, risks |
 | 05 | [Cost estimate & ROI](05-cost-estimate.md) | CFO | TCO, benefits, ROI/NPV/payback |
