@@ -46,3 +46,26 @@ Implement an **AI‑driven production optimization platform** that:
 - A **physics‑informed ML model** predicts furnace lining degradation from thermal signatures  
 - An **energy dispatch optimization agent** schedules energy‑intensive processes around electricity spot prices  
 - A **GenAI knowledge‑capture system** interviews operators and structures expertise into searchable procedure libraries
+
+---
+
+## ▶️ **Live demo**
+
+A self‑contained, dependency‑free implementation of the
+[demo script](documentation/work/08-demo-script.md) ships in
+[`novasteel_demo.py`](novasteel_demo.py). It proves the three AI workloads plus
+the compliance **trust moment** entirely on **synthetic, clearly‑labelled data**
+— no real plant or personal data, and no external cloud services required (so it
+doubles as the recorded fallback).
+
+```bash
+python novasteel_demo.py      # serves http://127.0.0.1:5000/
+python -m unittest test_novasteel_demo
+```
+
+| Scene | Workload | Proof on screen | KPI |
+| ----- | -------- | --------------- | --- |
+| A | Furnace‑lining RUL | **21‑day** advance alert + uncertainty band + drivers | O3 — avoid ~€8M failures |
+| B | Energy‑dispatch optimization | €/ton & tCO₂/ton deltas (**−14% / −22%**) | O1 / O2 |
+| C | GenAI knowledge capture | Grounded answer with **citations** + interview mode | O4 — supports +8% yield |
+| Trust | Compliance | Hash‑chained **audit / lineage** log | GDPR + EU AI Act, EU‑resident |
