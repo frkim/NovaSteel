@@ -1,0 +1,241 @@
+// Resource-group orchestrator: deploys the full NovaSteel platform into one resource group.
+metadata description = 'Deploys the NovaSteel "Project Ignition" Azure platform (data, AI/ML, ingestion, apps, governance, security) into a resource group. Demo configuration: public network access, no private endpoints.'
+
+@description('Azure region for all resources (EU residency).')
+param location string
+
+@description('Short name prefix for the workload.')
+param namePrefix string = 'novasteel'
+
+@description('Environment short name (e.g. dev, test, pilot, prod).')
+param environmentName string = 'dev'
+
+@description('Resource tags applied to every resource.')
+param tags object = {}
+
+@description('Microsoft Fabric capacity SKU (F-SKU).')
+param fabricSkuName string = 'F8'
+
+@description('Fabric capacity administrators (Entra UPNs or service principal object IDs). Required.')
+param fabricAdminMembers array
+
+@description('Optional region override for Microsoft Purview (defaults to location). Some tenants restrict Purview regions.')
+param purviewLocation string = ''
+
+@description('Deploy Microsoft Purview (governance/lineage). Disable where tenant/region constraints apply.')
+param deployPurview bool = true
+
+// ---------- Naming ----------
+var token = toLower(take(uniqueString(resourceGroup().id, environmentName), 6))
+var short = toLower(take(replace(namePrefix, '-', ''), 8))
+var env = toLower(environmentName)
+
+var names = {
+  logAnalytics: 'log-${namePrefix}-${env}'
+  appInsights: 'appi-${namePrefix}-${env}'
+  identity: 'id-${namePrefix}-${env}'
+  keyVault: take('kv${short}${env}${token}', 24)
+  dataLake: take('dl${short}${env}${token}', 24)
+  mlStorage: take('mls${short}${token}', 24)
+  funcStorage: take('fns${short}${token}', 24)
+  acr: take('acr${short}${env}${token}', 50)
+  iotHub: 'iot-${short}-${env}-${token}'
+  eventHubs: 'evhns-${short}-${env}-${token}'
+  fabric: take('fab${short}${env}${token}', 63)
+  search: 'srch-${short}-${env}-${token}'
+  foundry: 'aif-${short}-${env}-${token}'
+  mlWorkspace: 'mlw-${short}-${env}-${token}'
+  purview: 'pview-${short}-${env}-${token}'
+  functionApp: 'func-${short}-${env}-${token}'
+  functionPlan: 'plan-${short}-${env}-${token}'
+  containerEnv: 'cae-${short}-${env}-${token}'
+}
+
+// ---------- Observability ----------
+module monitoring 'modules/monitoring.bicep' = {
+  name: 'monitoring'
+  params: {
+    location: location
+    tags: tags
+    logAnalyticsName: names.logAnalytics
+    applicationInsightsName: names.appInsights
+  }
+}
+
+// ---------- Identity ----------
+module identity 'modules/identity.bicep' = {
+  name: 'identity'
+  params: {
+    location: location
+    tags: tags
+    name: names.identity
+  }
+}
+
+// ---------- Key Vault ----------
+module keyVault 'modules/keyvault.bicep' = {
+  name: 'keyvault'
+  params: {
+    location: location
+    tags: tags
+    name: names.keyVault
+  }
+}
+
+// ---------- Data lake (ADLS Gen2) ----------
+module dataLake 'modules/storage.bicep' = {
+  name: 'datalake'
+  params: {
+    location: location
+    tags: tags
+    name: names.dataLake
+  }
+}
+
+// ---------- Container Registry ----------
+module acr 'modules/container-registry.bicep' = {
+  name: 'acr'
+  params: {
+    location: location
+    tags: tags
+    name: names.acr
+  }
+}
+
+// ---------- IoT Hub ----------
+module iotHub 'modules/iot-hub.bicep' = {
+  name: 'iothub'
+  params: {
+    location: location
+    tags: tags
+    name: names.iotHub
+  }
+}
+
+// ---------- Event Hubs ----------
+module eventHubs 'modules/event-hubs.bicep' = {
+  name: 'eventhubs'
+  params: {
+    location: location
+    tags: tags
+    namespaceName: names.eventHubs
+  }
+}
+
+// ---------- Microsoft Fabric ----------
+module fabric 'modules/fabric.bicep' = {
+  name: 'fabric'
+  params: {
+    location: location
+    tags: tags
+    name: names.fabric
+    skuName: fabricSkuName
+    adminMembers: fabricAdminMembers
+  }
+}
+
+// ---------- AI Search ----------
+module search 'modules/search.bicep' = {
+  name: 'search'
+  params: {
+    location: location
+    tags: tags
+    name: names.search
+  }
+}
+
+// ---------- Microsoft Foundry (AI Services + GPT-5) ----------
+module foundry 'modules/foundry.bicep' = {
+  name: 'foundry'
+  params: {
+    location: location
+    tags: tags
+    name: names.foundry
+  }
+}
+
+// ---------- Azure Machine Learning ----------
+module machineLearning 'modules/machine-learning.bicep' = {
+  name: 'machinelearning'
+  params: {
+    location: location
+    tags: tags
+    name: names.mlWorkspace
+    workspaceStorageName: names.mlStorage
+    keyVaultId: keyVault.outputs.id
+    applicationInsightsId: monitoring.outputs.applicationInsightsId
+    containerRegistryId: acr.outputs.id
+  }
+}
+
+// ---------- Energy-dispatch Function App ----------
+module functions 'modules/functions.bicep' = {
+  name: 'functions'
+  params: {
+    location: location
+    tags: tags
+    name: names.functionApp
+    planName: names.functionPlan
+    storageAccountName: names.funcStorage
+    applicationInsightsConnectionString: monitoring.outputs.applicationInsightsConnectionString
+  }
+}
+
+// ---------- Container Apps ----------
+module containerApps 'modules/container-apps.bicep' = {
+  name: 'containerapps'
+  params: {
+    location: location
+    tags: tags
+    environmentName: names.containerEnv
+    logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsId
+  }
+}
+
+// ---------- Purview ----------
+module purview 'modules/purview.bicep' = if (deployPurview) {
+  name: 'purview'
+  params: {
+    location: empty(purviewLocation) ? location : purviewLocation
+    tags: tags
+    name: names.purview
+  }
+}
+
+// ---------- RBAC wiring ----------
+module rbac 'modules/rbac.bicep' = {
+  name: 'rbac'
+  params: {
+    dataLakeStorageName: names.dataLake
+    keyVaultName: names.keyVault
+    aiServicesName: names.foundry
+    searchName: names.search
+    containerRegistryName: names.acr
+    mlPrincipalId: machineLearning.outputs.principalId
+    functionPrincipalId: functions.outputs.principalId
+    containerAppPrincipalId: containerApps.outputs.appPrincipalId
+    searchPrincipalId: search.outputs.principalId
+    foundryPrincipalId: foundry.outputs.principalId
+  }
+  dependsOn: [
+    dataLake
+  ]
+}
+
+// ---------- Outputs ----------
+output logAnalyticsName string = monitoring.outputs.logAnalyticsName
+output applicationInsightsName string = monitoring.outputs.applicationInsightsName
+output managedIdentityName string = identity.outputs.name
+output keyVaultName string = keyVault.outputs.name
+output dataLakeName string = dataLake.outputs.name
+output containerRegistryName string = acr.outputs.name
+output iotHubName string = iotHub.outputs.name
+output eventHubsNamespace string = eventHubs.outputs.namespaceName
+output fabricCapacityName string = fabric.outputs.name
+output searchName string = search.outputs.name
+output foundryName string = foundry.outputs.name
+output foundryEndpoint string = foundry.outputs.endpoint
+output machineLearningWorkspaceName string = machineLearning.outputs.name
+output functionAppName string = functions.outputs.name
+output containerAppsEnvironmentName string = containerApps.outputs.environmentName
+output purviewName string = deployPurview ? purview!.outputs.name : ''
