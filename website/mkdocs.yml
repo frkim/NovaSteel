@@ -1,0 +1,84 @@
+site_name: NovaSteel
+site_url: https://frkim.github.io/NovaSteel/
+site_description: >-
+  NovaSteel is a Luxembourg-based integrated steel producer combining
+  responsible steelmaking with an AI-powered production optimization platform.
+site_author: NovaSteel
+copyright: Copyright &copy; NovaSteel
+
+theme:
+  name: material
+  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    logo: material/factory
+  features:
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+
+nav:
+  - Home: index.md
+  - Company:
+      - About NovaSteel: company/about.md
+      - Activities: company/activities.md
+      - Sustainability: company/sustainability.md
+  - Products & Solutions:
+      - Products: products/products.md
+      - Markets: products/markets.md
+  - Steel Knowledge:
+      - Overview: steel/index.md
+      - Metal Families: steel/metal-families.md
+      - Making Iron & Steel: steel/steel-production.md
+      - Producing Other Metals: steel/other-metals.md
+      - Shaping Metals: steel/shaping.md
+      - Key Takeaways: steel/key-takeaways.md
+      - Glossary: steel/glossary.md
+  - Contact: contact.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search
+
+extra:
+  social:
+    - icon: material/web
+      link: https://frkim.github.io/NovaSteel/
+      name: NovaSteel website
