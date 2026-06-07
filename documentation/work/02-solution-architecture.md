@@ -65,6 +65,10 @@ flowchart LR
     AOAI --> BI
 ```
 
+> **Editable diagram:** an Excalidraw version of the Fabric + IoT view is at
+> [`../images/fabric-iot-architecture.excalidraw`](../images/fabric-iot-architecture.excalidraw)
+> — open it in [aka.ms/excalidraw](https://aka.ms/excalidraw) to edit or export.
+
 ## 2. Layer-by-layer
 
 ### 2.1 Plant floor (OT) and edge
@@ -103,6 +107,29 @@ flowchart LR
   **Azure Monitor / Log Analytics** (observability), **Microsoft Purview**
   (governance & lineage), **Defender for Cloud / Defender for IoT** (posture &
   OT threat detection). Private networking via **VNet + Private Endpoints**.
+
+### 2.7 Microsoft Fabric estate (detail)
+
+The data platform above is realised on **Microsoft Fabric** over **OneLake** —
+one logical copy of data, many engines (hot, warm and cold paths). The full
+component-by-component design is in
+[02a — Fabric + IoT architecture](02a-fabric-iot-architecture.md); in brief, the
+seven Fabric capability layers map to NovaSteel as:
+
+| Layer | Fabric / IoT components | Role at NovaSteel |
+| ----- | ----------------------- | ----------------- |
+| Foundation & storage | OneLake, Shortcuts, Mirroring, OneLake Catalog | One governed copy of plant + ERP + market data |
+| Data engineering | Data Factory, Pipelines, Dataflows Gen2, Spark notebooks | Physics-informed Gold features, reproducible |
+| Data science & AI | Synapse Data Science, Experiments/Models, Copilot, AI agents | RUL + energy forecast + NL data agent |
+| Warehouse & DB | Data Warehouse, SQL Analytics Endpoint | Governed finance / emissions / quality marts |
+| Real-Time Intelligence | Eventstreams, KQL/Eventhouse, Activator | Sub-second furnace alerts, live telemetry (IoT hot path) |
+| Business intelligence | Power BI, Direct Lake | Always-fresh exec / engineer / ops dashboards |
+| Governance & admin | Purview, Entra, Fabric Admin, Git/DevOps | Lineage, EU residency, EU AI Act traceability |
+
+The **edge inference / Azure ML** split is unchanged: Fabric Data Science owns
+feature engineering, experiment tracking and batch scoring; **Azure ML** owns the
+production registry, CI/CD, drift monitoring and **edge serving** of the hot-path
+furnace model.
 
 ## 3. Mapping services to business outcomes
 

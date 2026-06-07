@@ -12,6 +12,9 @@ architecture for the NovaSteel AI production-optimization platform.
 > Adoption Framework**. Default capacity region: **West Europe**, with **Germany
 > West Central** as the secondary region for EU data residency. All figures are
 > **illustrative demo estimates**.
+>
+> **Editable diagram:** [`../images/fabric-iot-architecture.excalidraw`](../images/fabric-iot-architecture.excalidraw)
+> — open in [aka.ms/excalidraw](https://aka.ms/excalidraw) to edit or export to PNG/SVG.
 
 ---
 
