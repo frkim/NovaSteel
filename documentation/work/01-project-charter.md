@@ -99,5 +99,5 @@ phased roadmap. Headline: **Mobilize → Foundation → Pilot → Review → Sca
 
 ## 9. Deliverables
 
-The documents in this `documentation/work/` folder, the six GitHub Agents in
+The documents in this `documentation/work/` folder, the seven GitHub Agents in
 `.github/agents/`, the pilot environment, and the executive deck & live demo.

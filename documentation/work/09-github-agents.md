@@ -15,6 +15,7 @@ Role alignment source: [10 — Target audience roles](10-target-audience-roles.m
 | Agent file | Persona | Owns (in `documentation/work/`) | Jury alignment |
 | ---------- | ------- | ------------------------------- | -------------- |
 | `solution-architect.md` | Cloud & AI Solution Architect | `02-solution-architecture.md` | COO |
+| `data-platform-engineer.md` | Microsoft Fabric & IoT Data Platform | `02a-fabric-iot-architecture.md` | CTO / Head of IT/OT + CDO |
 | `ai-ml-engineer.md` | AI/ML Engineer | `03-data-and-ai-design.md` | Head of Data Science / ML Lead |
 | `business-value-cfo.md` | Business Value / Finance | `05-cost-estimate.md` | CFO |
 | `compliance-officer.md` | Compliance & Responsible AI | `06-security-compliance.md` | Compliance Officer + DPO |
@@ -25,11 +26,15 @@ Role alignment source: [10 — Target audience roles](10-target-audience-roles.m
 
 ```mermaid
 flowchart TD
-    SA[solution-architect] --> AI[ai-ml-engineer]
+    SA[solution-architect] --> DP[data-platform-engineer]
+    SA --> AI[ai-ml-engineer]
+    DP --> AI
     AI --> QE[quality-engineer]
     SA --> BV[business-value-cfo]
+    DP --> BV
     AI --> BV
     SA --> CO[compliance-officer]
+    DP --> CO
     AI --> CO
     SA --> PS[presentation-storyteller]
     AI --> PS
@@ -39,10 +44,10 @@ flowchart TD
     PS --> DECK[Deck & Demo for the jury]
 ```
 
-The **architect** sets the technical frame; the **AI/ML** and **quality**
-engineers detail the workloads; **business value** and **compliance** make it
-investable and defensible; the **storyteller** assembles the jury-ready deck and
-demo.
+The **architect** sets the technical frame; the **data-platform engineer** builds
+the Microsoft Fabric + IoT data plane; the **AI/ML** and **quality** engineers
+detail the workloads; **business value** and **compliance** make it investable and
+defensible; the **storyteller** assembles the jury-ready deck and demo.
 
 ## 3. Using the agents
 
@@ -68,6 +73,6 @@ front matter (`name`, `description`, optional `tools`) followed by instructions.
 ## 5. Extending the set
 
 Add a new agent by creating `.github/agents/<name>.md` with the same front-matter
-pattern. Candidate additions: a **FinOps** agent (deep Azure cost optimization),
-an **Adoption & Change Management** agent, or an **OT Security** agent
-(Defender for IoT / Purdue-model hardening).
+pattern. Remaining candidate additions: a **FinOps** agent (deep Azure cost
+optimization), an **Adoption & Change Management** agent, or an **OT Security**
+agent (Defender for IoT / Purdue-model hardening).

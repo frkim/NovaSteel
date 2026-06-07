@@ -38,13 +38,14 @@ furnace-failure warning, and **+8%** high-grade yield.
 
 ## The GitHub Agents that build it
 
-The `.github/agents/` folder defines six custom agents — one per discipline —
+The `.github/agents/` folder defines seven custom agents — one per discipline —
 that produce and maintain the documents above. See
 [09-github-agents.md](09-github-agents.md) for how to invoke them.
 
 | Agent | Owns | Primary jury persona |
 | ----- | ---- | -------------------- |
 | `solution-architect` | 02 Architecture | COO |
+| `data-platform-engineer` | 02a Fabric + IoT | CTO / Head of IT/OT + CDO |
 | `ai-ml-engineer` | 03 Data & AI | Head of Data Science / ML Lead |
 | `business-value-cfo` | 05 Cost & ROI | CFO |
 | `compliance-officer` | 06 Security & compliance | Compliance Officer + DPO |
