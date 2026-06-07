@@ -106,7 +106,7 @@ Head of Sustainability / ESG · Compliance Officer · Data Protection Officer (D
 - See [05 — Cost & ROI](05-cost-estimate.md).
 - *Visual:* cost-vs-benefit bar + payback marker.
 
-## Slide 13 — Trust & compliance (for the Compliance Officer and DPO)
+## Slide 13 — Trust & compliance (for the Compliance Officer and Data Protection Officer (DPO))
 
 - **Key message:** Compliant and auditable by design.
 - GDPR + EU AI Act mapped to controls; EU residency; human oversight.
@@ -140,7 +140,7 @@ Head of Sustainability / ESG · Compliance Officer · Data Protection Officer (D
   - CFO: sub-12-month payback, de-risked.
   - Head of Quality: +8% yield, full traceability.
   - Head of Sustainability / ESG: −22% CO₂ story.
-  - Compliance Officer + DPO: GDPR + AI Act, audit-ready.
+  - Compliance Officer + Data Protection Officer (DPO): GDPR + EU AI Act, audit-ready.
 - *Visual:* single CTA.
 
 ---

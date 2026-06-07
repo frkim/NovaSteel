@@ -20,7 +20,7 @@
 | 03 | [Data & AI design](03-data-and-ai-design.md) | Head of Quality, Head of Data Science / ML Lead | The three AI workloads & Responsible AI |
 | 04 | [Implementation plan](04-implementation-plan.md) | COO, PMO | Phased roadmap, team, risks |
 | 05 | [Cost estimate & ROI](05-cost-estimate.md) | CFO, Head of Energy Management, Head of Sustainability / ESG | TCO, benefits, ROI/NPV/payback |
-| 06 | [Security & compliance](06-security-compliance.md) | Compliance Officer, DPO | GDPR, EU AI Act, Responsible AI |
+| 06 | [Security & compliance](06-security-compliance.md) | Compliance Officer, Data Protection Officer (DPO) | GDPR, EU AI Act, Responsible AI |
 | 07 | [Presentation deck](07-presentation-deck.md) | Head of Sustainability / ESG, all | Slide-by-slide narrative |
 | 08 | [Demo script](08-demo-script.md) | Presenter | Live walkthrough |
 | 09 | [GitHub Agents guide](09-github-agents.md) | Delivery team | How to use the agents that build this |
@@ -38,19 +38,25 @@ furnace-failure warning, and **+8%** high-grade yield.
 
 ## The GitHub Agents that build it
 
-The `.github/agents/` folder defines seven custom agents — one per discipline —
+The `.github/agents/` folder defines nine custom agents — one per discipline —
 that produce and maintain the documents above. See
 [09-github-agents.md](09-github-agents.md) for how to invoke them.
 
-| Agent | Owns | Primary jury persona |
-| ----- | ---- | -------------------- |
-| `solution-architect` | 02 Architecture | COO |
-| `data-platform-engineer` | 02a Fabric + IoT | CTO / Head of IT/OT + CDO |
-| `ai-ml-engineer` | 03 Data & AI | Head of Data Science / ML Lead |
-| `business-value-cfo` | 05 Cost & ROI | CFO |
-| `compliance-officer` | 06 Security & compliance | Compliance Officer + DPO |
-| `quality-engineer` | Quality sections of 01/03 | Head of Quality |
-| `presentation-storyteller` | 07 Deck, 08 Demo | Head of Sustainability / ESG |
+All agent prompts should use the canonical role names in
+[10 — Target audience roles](10-target-audience-roles.md) and stay aligned with
+the executive narrative in [07 — Presentation deck](07-presentation-deck.md).
+
+| Agent | Owns | Primary target roles | Deck touchpoints |
+| ----- | ---- | -------------------- | ---------------- |
+| `solution-architect` | 02 Architecture | COO (1), Head of Manufacturing / VP Operations (2), Plant Director / Site Manager (3), CTO / Head of IT/OT (4) | Slides 4, 6, 14, 16 |
+| `data-platform-engineer` | 02a Fabric + IoT | CTO / Head of IT/OT (4), CISO (8), Chief Data Officer (CDO) (12), OT Engineer / Automation Engineer (15) | Slides 6, 14, 15 |
+| `azure-data-expert` | Cross-cutting 02/02a/03 (Fabric + IoT + Apps + AI) | CTO / Head of IT/OT (4), CISO (8), Chief Data Officer (CDO) (12), Head of Data Science / ML Lead (13), AI Architect / Digital Twin Architect (14), OT Engineer / Automation Engineer (15) | Slides 6, 14, 15 |
+| `ai-ml-engineer` | 03 Data & AI | Head of Quality (6), Head of Energy Management (7), Head of Data Science / ML Lead (13) | Slides 7, 8, 9, 15 |
+| `business-value-cfo` | 05 Cost & ROI | COO (1), Head of Energy Management (7), Head of Sustainability / ESG (11), CFO (19) | Slides 5, 12, 16 |
+| `compliance-officer` | 06 Security & compliance | CISO (8), Compliance Officer (9), Data Protection Officer (DPO) (10) | Slides 13, 16 |
+| `quality-engineer` | Quality sections of 01/03 | Head of Manufacturing / VP Operations (2), Plant Director / Site Manager (3), Head of Quality (6) | Slides 9, 10, 16 |
+| `demo-implementation` | 08 Demo | COO (1), Head of Manufacturing / VP Operations (2), Head of Quality (6), Compliance Officer (9), Data Protection Officer (DPO) (10), Head of Sustainability / ESG (11), CFO (19) | Slide 15, proof claims on 5, 13, 16 |
+| `presentation-storyteller` | 07 Deck | COO (1), Head of Manufacturing / VP Operations (2), Head of Quality (6), Head of Sustainability / ESG (11), Compliance Officer (9), Data Protection Officer (DPO) (10), CFO (19) | Slides 1–16 |
 
 ## Suggested reading order for the jury session
 
