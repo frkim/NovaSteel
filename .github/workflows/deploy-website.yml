@@ -38,6 +38,9 @@ jobs:
           cache: pip
           cache-dependency-path: website/requirements.txt
 
+      - name: Set up Pages
+        uses: actions/configure-pages@v5
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
