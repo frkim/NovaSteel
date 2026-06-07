@@ -1,7 +1,7 @@
 # 00 — Executive Summary
 
 **Project Ignition** — NovaSteel AI-Powered Steel Production Optimization Platform
-*One-page brief for the executive jury (COO · CFO · Quality Officer · CMO · Compliance Manager)*
+*One-page brief for the executive jury, see [10 — Target audience roles](10-target-audience-roles.md)*
 
 ---
 
@@ -70,3 +70,8 @@ three decisions:
   automotive customers.
 - **Compliance Manager** — GDPR + EU AI Act mapped to controls, EU residency,
   human oversight, and an audit trail.
+
+## Target audience by role
+
+For the expanded role list, see [10 — Target audience roles](10-target-audience-roles.md).
+
