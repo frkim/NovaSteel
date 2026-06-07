@@ -18,7 +18,7 @@ Luxembourg
 
 <div class="grid cards" markdown>
 
--   :material-handshake:{ .lg .middle } __Sales & products__
+- :material-handshake:{ .lg .middle } **Sales & products**
 
     ---
 
@@ -27,7 +27,7 @@ Luxembourg
 
     [:octicons-arrow-right-24: Explore our products](products/products.md)
 
--   :material-account-group:{ .lg .middle } __Partnerships__
+- :material-account-group:{ .lg .middle } **Partnerships**
 
     ---
 
@@ -36,7 +36,7 @@ Luxembourg
 
     [:octicons-arrow-right-24: About NovaSteel](company/about.md)
 
--   :material-leaf:{ .lg .middle } __Sustainability__
+- :material-leaf:{ .lg .middle } **Sustainability**
 
     ---
 
@@ -44,7 +44,7 @@ Luxembourg
 
     [:octicons-arrow-right-24: Sustainability](company/sustainability.md)
 
--   :material-briefcase:{ .lg .middle } __Careers__
+- :material-briefcase:{ .lg .middle } **Careers**
 
     ---
 

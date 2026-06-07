@@ -6,7 +6,7 @@ built with [MkDocs](https://www.mkdocs.org/) and the
 
 ## Structure
 
-```
+```text
 website/
 ├── mkdocs.yml          # MkDocs configuration and navigation
 ├── requirements.txt    # Python dependencies

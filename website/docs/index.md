@@ -28,7 +28,7 @@ continuously reducing our environmental footprint.
 
 <div class="grid cards" markdown>
 
--   :material-factory:{ .lg .middle } __Integrated production__
+- :material-factory:{ .lg .middle } **Integrated production**
 
     ---
 
@@ -37,7 +37,7 @@ continuously reducing our environmental footprint.
 
     [:octicons-arrow-right-24: Our activities](company/activities.md)
 
--   :material-robot-industrial:{ .lg .middle } __AI-driven optimization__
+- :material-robot-industrial:{ .lg .middle } **AI-driven optimization**
 
     ---
 
@@ -46,7 +46,7 @@ continuously reducing our environmental footprint.
 
     [:octicons-arrow-right-24: About NovaSteel](company/about.md)
 
--   :material-leaf:{ .lg .middle } __Responsible steelmaking__
+- :material-leaf:{ .lg .middle } **Responsible steelmaking**
 
     ---
 
@@ -55,7 +55,7 @@ continuously reducing our environmental footprint.
 
     [:octicons-arrow-right-24: Sustainability](company/sustainability.md)
 
--   :material-school:{ .lg .middle } __Steel knowledge__
+- :material-school:{ .lg .middle } **Steel knowledge**
 
     ---
 

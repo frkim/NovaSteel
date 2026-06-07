@@ -9,28 +9,28 @@ Flat steel is produced by rolling slabs into sheets, plates, coils, and strips.
 
 <div class="grid cards" markdown>
 
--   __Hot-rolled coils & sheets__
+- __Hot-rolled coils & sheets__
 
     ---
 
     Versatile, cost-effective steel for structural, mechanical, and general
     manufacturing applications.
 
--   __Cold-rolled coils & sheets__
+- __Cold-rolled coils & sheets__
 
     ---
 
     Tighter tolerances and superior surface finish for automotive and appliance
     applications.
 
--   __Heavy plate__
+- __Heavy plate__
 
     ---
 
     Thick, high-strength plate for construction, shipbuilding, and heavy
     equipment.
 
--   __Coated & galvanized steel__
+- __Coated & galvanized steel__
 
     ---
 
@@ -43,20 +43,20 @@ Flat steel is produced by rolling slabs into sheets, plates, coils, and strips.
 Long steel is produced by rolling blooms and billets into structural and linear
 shapes.
 
-- **Beams and structural sections** for construction and infrastructure
-- **Rails** for railway networks
-- **Bars and rods** for machining, reinforcement, and manufacturing
-- **Wire rod** for drawing into wire, cable, and fasteners
+- __Beams and structural sections__ for construction and infrastructure
+- __Rails__ for railway networks
+- __Bars and rods__ for machining, reinforcement, and manufacturing
+- __Wire rod__ for drawing into wire, cable, and fasteners
 
 ## Grades and specialty steels
 
 NovaSteel produces a range of grades by carefully controlling carbon content and
 alloying elements:
 
-- **Carbon steels** — the workhorse grades balancing strength and cost.
-- **High-strength low-alloy (HSLA) steels** — for lighter, stronger structures.
-- **Stainless steels** — corrosion-resistant grades containing chromium.
-- **Custom alloy steels** — with nickel, manganese, molybdenum, or other
+- __Carbon steels__ — the workhorse grades balancing strength and cost.
+- __High-strength low-alloy (HSLA) steels__ — for lighter, stronger structures.
+- __Stainless steels__ — corrosion-resistant grades containing chromium.
+- __Custom alloy steels__ — with nickel, manganese, molybdenum, or other
   elements for specific properties.
 
 !!! info "Want to understand the metallurgy?"
@@ -67,9 +67,9 @@ alloying elements:
 
 Every product is backed by:
 
-- **Certified quality** and full traceability
-- **AI-stabilized processes** for consistent, repeatable grades
-- **Technical support** from our metallurgical experts
+- __Certified quality__ and full traceability
+- __AI-stabilized processes__ for consistent, repeatable grades
+- __Technical support__ from our metallurgical experts
 
 [Markets we serve](markets.md){ .md-button .md-button--primary }
 [Contact our team](../contact.md){ .md-button }

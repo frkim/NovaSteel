@@ -1,7 +1,7 @@
 # 00 — Executive Summary
 
 **Project Ignition** — NovaSteel AI-Powered Steel Production Optimization Platform
-*One-page brief for the executive jury, see [10 — Target audience roles](10-target-audience-roles.md)*
+*One-page brief for priority decision-makers in [10 — Target audience roles](10-target-audience-roles.md)*
 
 ---
 
@@ -58,20 +58,21 @@ three decisions:
 - A cross-functional team and access to historian/OT data under a DPIA.
 - A decision gate at the end of the pilot to scale across the four sites.
 
-## The ask in each executive's language
+## The ask in each priority role's language
 
 - **COO** — fewer catastrophic failures, higher uptime, an operationally
   excellent, observable platform.
+- **Head of Manufacturing / VP Operations** — repeatable cross-site operating
+  model and KPI governance for scale.
 - **CFO** — a credible TCO with a payback driven by avoided €8M failures and
   −14% energy; conservative/base/optimistic scenarios.
-- **Quality Officer** — tighter process capability (Cp/Cpk), +8% high-grade
+- **Head of Quality** — tighter process capability (Cp/Cpk), +8% high-grade
   yield, full traceability — AI advises, metallurgists decide.
-- **CMO** — a verifiable **−22% CO₂** sustainability and innovation story for
-  automotive customers.
-- **Compliance Manager** — GDPR + EU AI Act mapped to controls, EU residency,
-  human oversight, and an audit trail.
+- **Head of Sustainability / ESG** — a verifiable **−22% CO₂** sustainability
+  story and stronger ETS reporting posture.
+- **Compliance Officer + Data Protection Officer (DPO)** — GDPR + EU AI Act
+  mapped to controls, EU residency, human oversight, and an audit trail.
 
 ## Target audience by role
 
 For the expanded role list, see [10 — Target audience roles](10-target-audience-roles.md).
-

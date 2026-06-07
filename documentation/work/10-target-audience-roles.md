@@ -29,3 +29,17 @@
 | 18 | Shift Supervisors / Senior Operators | Provide domain knowledge; key for GenAI knowledge capture. |
 | 19 | CFO | Validates ROI: energy savings, downtime reduction, ETS penalties avoided. |
 | 20 | Strategy Director | Ensures alignment with long-term industrial modernization roadmap. |
+
+## Canonical naming guidance for all work documents
+
+Use the role names above verbatim across `documentation/work/*.md`.
+
+| Use this canonical role | Avoid legacy alias in this workspace |
+| --- | --- |
+| Head of Quality | Quality Officer |
+| Head of Sustainability / ESG | CMO (for sustainability ownership) |
+| Compliance Officer | Compliance Manager |
+| Data Protection Officer (DPO) | Privacy Manager |
+
+When a document needs a compact jury shorthand, keep the canonical role names
+and optionally include priority numbers (for example, "Head of Quality (6)").

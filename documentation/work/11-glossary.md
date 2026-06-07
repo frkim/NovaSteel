@@ -35,4 +35,13 @@ Definitions of the main terms used throughout the NovaSteel Project Ignition wor
 | **Furnace-lining forecasting** | Predicting lining wear or degradation to avoid unplanned shutdowns and catastrophic failures. |
 | **Energy dispatch optimization** | Scheduling energy-intensive production around electricity prices and carbon intensity. |
 
+## Audience role aliases (workspace convention)
+
+| Canonical role | Legacy alias used in older drafts |
+| --- | --- |
+| **Head of Quality** | Quality Officer |
+| **Head of Sustainability / ESG** | CMO (sustainability context) |
+| **Compliance Officer** | Compliance Manager |
+| **Data Protection Officer (DPO)** | Privacy Manager |
+
 [Back to workspace README](README.md){ .md-button .md-button--primary }

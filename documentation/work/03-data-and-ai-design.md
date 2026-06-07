@@ -7,6 +7,11 @@ Responsible AI controls.
 > proves them — not guarantees. Demo uses **synthetic / anonymised** data so no
 > real plant or personal data is exposed.
 
+**Primary target roles:** Head of Maintenance / Reliability Engineering Lead (5),
+Head of Quality (6), Head of Energy Management (7),
+Head of Data Science / ML Lead (13), AI Architect / Digital Twin Architect (14),
+Shift Supervisors / Senior Operators (18).
+
 ---
 
 ## 1. Workload A — Furnace-lining degradation (predictive maintenance)

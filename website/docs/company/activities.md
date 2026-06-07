@@ -33,27 +33,27 @@ Learn more in [Shaping Metals](../steel/shaping.md).
 
 <div class="grid cards" markdown>
 
--   :material-pickaxe:{ .lg .middle } __Raw materials & ironmaking__
+- :material-pickaxe:{ .lg .middle } **Raw materials & ironmaking**
 
     ---
 
     Sourcing iron ore, coke, scrap, and alloys, and producing molten iron in our
     blast furnaces.
 
--   :material-fire:{ .lg .middle } __Steelmaking & refining__
+- :material-fire:{ .lg .middle } **Steelmaking & refining**
 
     ---
 
     Converting iron into steel and adjusting composition to meet precise grade
     specifications.
 
--   :material-rollupjs:{ .lg .middle } __Rolling & forming__
+- :material-rollupjs:{ .lg .middle } **Rolling & forming**
 
     ---
 
     Transforming cast steel into flat and long products through rolling mills.
 
--   :material-truck-delivery:{ .lg .middle } __Distribution & service__
+- :material-truck-delivery:{ .lg .middle } **Distribution & service**
 
     ---
 

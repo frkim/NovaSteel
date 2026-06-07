@@ -2,8 +2,9 @@
 
 > **Purpose** — This folder contains the complete plan to build, cost, secure
 > and present NovaSteel's **AI-powered steel production optimization platform**
-> to a customer jury composed of the **COO, CFO, Quality Officer, CMO and
-> Compliance Manager**.
+> to a customer jury aligned to [10 — Target audience roles](10-target-audience-roles.md),
+> including **COO, Head of Quality, Head of Sustainability / ESG,
+> Compliance Officer, Data Protection Officer (DPO), and CFO**.
 >
 > All figures are **illustrative demo estimates** unless stated otherwise. They
 > require a detailed Azure assessment before any commercial commitment.
@@ -16,13 +17,14 @@
 | 01 | [Project charter](01-project-charter.md) | COO, sponsors | Scope, stakeholders, governance, KPIs |
 | 02 | [Solution architecture](02-solution-architecture.md) | COO, architects | The Azure reference architecture |
 | 02a | [Fabric + IoT architecture](02a-fabric-iot-architecture.md) | Architects, data teams | The Microsoft Fabric estate & IoT ingestion, by layer |
-| 03 | [Data & AI design](03-data-and-ai-design.md) | Quality Officer, data teams | The three AI workloads & Responsible AI |
+| 03 | [Data & AI design](03-data-and-ai-design.md) | Head of Quality, Head of Data Science / ML Lead | The three AI workloads & Responsible AI |
 | 04 | [Implementation plan](04-implementation-plan.md) | COO, PMO | Phased roadmap, team, risks |
-| 05 | [Cost estimate & ROI](05-cost-estimate.md) | CFO | TCO, benefits, ROI/NPV/payback |
-| 06 | [Security & compliance](06-security-compliance.md) | Compliance Manager | GDPR, EU AI Act, Responsible AI |
-| 07 | [Presentation deck](07-presentation-deck.md) | CMO, all | Slide-by-slide narrative |
+| 05 | [Cost estimate & ROI](05-cost-estimate.md) | CFO, Head of Energy Management, Head of Sustainability / ESG | TCO, benefits, ROI/NPV/payback |
+| 06 | [Security & compliance](06-security-compliance.md) | Compliance Officer, DPO | GDPR, EU AI Act, Responsible AI |
+| 07 | [Presentation deck](07-presentation-deck.md) | Head of Sustainability / ESG, all | Slide-by-slide narrative |
 | 08 | [Demo script](08-demo-script.md) | Presenter | Live walkthrough |
 | 09 | [GitHub Agents guide](09-github-agents.md) | Delivery team | How to use the agents that build this |
+| 10 | [Target audience roles](10-target-audience-roles.md) | All authors | Canonical role taxonomy and priorities |
 
 ## The business case in one paragraph
 
@@ -43,11 +45,11 @@ that produce and maintain the documents above. See
 | Agent | Owns | Primary jury persona |
 | ----- | ---- | -------------------- |
 | `solution-architect` | 02 Architecture | COO |
-| `ai-ml-engineer` | 03 Data & AI | Quality Officer |
+| `ai-ml-engineer` | 03 Data & AI | Head of Data Science / ML Lead |
 | `business-value-cfo` | 05 Cost & ROI | CFO |
-| `compliance-officer` | 06 Security & compliance | Compliance Manager |
-| `quality-engineer` | Quality sections of 01/03 | Quality Officer |
-| `presentation-storyteller` | 07 Deck, 08 Demo | CMO |
+| `compliance-officer` | 06 Security & compliance | Compliance Officer + DPO |
+| `quality-engineer` | Quality sections of 01/03 | Head of Quality |
+| `presentation-storyteller` | 07 Deck, 08 Demo | Head of Sustainability / ESG |
 
 ## Suggested reading order for the jury session
 

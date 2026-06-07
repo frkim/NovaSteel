@@ -43,25 +43,25 @@ General manufacturing depends on a reliable supply of versatile steel.
 
 <div class="grid cards" markdown>
 
--   :material-check-decagram:{ .lg .middle } __Consistent quality__
+- :material-check-decagram:{ .lg .middle } **Consistent quality**
 
     ---
 
     AI-stabilized processes deliver repeatable grades, batch after batch.
 
--   :material-leaf:{ .lg .middle } __Lower carbon footprint__
+- :material-leaf:{ .lg .middle } **Lower carbon footprint**
 
     ---
 
     Recycling and energy optimization reduce the embodied emissions of our steel.
 
--   :material-map-marker-radius:{ .lg .middle } __European proximity__
+- :material-map-marker-radius:{ .lg .middle } **European proximity**
 
     ---
 
     Production across four countries means reliable, responsive supply.
 
--   :material-account-hard-hat:{ .lg .middle } __Expert support__
+- :material-account-hard-hat:{ .lg .middle } **Expert support**
 
     ---
 

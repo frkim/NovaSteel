@@ -46,4 +46,3 @@ Implement an **AI‑driven production optimization platform** that:
 - A **physics‑informed ML model** predicts furnace lining degradation from thermal signatures  
 - An **energy dispatch optimization agent** schedules energy‑intensive processes around electricity spot prices  
 - A **GenAI knowledge‑capture system** interviews operators and structures expertise into searchable procedure libraries
-

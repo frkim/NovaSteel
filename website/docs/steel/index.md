@@ -14,40 +14,40 @@ into the products we use every day.
 
 <div class="grid cards" markdown>
 
--   :material-atom:{ .lg .middle } __[Metal Families](metal-families.md)__
+- :material-atom:{ .lg .middle } __[Metal Families](metal-families.md)__
 
     ---
 
     Understand the difference between iron, steel, cast iron, stainless steel,
     and non-ferrous metals.
 
--   :material-fire:{ .lg .middle } __[Making Iron & Steel](steel-production.md)__
+- :material-fire:{ .lg .middle } __[Making Iron & Steel](steel-production.md)__
 
     ---
 
     Discover the blast furnace, basic oxygen furnace, and electric arc furnace
     routes.
 
--   :material-flask:{ .lg .middle } __[Producing Other Metals](other-metals.md)__
+- :material-flask:{ .lg .middle } __[Producing Other Metals](other-metals.md)__
 
     ---
 
     See how aluminum, copper, zinc, and other metals are extracted and refined.
 
--   :material-hammer:{ .lg .middle } __[Shaping Metals](shaping.md)__
+- :material-hammer:{ .lg .middle } __[Shaping Metals](shaping.md)__
 
     ---
 
     Learn how casting, rolling, forging, extrusion, drawing, and machining give
     metals their final form.
 
--   :material-star:{ .lg .middle } __[Key Takeaways](key-takeaways.md)__
+- :material-star:{ .lg .middle } __[Key Takeaways](key-takeaways.md)__
 
     ---
 
     The essentials, summarized.
 
--   :material-book-open-variant:{ .lg .middle } __[Glossary](glossary.md)__
+- :material-book-open-variant:{ .lg .middle } __[Glossary](glossary.md)__
 
     ---
 

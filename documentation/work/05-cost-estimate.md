@@ -1,6 +1,7 @@
 # 05 — Cost Estimate & ROI
 
-**Project Ignition** — illustrative TCO, benefits and return for the CFO.
+**Project Ignition** — illustrative TCO, benefits and return for CFO (19),
+Head of Energy Management (7), and Head of Sustainability / ESG (11).
 
 > ⚠️ **All figures are illustrative demo estimates** to frame the business case.
 > They are **not a quote** and require a detailed Azure assessment (Azure Pricing
@@ -86,7 +87,7 @@ NovaSteel's discount rate during the workshop.
 | Yield uplift < 8% | O4 smaller | Prove via SPC before crediting |
 | Azure cost higher | Run cost up | Reservations, right-sizing, FinOps |
 
-## 7. CFO summary (one slide)
+## 7. Role summary (one slide)
 
 - **Spend:** ~€0.6–1.1M to build, ~€0.3–0.7M/yr to run (illustrative).
 - **Return:** energy −14% and avoided €8M failures drive **sub-12-month payback**.

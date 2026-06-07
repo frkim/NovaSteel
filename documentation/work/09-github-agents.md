@@ -4,7 +4,9 @@
 demo, and how to use them.
 
 > The agents live in [`.github/agents/`](../../.github/agents/). Each is a
-> persona with a focused mission, aligned to one member of the evaluation jury.
+> persona with a focused mission, aligned to one or more roles in the target audience.
+
+Role alignment source: [10 — Target audience roles](10-target-audience-roles.md).
 
 ---
 
@@ -13,11 +15,11 @@ demo, and how to use them.
 | Agent file | Persona | Owns (in `documentation/work/`) | Jury alignment |
 | ---------- | ------- | ------------------------------- | -------------- |
 | `solution-architect.md` | Cloud & AI Solution Architect | `02-solution-architecture.md` | COO |
-| `ai-ml-engineer.md` | AI/ML Engineer | `03-data-and-ai-design.md` | Quality Officer |
+| `ai-ml-engineer.md` | AI/ML Engineer | `03-data-and-ai-design.md` | Head of Data Science / ML Lead |
 | `business-value-cfo.md` | Business Value / Finance | `05-cost-estimate.md` | CFO |
-| `compliance-officer.md` | Compliance & Responsible AI | `06-security-compliance.md` | Compliance Manager |
-| `quality-engineer.md` | Steel Quality & Process | quality sections of `01`/`03` | Quality Officer |
-| `presentation-storyteller.md` | Executive Storyteller | `07-presentation-deck.md`, `08-demo-script.md` | CMO |
+| `compliance-officer.md` | Compliance & Responsible AI | `06-security-compliance.md` | Compliance Officer + DPO |
+| `quality-engineer.md` | Steel Quality & Process | quality sections of `01`/`03` | Head of Quality |
+| `presentation-storyteller.md` | Executive Storyteller | `07-presentation-deck.md`, `08-demo-script.md` | Head of Sustainability / ESG |
 
 ## 2. How they fit together
 

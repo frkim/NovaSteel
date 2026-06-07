@@ -67,7 +67,7 @@ must satisfy:
 | Transparency | Users informed it is AI; explainable RUL drivers; cited answers |
 | Accountability | Named owners; AI Act risk file; audit logs; steering oversight |
 
-## 6. Compliance Manager Q&A (plain language)
+## 6. Compliance Officer & DPO Q&A (plain language)
 
 - **"Where is our data?"** — In EU Azure regions; personal data never leaves the
   EU.
@@ -80,6 +80,9 @@ must satisfy:
   approval is logged with lineage in Purview/Monitor.
 - **"What about retiring operators' data?"** — Covered by a DPIA, lawful basis,
   minimisation, retention limits and erasure support.
+- **"How are DPO obligations enforced?"** — Through DPIA sign-off, documented
+  retention/deletion controls, data-subject rights handling, and EU-only data
+  residency for personal data.
 
 ## 7. Open items to confirm
 

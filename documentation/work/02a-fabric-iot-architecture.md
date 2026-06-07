@@ -12,9 +12,13 @@ architecture for the NovaSteel AI production-optimization platform.
 > Adoption Framework**. Default capacity region: **West Europe**, with **Germany
 > West Central** as the secondary region for EU data residency. All figures are
 > **illustrative demo estimates**.
->
-> **Editable diagram:** [`../images/fabric-iot-architecture.excalidraw`](../images/fabric-iot-architecture.excalidraw)
-> — open in [aka.ms/excalidraw](https://aka.ms/excalidraw) to edit or export to PNG/SVG.
+
+**Primary target roles:** CTO / Head of IT/OT (4), CISO (8),
+Chief Data Officer (12), Head of Data Science / ML Lead (13),
+AI Architect / Digital Twin Architect (14), OT Engineer / Automation Engineer (15).
+
+**Editable diagram:** [`../images/fabric-iot-architecture.excalidraw`](../images/fabric-iot-architecture.excalidraw)
+— open in [aka.ms/excalidraw](https://aka.ms/excalidraw) to edit or export to PNG/SVG.
 
 ![NovaSteel Microsoft Fabric + IoT reference architecture](../images/fabric-iot-architecture.png)
 
@@ -120,7 +124,8 @@ The single, tenant-wide data lake. **One logical copy** of NovaSteel data, open
 | **Mirroring** | Fabric-**managed near-real-time replication** of the operational **MES/ERP databases** (e.g. Azure SQL / PostgreSQL / Snowflake) into OneLake — production orders, heat schedules, refractory batch master data — with no custom ETL. (A managed copy lands in OneLake; this is replication, not virtualization.) |
 | **OneLake Catalog** | Tenant catalog to **discover, explore and govern** every lakehouse, KQL DB and warehouse item; the entry point operators and analysts use to find trusted, certified datasets. |
 
-**Design choices**
+### Design choices (Foundation & Storage)
+
 - **Domains & workspaces** map to NovaSteel's data domains so ownership, access
   and lineage stay clean (a "data mesh" on one lake).
 - Bronze keeps **immutable raw** telemetry for replay/back-testing model changes.
@@ -142,7 +147,8 @@ Moves and shapes data from Bronze → Silver → Gold.
 | **Notebooks (Spark)** | PySpark transforms that compute **physics-informed features** — heat-flux estimates, thermal gradients, vibration spectral features, rolling statistics — and assemble the **Gold feature tables** consumed by ML. |
 | **Spark environment management** | Pinned **environments** (libraries, Spark pool sizing, session config) per workload so feature engineering for the RUL model is reproducible and CI-promotable across Dev→Test→Prod. |
 
-**Design choices**
+### Design choices (Data Engineering)
+
 - **Pipelines orchestrate; Notebooks compute.** Heavy/physics features live in
   Spark notebooks; light cleansing lives in Dataflows Gen2 for citizen analysts.
 - Feature logic is **version-controlled** (Layer 7 Git integration) and the Spark
@@ -162,7 +168,8 @@ Trains, tracks and serves the predictive and generative models on Gold data.
 | **Copilot for Fabric** | Authoring & productivity assistant — generate Spark/SQL, explain pipelines, draft DAX — accelerating engineers and analysts across the workspace. |
 | **AI Agents** | A **Fabric data agent** grounded on the curated Gold lakehouse, Warehouse and KQL telemetry answers operational questions in natural language ("which furnaces trend toward early wear this week?"); pairs with the **GenAI knowledge-capture assistant** (Azure OpenAI + AI Search, see doc 02/03) for SOP retrieval. |
 
-**Design choices — clear ownership split**
+### Design choices (Data Science & AI ownership split)
+
 - **Fabric Data Science owns:** feature engineering, exploratory experiments,
   **MLflow** run tracking, and **batch scoring** inside the data plane.
 - **Azure Machine Learning owns:** the **production model registry**, approval
@@ -184,11 +191,12 @@ Serves governed, SQL-shaped marts for BI and ad-hoc analytics.
 | **SQL Analytics Endpoint** | Auto-provisioned **read** endpoint over every Lakehouse — query Gold Delta tables with T-SQL and connect any SQL/BI tool with no data movement. |
 | **Autonomous management** | Fabric's SaaS model auto-handles scaling, statistics and maintenance; capacity is the only sizing lever, so the team focuses on models not infrastructure. |
 
-**Design choices**
+### Design choices (Warehouse & DB)
+
 - **Lakehouse-first.** Most consumption reads Gold via the **SQL Analytics
   Endpoint / Direct Lake**; the **Warehouse** is used where multi-table T-SQL
   writes, strict modelling, or stored-proc transformations are needed (finance &
-  emissions marts feeding the CFO and ETS reporting).
+  emissions marts feeding CFO (19), Head of Sustainability / ESG (11), and ETS reporting).
 
 ---
 
@@ -203,7 +211,8 @@ The streaming backbone for sensor telemetry — the heart of the IoT story.
 | **IoT telemetry pattern (sensor ingestion & processing on RTI)** | The RTI building blocks handle device telemetry at scale — schema-on-read for heterogeneous tags across four plants, windowed aggregations in Eventstreams, and enrichment with asset/campaign context for downstream features. |
 | **Activator (Data Activator)** | No-code rules on KQL/eventstreams → trigger **alerts** (Teams/email) and workflows when a furnace crosses a thermal-wear threshold or energy/carbon spikes; closes the loop to operators. |
 
-**Design choices**
+### Design choices (Real-Time Intelligence)
+
 - **Three paths from one stream:** Eventstream fans out to **KQL** (hot
   analytics + Activator alerts), **OneLake Bronze** (durable history for ML
   back-tests), and **edge inference** stays plant-side for connectivity-resilient,
@@ -226,7 +235,8 @@ flowchart LR
 
 ## 6. Business Intelligence — *Power BI*
 
-The consumption layer for executives, engineers and the CFO.
+The consumption layer for executives, engineers, CFO (19), and
+Head of Sustainability / ESG (11).
 
 | Capability | NovaSteel use |
 | --- | --- |
@@ -234,10 +244,13 @@ The consumption layer for executives, engineers and the CFO.
 | **Direct Lake mode** | Reports read Gold Delta **directly from OneLake** — import-mode speed with **no import-copy refresh** for supported tables; metadata framing and DirectQuery fallback are monitored. Ideal for large sensor-derived marts. |
 | **Reporting & dashboards** | Real-time KQL dashboards for the control room; paginated reports for ETS/emissions compliance; embedded views surfaced in Teams alongside the knowledge assistant. |
 
-**Design choices**
+### Design choices (Business Intelligence)
+
 - **Direct Lake** avoids a separate import/refresh tier and keeps a single copy of
   data — lower cost, fresher numbers — using DirectQuery fallback only where the
-  Warehouse provides row-level freshness or unsupported features.
+  Warehouse provides row-level freshness or unsupported features, including
+  finance and sustainability reporting views for CFO (19) and
+  Head of Sustainability / ESG (11).
 - The **Fabric data agent / Copilot** lets execs ask questions in natural language
   against the same certified semantic model.
 
@@ -255,7 +268,8 @@ Act and ETS auditability.
 | **Administration** | **Fabric Admin portal** (tenant settings, capacity management & monitoring), capacity autoscale/throttling controls, usage metrics for cost attribution per domain. |
 | **DevOps** | **Git integration** + **deployment pipelines** promote workspaces **Dev → Test → Prod**; notebooks, pipelines, semantic models and reports are version-controlled and CI/CD-deployed (IaC for the surrounding Azure resources). |
 
-**Design choices**
+### Design choices (Governance, Security & Admin)
+
 - **Lineage is a first-class deliverable**, not an afterthought — it underpins the
   EU AI Act dossier (doc 06) and lets quality engineers trace a yield change back
   to a process parameter.
@@ -267,17 +281,20 @@ Act and ETS auditability.
 ## 8. End-to-end flows by workload
 
 ### A — Furnace-lining RUL (predictive maintenance · O3, 21-day warning)
+
 `Sensors → IoT Operations → Eventstream → KQL (live) + Bronze (history)
 → Spark feature notebooks → Gold features → Data Science (RUL model)
 → batch score in Fabric + edge inference plant-side → Activator alert + Power BI`
 
 ### B — Energy-dispatch optimization (O1/O2 · −14% energy, −22% CO₂)
+
 `Energy meters + spot price + grid carbon → Eventstream → KQL + Bronze
 → Gold demand features → Data Science (demand forecast)
 → dispatch optimizer (Functions/Container Apps, MILP) → recommendation
 → Power BI + operator confirmation`
 
 ### C — GenAI knowledge capture (O4 enabler · +8% yield)
+
 `Operator interviews + SOPs + shift logs → OneLake (Knowledge lakehouse)
 → structured procedure library → Azure AI Search (RAG) + Fabric data agent /
 Copilot → Teams assistant for operators & metallurgists` (detail in doc 03 §3)

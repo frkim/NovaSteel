@@ -44,7 +44,7 @@ concrete, demonstrable models and pipelines.
   (CI/CD, data drift, model monitoring). Use **Azure AI Foundry / Azure OpenAI**
   for GenAI, with **Azure AI Search** for retrieval.
 - Define **evaluation metrics up front**: for RUL use MAE/weighted-by-lead-time
-  + precision/recall on the 21-day alert; for GenAI use groundedness,
+  - precision/recall on the 21-day alert; for GenAI use groundedness,
   relevance, and human review.
 - Apply **Responsible AI**: data sheets, model cards, fairness/robustness
   checks, human-in-the-loop for any operational decision. No automated action

@@ -21,9 +21,9 @@ predict equipment failures, improve quality, and capture operational expertise.
 | # | Objective | KPI | Target | Baseline owner |
 | - | --------- | --- | ------ | -------------- |
 | O1 | Cut energy intensity | Energy per ton (kWh/t, €/t) | **−14%** | COO / Energy |
-| O2 | Cut emissions | CO₂ per ton (tCO₂/t) | **−22%** | CMO / Sustainability |
+| O2 | Cut emissions | CO₂ per ton (tCO₂/t) | **−22%** | Head of Sustainability / ESG |
 | O3 | Prevent furnace failures | Lead time of lining-failure alert | **≥ 21 days** | COO / Maintenance |
-| O4 | Improve quality | High-grade yield; Cp/Cpk | **+8%** yield | Quality Officer |
+| O4 | Improve quality | High-grade yield; Cp/Cpk | **+8%** yield | Head of Quality |
 | O5 | Capture knowledge | Procedures captured; assistant usage | Library live, adopted | COO / HR |
 
 Success = pilot demonstrates O1, O3 and O4 on real data within target, with O2
@@ -43,15 +43,21 @@ integration with maintenance (CMMS/ERP) and energy procurement.
 actions without human approval; changing metallurgical certification regimes;
 HR decisions about staff.
 
-## 4. Stakeholders & the evaluation jury
+## 4. Stakeholders aligned to target audience roles
 
 | Role | Interest | What they need to approve |
 | ---- | -------- | ------------------------- |
 | **COO** | Operations, reliability, uptime | Operational excellence, avoided €8M failures |
+| **Head of Manufacturing / VP Operations** | Cross-site performance | Repeatable operating model and scale readiness |
+| **Plant Director / Site Manager** | Site-level continuity | Daily reliability and operator usability |
+| **CTO / Head of IT/OT** | Technical feasibility and OT/IT safety | Integration with SCADA/PLC/historian and security controls |
+| **Head of Maintenance / Reliability Engineering Lead** | Asset life and outage risk | 21-day warning quality and maintenance workflow fit |
+| **Head of Quality** | Grade conformance, traceability | Yield & consistency without losing control ([03](03-data-and-ai-design.md)) |
+| **Head of Energy Management** | Energy and dispatch economics | Proven optimization against price and carbon signals |
+| **Head of Sustainability / ESG** | ETS exposure and reporting credibility | The −22% CO₂ narrative with auditable evidence ([07](07-presentation-deck.md)) |
+| **Compliance Officer** | AI governance and auditability | Risk classification & controls ([06](06-security-compliance.md)) |
+| **Data Protection Officer (DPO)** | GDPR legality and privacy controls | DPIA, minimization, retention and rights coverage ([06](06-security-compliance.md)) |
 | **CFO** | Cost, ROI, risk | TCO, payback, sensitivity ([05](05-cost-estimate.md)) |
-| **Quality Officer** | Grade conformance, traceability | Yield & consistency without losing control ([03](03-data-and-ai-design.md)) |
-| **CMO** | Brand, sustainability, customers | The −22% CO₂ and innovation narrative ([07](07-presentation-deck.md)) |
-| **Compliance Manager** | GDPR, EU AI Act, audit | Risk classification & controls ([06](06-security-compliance.md)) |
 | Microsoft CSA (you) | Solution & enablement | Architecture, demo, enablement |
 | Plant operators / metallurgists | Daily use | Trustworthy, human-in-the-loop tools |
 
@@ -61,8 +67,10 @@ HR decisions about staff.
 G0 Mobilize ──► G1 Pilot design ──► G2 Pilot live ──► G3 Pilot review ──► G4 Scale decision
 ```
 
-- **Steering committee:** COO (sponsor), CFO, Quality Officer, Compliance
-  Manager, CMO, Microsoft CSA. Meets at each gate.
+- **Steering committee:** COO (sponsor), Head of Manufacturing / VP Operations,
+  CTO / Head of IT/OT, Head of Quality, Head of Energy Management, Head of
+  Sustainability / ESG, Compliance Officer, Data Protection Officer (DPO), CFO,
+  Microsoft CSA. Meets at each gate.
 - **Working cadence:** 2-week iterations; demo every iteration.
 - **Decision rights:** Steering approves gates and budget; Product Owner
   prioritizes the backlog; Architecture Review Board approves design changes.

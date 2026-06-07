@@ -8,6 +8,11 @@ production-optimization platform.
 > and the **Cloud Adoption Framework**. Default regions: **West Europe** and
 > **Germany West Central** for EU data residency.
 
+**Primary target roles:** COO (1), Head of Manufacturing / VP Operations (2),
+Plant Director / Site Manager (3), CTO / Head of IT/OT (4), CISO (8),
+Chief Data Officer (12), AI Architect / Digital Twin Architect (14),
+OT Engineer / Automation Engineer (15).
+
 ---
 
 ## 1. Architecture at a glance
@@ -74,6 +79,7 @@ flowchart LR
 ## 2. Layer-by-layer
 
 ### 2.1 Plant floor (OT) and edge
+
 - **Sources:** thermal cameras/pyrometers, vibration, off-gas analyzers, energy
   meters, plus the **historian/SCADA/MES**.
 - **Azure IoT Operations** on an **Azure Arc**-enabled edge cluster provides an
@@ -83,15 +89,18 @@ flowchart LR
   connectivity loss.
 
 ### 2.2 Ingestion & streaming
+
 - **IoT Hub / Event Hubs** for device telemetry; **Fabric Real-Time
   Intelligence** for streaming analytics and hot-path alerting.
 
 ### 2.3 Data platform (Microsoft Fabric / OneLake)
+
 - **Medallion** architecture: **Bronze** (raw), **Silver** (validated, modelled),
   **Gold** (curated features and marts) on **OneLake / ADLS Gen2**.
 - Lineage and classification through **Microsoft Purview**.
 
 ### 2.4 AI & ML
+
 - **Azure Machine Learning** trains and serves the **physics-informed RUL model**
   (furnace lining) and the **energy-optimization model**, with full **MLOps**
   (registry, CI/CD, drift & quality monitoring).
@@ -99,12 +108,14 @@ flowchart LR
   grounded with **Azure AI Search** (RAG) over the procedure library.
 
 ### 2.5 Optimization & experience
+
 - **Energy-dispatch agent** (Azure Functions / Container Apps) consumes
   day-ahead spot prices and grid carbon intensity and recommends scheduling.
 - **Power BI / Fabric dashboards** for executives and engineers; **Teams +
   Copilot** surface guidance to operators.
 
 ### 2.6 Cross-cutting (security, governance, operations)
+
 - **Microsoft Entra ID** (identity, conditional access), **Key Vault** (secrets),
   **Azure Monitor / Log Analytics** (observability), **Microsoft Purview**
   (governance & lineage), **Defender for Cloud / Defender for IoT** (posture &

@@ -7,6 +7,9 @@ scale.
 > confirmed in a delivery workshop. Cadence: **2-week iterations with a demo
 > every iteration.**
 
+Role alignment follows [10 — Target audience roles](10-target-audience-roles.md),
+with phase gates reviewed by the relevant priority owners.
+
 ---
 
 ## 1. Phases & timeline
@@ -31,12 +34,14 @@ gantt
 ## 2. Phase detail
 
 ### Phase 0 — Mobilize (≈3 weeks) → **Gate G1**
+
 - Confirm scope, KPIs, baselines, and team; set up steering committee.
 - Start **DPIA** and EU AI Act risk classification ([06](06-security-compliance.md)).
 - Provision dev subscription; agree EU regions and security baseline.
 - **Exit:** signed charter, data-access agreement, pilot line selected.
 
 ### Phase 1 — Foundation (≈5 weeks) → **Gate G2**
+
 - Deploy **landing zone** via IaC (networking, identity, policy, monitoring).
 - Stand up **Fabric/OneLake** medallion lakehouse and **IoT Operations** edge.
 - **Data assessment**: tag inventory, quality profiling, historian connectivity.
@@ -44,6 +49,7 @@ gantt
 - **Exit:** telemetry flowing to Bronze/Silver; security baseline passed.
 
 ### Phase 2 — Pilot build (≈8 weeks) → **Gate G3**
+
 - **Workload A** — RUL furnace model + edge alerting; back-test on history.
 - **Workload B** — energy-dispatch agent with spot-price/carbon feeds.
 - **Workload C** — knowledge-capture assistant (RAG) on synthetic SOPs.
@@ -52,10 +58,12 @@ gantt
 - **Exit:** live demo proves 21-day alert, energy savings, yield insights.
 
 ### Phase 3 — Pilot review (≈2 weeks) → **Gate G4**
+
 - Measure against KPIs; update the [cost & ROI model](05-cost-estimate.md).
-- Executive review with the jury; go/no-go for scale.
+- Executive review with role owners; go/no-go for scale.
 
 ### Phase 4 — Scale (≈16 weeks)
+
 - Roll out across the remaining lines and four sites.
 - Integrate with **CMMS/ERP** (maintenance work orders) and **energy
   procurement**; harden MLOps; operator enablement & change management.

@@ -1,0 +1,13 @@
+{
+  // Shared markdown lint policy for docs-heavy repo with MkDocs content.
+  "config": {
+    "MD013": false,
+    "MD025": false,
+    "MD033": false
+  },
+  "globs": [
+    "**/*.md",
+    "!website/site/**"
+  ],
+  "overrides": []
+}
