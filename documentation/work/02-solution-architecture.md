@@ -69,6 +69,8 @@ flowchart LR
 > [`../images/fabric-iot-architecture.excalidraw`](../images/fabric-iot-architecture.excalidraw)
 > — open it in [aka.ms/excalidraw](https://aka.ms/excalidraw) to edit or export.
 
+![NovaSteel Microsoft Fabric + IoT reference architecture](../images/fabric-iot-architecture.png)
+
 ## 2. Layer-by-layer
 
 ### 2.1 Plant floor (OT) and edge

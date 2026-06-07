@@ -16,6 +16,8 @@ architecture for the NovaSteel AI production-optimization platform.
 > **Editable diagram:** [`../images/fabric-iot-architecture.excalidraw`](../images/fabric-iot-architecture.excalidraw)
 > — open in [aka.ms/excalidraw](https://aka.ms/excalidraw) to edit or export to PNG/SVG.
 
+![NovaSteel Microsoft Fabric + IoT reference architecture](../images/fabric-iot-architecture.png)
+
 ---
 
 ## 0. Why Fabric + IoT for NovaSteel
