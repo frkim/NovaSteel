@@ -13,7 +13,8 @@ Head of Energy Management (7), and Head of Sustainability / ESG (11).
 
 | # | Assumption | Value (illustrative) |
 | - | ---------- | -------------------- |
-| A1 | Annual production (pilot line) | 1.0 Mt/year |
+| A1 | Annual production — in-scope site (at scale) | ~1.0 Mt/year |
+| A1b | Annual production — pilot line (Phase 2) | ~0.3 Mt/year |
 | A2 | Production cost | ~€500 /t |
 | A3 | Energy share of cost | 35% → ~€175 /t |
 | A4 | Energy reduction (O1) | −14% of energy cost |
@@ -22,7 +23,7 @@ Head of Energy Management (7), and Head of Sustainability / ESG (11).
 | A7 | Furnace failure cost | ~€8M per event |
 | A8 | Failure frequency (pilot line) | ~1 every 2–3 years |
 | A9 | High-grade yield uplift (O4) | +8% on premium tonnage |
-| A10 | EU regions, consumption pricing | West Europe / Germany West Central |
+| A10 | EU regions, consumption pricing | Sweden Central / West Europe / Germany West Central |
 
 > Replace each value with NovaSteel's actuals during the design workshop.
 
@@ -52,7 +53,11 @@ Head of Energy Management (7), and Head of Sustainability / ESG (11).
 | Compliance (DPIA, AI Act file) & change mgmt | €60k–€120k |
 | **Indicative implementation total** | **≈ €560k–€1.12M** |
 
-## 4. Benefit model (annual, at scale on the pilot line) — illustrative
+## 4. Benefit model (annual, at scale across the ~1.0 Mt in-scope site) — illustrative
+
+> **Pilot vs scale.** The pilot proves the **percentages** on the ~0.3 Mt pilot
+> line first (≈⅓ of the figures below); the values here are the **at-scale**
+> annual run-rate once rolled out across the in-scope site.
 
 | Lever | Calculation (illustrative) | Indicative €/yr |
 | ----- | -------------------------- | --------------- |

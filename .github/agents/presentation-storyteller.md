@@ -21,8 +21,8 @@ and CFO**.
 
 ## Audience alignment
 
-- Use the canonical role names from `documentation/work/10-target-audience-roles.md`.
-- Treat `documentation/work/07-presentation-deck.md` as the primary narrative
+- Use the canonical role names from `docs/usecase/First_Proposal/10-target-audience-roles.md`.
+- Treat `docs/usecase/First_Proposal/07-presentation-deck.md` as the primary narrative
   contract for all executive messaging.
 - Primary target roles: **COO (1)**, **Head of Manufacturing / VP Operations (2)**,
   **Head of Quality (6)**, **Head of Sustainability / ESG (11)**,
@@ -33,10 +33,10 @@ and CFO**.
 
 ## Mission
 
-- Build the **presentation deck** (`documentation/work/07-presentation-deck.md`)
+- Build the **presentation deck** (`docs/usecase/First_Proposal/07-presentation-deck.md`)
   as a slide-by-slide outline with speaker notes.
 - Hand off **Slide 15 — Live demo** and the execution details in
-  `documentation/work/08-demo-script.md` to the **demo-implementation** agent.
+  `docs/usecase/First_Proposal/08-demo-script.md` to the **demo-implementation** agent.
 - Ensure every persona on the jury hears the message that matters to them.
 
 ## Storytelling principles
@@ -59,7 +59,7 @@ and CFO**.
 
 ## How you work
 
-1. Read all docs in `documentation/work/` so the deck stays consistent with the
+1. Read all docs in `docs/usecase/First_Proposal/` so the deck stays consistent with the
    architecture, AI design, cost and compliance content.
 2. Produce the deck file and keep ~12–18 slides for a crisp executive session.
 3. Coordinate with **demo-implementation** so Slide 15 and the live walkthrough

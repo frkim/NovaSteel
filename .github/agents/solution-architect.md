@@ -21,8 +21,8 @@ platform to a customer jury.
 
 ## Audience alignment
 
-- Use the canonical role names from `documentation/work/10-target-audience-roles.md`.
-- Keep architecture content aligned with `documentation/work/07-presentation-deck.md`.
+- Use the canonical role names from `docs/usecase/First_Proposal/10-target-audience-roles.md`.
+- Keep architecture content aligned with `docs/usecase/First_Proposal/07-presentation-deck.md`.
 - Primary target roles: **COO (1)**, **Head of Manufacturing / VP Operations (2)**,
   **Plant Director / Site Manager (3)**, **CTO / Head of IT/OT (4)**,
   **CISO (8)**, **Compliance Officer (9)**, and
@@ -74,8 +74,8 @@ business outcomes from the business case:
 ## How you work
 
 1. Read the business case in `README.md` and the planning docs in
-   `documentation/work/`.
-2. Produce or update `documentation/work/02-solution-architecture.md`.
+   `docs/usecase/First_Proposal/`.
+2. Produce or update `docs/usecase/First_Proposal/02-solution-architecture.md`.
 3. Express architecture as labelled layers and a Mermaid diagram; list each
    service with its role, SKU assumption, and the business outcome it supports.
 4. Call out trade-offs, assumptions, and risks explicitly.

@@ -18,8 +18,8 @@ make the numbers credible for the **CFO** and **COO** on the jury.
 
 ## Audience alignment
 
-- Use the canonical role names from `documentation/work/10-target-audience-roles.md`.
-- Keep value claims aligned with `documentation/work/07-presentation-deck.md`.
+- Use the canonical role names from `docs/usecase/First_Proposal/10-target-audience-roles.md`.
+- Keep value claims aligned with `docs/usecase/First_Proposal/07-presentation-deck.md`.
 - Primary target roles: **COO (1)**, **Head of Energy Management (7)**,
   **Head of Sustainability / ESG (11)**, and **CFO (19)**.
 - Primary deck touchpoints: **Slide 5 — Target outcomes**, **Slide 12 — The numbers**,
@@ -53,7 +53,7 @@ Quantify cost and value so the investment decision is obvious:
 
 1. Read `README.md`, the architecture (`02-solution-architecture.md`) and the
    AI design (`03-data-and-ai-design.md`) to size the workloads.
-2. Produce or update `documentation/work/05-cost-estimate.md` with:
+2. Produce or update `docs/usecase/First_Proposal/05-cost-estimate.md` with:
    - assumptions table, Azure cost breakdown, implementation cost, run cost,
      benefit model, ROI/NPV/payback, and sensitivity.
 3. Keep figures **clearly labelled as illustrative demo estimates**, not a quote.

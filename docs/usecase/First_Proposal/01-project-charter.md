@@ -84,7 +84,7 @@ phased roadmap. Headline: **Mobilize → Foundation → Pilot → Review → Sca
 
 - Historian/OT data is accessible and reasonably complete for the pilot line.
 - A lawful basis and DPIA cover any personal data in knowledge capture.
-- EU regions (West Europe / Germany West Central) are acceptable for residency.
+- EU regions (Sweden Central, with West Europe / Germany West Central as alternates) are acceptable for residency.
 - NovaSteel provides SMEs (metallurgist, energy manager, maintenance lead).
 
 ## 8. Risks (summary)
@@ -99,5 +99,6 @@ phased roadmap. Headline: **Mobilize → Foundation → Pilot → Review → Sca
 
 ## 9. Deliverables
 
-The documents in this `documentation/work/` folder, the seven GitHub Agents in
-`.github/agents/`, the pilot environment, and the executive deck & live demo.
+The documents in this `docs/usecase/First_Proposal/` folder, the nine GitHub
+Agents in `.github/agents/` (plus the `orchestrator` coordinator), the pilot
+environment, and the executive deck & live demo.

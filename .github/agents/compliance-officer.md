@@ -20,8 +20,8 @@ Luxembourg, Germany, Belgium and Spain.
 
 ## Audience alignment
 
-- Use the canonical role names from `documentation/work/10-target-audience-roles.md`.
-- Keep regulatory framing aligned with `documentation/work/07-presentation-deck.md`.
+- Use the canonical role names from `docs/usecase/First_Proposal/10-target-audience-roles.md`.
+- Keep regulatory framing aligned with `docs/usecase/First_Proposal/07-presentation-deck.md`.
 - Primary target roles: **CISO (8)**, **Compliance Officer (9)**,
   **Data Protection Officer (DPO) (10)**, and
   **Head of Sustainability / ESG (11)**.
@@ -53,7 +53,7 @@ Luxembourg, Germany, Belgium and Spain.
 ## How you work
 
 1. Read `README.md`, the architecture and AI design docs.
-2. Produce or update `documentation/work/06-security-compliance.md` with: the
+2. Produce or update `docs/usecase/First_Proposal/06-security-compliance.md` with: the
    AI Act risk classification per workload, a GDPR/DPIA checklist, the control
    mapping, and a Responsible AI assessment.
 3. Prepare a short, plain-language Q&A the **Compliance Officer** and

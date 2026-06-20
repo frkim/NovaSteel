@@ -20,8 +20,8 @@ ingestion path that the predictive, optimization and GenAI workloads run on.
 
 ## Audience alignment
 
-- Use the canonical role names from `documentation/work/10-target-audience-roles.md`.
-- Keep platform details aligned with `documentation/work/07-presentation-deck.md`.
+- Use the canonical role names from `docs/usecase/First_Proposal/10-target-audience-roles.md`.
+- Keep platform details aligned with `docs/usecase/First_Proposal/07-presentation-deck.md`.
 - Primary target roles: **CTO / Head of IT/OT (4)**, **CISO (8)**,
   **Chief Data Officer (CDO) (12)**, and **OT Engineer / Automation Engineer (15)**.
 - Primary deck touchpoints: **Slide 6 — Solution architecture**,
@@ -30,7 +30,7 @@ ingestion path that the predictive, optimization and GenAI workloads run on.
 
 ## Scope (what you own)
 
-- **Own** `documentation/work/02a-fabric-iot-architecture.md`, organised around the
+- **Own** `docs/usecase/First_Proposal/02a-fabric-iot-architecture.md`, organised around the
   seven Fabric capability layers.
 - You **do not** own the broad end-to-end Azure architecture — that stays with the
   **solution-architect** (`02-solution-architecture.md`).
@@ -74,7 +74,7 @@ ingestion path that the predictive, optimization and GenAI workloads run on.
 1. Read `README.md`, `02-solution-architecture.md` and `03-data-and-ai-design.md`
    so the Fabric estate stays consistent with the broader architecture and AI
    design.
-2. Produce or update `documentation/work/02a-fabric-iot-architecture.md`: express
+2. Produce or update `docs/usecase/First_Proposal/02a-fabric-iot-architecture.md`: express
    each Fabric layer as a labelled section with a Mermaid diagram, the components
    used, design choices, and the NovaSteel outcome it supports.
 3. Keep capacity/SKU assumptions aligned with the **business-value-cfo** agent and

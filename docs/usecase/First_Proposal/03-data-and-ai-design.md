@@ -45,7 +45,7 @@ energy-intensive steps around electricity spot prices and grid carbon.
 
 ## 3. Workload C — GenAI knowledge capture
 
-**Goal (O4 enabler):** preserve retiring operators' expertise and raise
+**Goal (O5; enables O4):** preserve retiring operators' expertise and raise
 high-grade yield by spreading best-known methods.
 
 | Aspect | Design |
@@ -96,3 +96,41 @@ but by tightening the process:
 - Use **public/illustrative spot-price & carbon series** for energy optimization.
 - Use a **synthetic SOP corpus** for the knowledge assistant.
 - Clearly label all demo data as synthetic.
+
+## 8. Agentic behaviour & autonomy
+
+Workload B is implemented as an **autonomous optimization agent**, not a static
+report. It runs a closed **sense → reason → act (recommend) → learn** loop on a
+rolling horizon:
+
+1. **Sense** — pull live process demand, production constraints, day-ahead spot
+   prices and grid-carbon intensity.
+2. **Reason** — forecast demand (ML), then solve the constrained schedule
+   (MILP / heuristic) to minimise cost and carbon within deadlines.
+3. **Act (with a human gate)** — emit a ranked schedule recommendation; an
+   operator **confirms** before anything changes. *Autonomy is bounded:* the
+   agent never writes to control systems directly.
+4. **Learn** — outcomes feed back as counterfactual A/B evidence to improve the
+   next horizon.
+
+A lightweight **furnace-triage agent** complements it: when the RUL model raises
+a 21-day alert, the agent assembles the drivers, suggested inspection window and
+the relevant procedures (via the knowledge assistant) into one actionable card.
+
+**Multi-agent coordination (delivery side).** The solution is *authored and
+maintained* by a coordinated team of nine specialist GitHub Agents under an
+`orchestrator` that decomposes a request, hands off to the right specialist, and
+integrates the results — a documented **handoff / reflection** pattern. See
+[09 — GitHub Agents guide](09-github-agents.md).
+
+## 9. Model selection & deployment rationale
+
+| Workload | Chosen approach | Why this choice | Deployment |
+| -------- | --------------- | --------------- | ---------- |
+| A — RUL | Physics-informed features + gradient-boosted / survival models | Interpretable, data-efficient, gives uncertainty + lead-time | Batch retrain in Azure ML; **edge** serving for resilient low-latency alerts |
+| B — Dispatch | Demand forecast (ML) + MILP/heuristic optimiser | Hard constraints & deadlines need an optimiser, not just a predictor | Azure Functions / Container Apps, event-triggered |
+| C — Assistant | **GPT-5** on Microsoft Foundry + RAG via AI Search | Strong reasoning with grounded, cited answers; EU-resident | Foundry endpoint; `text-embedding-3-large` for vectors |
+
+> Models are versioned in the Azure ML registry / Foundry, promoted through
+> gated CI/CD, and monitored for drift and quality (see
+> [02 — §4b Monitoring](02-solution-architecture.md) and §5 MLOps above).

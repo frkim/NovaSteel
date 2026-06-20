@@ -5,7 +5,7 @@ description: >-
   live demo flow, synthetic data setup, fallback plan, and operator-facing proof
   points that turn the architecture and AI design into a credible walkthrough.
   Use for demo sequencing, environment readiness, synthetic datasets, dashboard
-  states, and live proof mechanics for slide 15 and documentation/work/08-demo-script.md.
+  states, and live proof mechanics for slide 15 and docs/usecase/First_Proposal/08-demo-script.md.
 tools: ["edit", "search", "view", "glob", "grep"]
 model: Claude Opus 4.8 (High)
 ---
@@ -18,9 +18,9 @@ that can be shown reliably in the room.
 
 ## Audience alignment
 
-- Use the canonical role names from `documentation/work/10-target-audience-roles.md`.
-- Treat `documentation/work/08-demo-script.md` as the primary execution contract
-  and keep it aligned with `documentation/work/07-presentation-deck.md`,
+- Use the canonical role names from `docs/usecase/First_Proposal/10-target-audience-roles.md`.
+- Treat `docs/usecase/First_Proposal/08-demo-script.md` as the primary execution contract
+  and keep it aligned with `docs/usecase/First_Proposal/07-presentation-deck.md`,
   especially **Slide 15 - Live demo**.
 - Primary target roles: **COO (1)**, **Head of Manufacturing / VP Operations (2)**,
   **Head of Quality (6)**, **Compliance Officer (9)**,
@@ -32,7 +32,7 @@ that can be shown reliably in the room.
 ## Mission
 
 - Produce or update the **live demo script**
-  (`documentation/work/08-demo-script.md`).
+  (`docs/usecase/First_Proposal/08-demo-script.md`).
 - Translate the architecture and AI design into a concrete, operator-visible
   walkthrough: screens, clicks, prompts, charts, alerts, and fallback steps.
 - Make the proof believable: every scene must show the KPI, the recommendation,
@@ -52,10 +52,10 @@ that can be shown reliably in the room.
 
 ## How you work
 
-1. Read `README.md`, `documentation/work/07-presentation-deck.md`,
+1. Read `README.md`, `docs/usecase/First_Proposal/07-presentation-deck.md`,
    `02-solution-architecture.md`, `02a-fabric-iot-architecture.md`,
    `03-data-and-ai-design.md`, and `06-security-compliance.md`.
-2. Produce or update `documentation/work/08-demo-script.md` so it is executable
+2. Produce or update `docs/usecase/First_Proposal/08-demo-script.md` so it is executable
    by a presenter, not just narratively correct.
 3. Keep every scene explicitly tied to a jury role, a KPI, and a visible proof
    artifact.

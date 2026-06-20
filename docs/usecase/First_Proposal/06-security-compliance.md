@@ -20,14 +20,21 @@ must satisfy:
 
 ## 2. EU AI Act risk classification (per workload)
 
-| Workload | Likely risk tier | Rationale | Key obligations applied |
-| -------- | ---------------- | --------- | ----------------------- |
-| A — Furnace predictive maintenance | **Limited / minimal** | Industrial asset prediction; no impact on persons' rights; human-confirmed action | Risk mgmt, data governance, logging, accuracy/robustness, human oversight |
-| B — Energy-dispatch optimization | **Limited / minimal** | Operational scheduling; recommendations only | Same as above; ensure emissions reporting unaffected |
-| C — GenAI knowledge assistant | **Limited (transparency)** | Interacts with people; processes personal data | Transparency (users know it's AI), GDPR, content grounding & review |
+The Act applies tiered obligations: **unacceptable** (banned), **high-risk**
+(Annex III / safety components), **limited-risk** (Article 50 transparency for
+systems that interact with people or generate content), and **minimal-risk**
+(everything else — voluntary codes only). Our mapping:
 
-> No workload is intended as a **high-risk** AI system, but the classification is
-> documented and revisited if scope changes (e.g. automated control actions).
+| Workload | Risk tier | Rationale | Key obligations applied |
+| -------- | --------- | --------- | ----------------------- |
+| A — Furnace predictive maintenance | **Minimal risk** | Industrial asset prediction; advisory only; no impact on persons' rights; not an Annex III safety component | Voluntary: risk mgmt, data governance, logging, accuracy/robustness, human oversight |
+| B — Energy-dispatch optimization | **Minimal risk** | Operational scheduling; recommendations only; emissions reporting untouched | Same voluntary controls; ensure ETS reporting integrity |
+| C — GenAI knowledge assistant | **Limited risk** | Interacts with people and generates content; processes personal data | **Article 50 transparency** (users told it is AI; AI-generated content marked), GDPR, content grounding & human review |
+
+> Under current scope **no workload is high-risk** (none is an Annex III use case
+> or a safety component governing the furnace). The classification is documented
+> and **revisited if scope changes** — e.g. automated closed-loop control would
+> push Workload A toward high-risk and trigger the full Annex IV obligations.
 
 ## 3. GDPR / DPIA checklist
 

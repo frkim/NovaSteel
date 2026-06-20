@@ -17,7 +17,7 @@ All agents should use the canonical role names in
 their executive messaging consistent with
 [07 — Presentation deck](07-presentation-deck.md).
 
-| Agent file | Persona | Owns (in `documentation/work/`) | Primary target roles | Deck touchpoints |
+| Agent file | Persona | Owns (in `docs/usecase/First_Proposal/`) | Primary target roles | Deck touchpoints |
 | ---------- | ------- | ------------------------------- | -------------------- | ---------------- |
 | `solution-architect.md` | Cloud & AI Solution Architect | `02-solution-architecture.md` | COO (1), Head of Manufacturing / VP Operations (2), Plant Director / Site Manager (3), CTO / Head of IT/OT (4) | Slides 4, 6, 14, 16 |
 | `data-platform-engineer.md` | Microsoft Fabric & IoT Data Platform | `02a-fabric-iot-architecture.md` | CTO / Head of IT/OT (4), CISO (8), Chief Data Officer (CDO) (12), OT Engineer / Automation Engineer (15) | Slides 6, 14, 15 |
@@ -80,7 +80,7 @@ front matter (`name`, `description`, optional `tools`) followed by instructions.
 - **Chain** them: run the architect first, then the AI/ML engineer, then the
   business-value and compliance agents, then the demo-implementation agent, and
   finally the storyteller to refresh the deck around the live demo.
-- Each agent reads `README.md` and the relevant files in `documentation/work/`
+- Each agent reads `README.md` and the relevant files in `docs/usecase/First_Proposal/`
   for context and writes back to the document it owns.
 - When an agent mentions a jury role, it should use the canonical names from
   `10-target-audience-roles.md` rather than aliases such as "DPO" alone or

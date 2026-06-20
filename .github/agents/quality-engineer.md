@@ -19,8 +19,8 @@ automotive customers.
 
 ## Audience alignment
 
-- Use the canonical role names from `documentation/work/10-target-audience-roles.md`.
-- Keep quality narratives aligned with `documentation/work/07-presentation-deck.md`.
+- Use the canonical role names from `docs/usecase/First_Proposal/10-target-audience-roles.md`.
+- Keep quality narratives aligned with `docs/usecase/First_Proposal/07-presentation-deck.md`.
 - Primary target roles: **Head of Manufacturing / VP Operations (2)**,
   **Plant Director / Site Manager (3)**, **Head of Quality (6)**, and
   **Shift Supervisors / Senior Operators (18)**.
@@ -51,7 +51,7 @@ Show how the platform improves and proves quality:
 ## How you work
 
 1. Read `README.md`, the architecture and AI design docs.
-2. Contribute a quality section to `documentation/work/03-data-and-ai-design.md`
+2. Contribute a quality section to `docs/usecase/First_Proposal/03-data-and-ai-design.md`
    and/or `01-project-charter.md`: quality KPIs, SPC plan, traceability, and the
    link from model outputs to grade conformance.
 3. Define the **quality KPIs and acceptance criteria** the demo will show.

@@ -65,3 +65,22 @@ the executive narrative in [07 — Presentation deck](07-presentation-deck.md).
 3. Drill into **02 / 05 / 06** for the technical, financial and compliance deep
    dives as questions arise.
 4. Run the **08 — Demo script** live.
+
+## Mapping to the evaluation rubric
+
+How this submission addresses the
+[Azure Master Architect grading rubric](../0_Analysis/rating_grid.md):
+
+| Rubric area | Where it is evidenced |
+| ----------- | --------------------- |
+| **Design** — architecture, modularity, scalability | [02 — Architecture](02-solution-architecture.md) (incl. §4a design patterns), [02a — Fabric + IoT](02a-fabric-iot-architecture.md) |
+| **Design** — design patterns | [02 — §4a Architecture & design patterns](02-solution-architecture.md) |
+| **Design** — security | [06 — Security & compliance](06-security-compliance.md), [02 — §4 WAF security](02-solution-architecture.md) |
+| **Development** — application demo | [08 — Demo script](08-demo-script.md), `apps/steel_factory_simulator/` |
+| **Development** — implementation completeness | [infrastructure/](../../../infrastructure/README.md) (Bicep), [04 — Implementation plan](04-implementation-plan.md) |
+| **Monitoring** — logging & metrics | [02 — §4b Monitoring & observability](02-solution-architecture.md), [03 — §5 MLOps](03-data-and-ai-design.md) |
+| **AI Integration** — AI tech & model selection/deployment | [03 — Data & AI design](03-data-and-ai-design.md) (incl. §9 model selection rationale) |
+| **Agentic Behavior** — autonomy & orchestration | [03 — §8 Agentic behaviour & autonomy](03-data-and-ai-design.md) |
+| **Agentic Behavior** — multi-agent coordination | [09 — GitHub Agents guide](09-github-agents.md) |
+| **Additional Architecture** — performance & reliability | [02 — §4 WAF highlights](02-solution-architecture.md) |
+| **Presentation & Documentation** — clarity & audience fit | [07 — Deck](07-presentation-deck.md), [10 — Target audience roles](10-target-audience-roles.md) |

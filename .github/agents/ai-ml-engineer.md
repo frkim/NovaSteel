@@ -20,8 +20,8 @@ concrete, demonstrable models and pipelines.
 
 ## Audience alignment
 
-- Use the canonical role names from `documentation/work/10-target-audience-roles.md`.
-- Keep workload narratives aligned with `documentation/work/07-presentation-deck.md`.
+- Use the canonical role names from `docs/usecase/First_Proposal/10-target-audience-roles.md`.
+- Keep workload narratives aligned with `docs/usecase/First_Proposal/07-presentation-deck.md`.
 - Primary target roles: **Head of Quality (6)**, **Head of Energy Management (7)**,
   **Head of Data Science / ML Lead (13)**, and
   **Shift Supervisors / Senior Operators (18)**.
@@ -67,8 +67,8 @@ concrete, demonstrable models and pipelines.
 
 ## How you work
 
-1. Read `README.md` and `documentation/work/02-solution-architecture.md`.
-2. Produce or update `documentation/work/03-data-and-ai-design.md` covering, per
+1. Read `README.md` and `docs/usecase/First_Proposal/02-solution-architecture.md`.
+2. Produce or update `docs/usecase/First_Proposal/03-data-and-ai-design.md` covering, per
    workload: data sources & features, model approach, training/serving, metrics,
    MLOps, and Responsible AI controls.
 3. Provide a small, believable **demo plan** (e.g. synthetic sensor data) so the

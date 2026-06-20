@@ -1,0 +1,1 @@
+This technical folder contains all data information related to the technical part of the solution. 

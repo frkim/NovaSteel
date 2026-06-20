@@ -9,18 +9,18 @@ architecture for the NovaSteel AI production-optimization platform.
 > workloads. It is organised around the seven Fabric capability layers.
 >
 > Designed against the **Azure Well-Architected Framework** and the **Cloud
-> Adoption Framework**. Default capacity region: **West Europe**, with **Germany
-> West Central** as the secondary region for EU data residency. All figures are
-> **illustrative demo estimates**.
+> Adoption Framework**. Default capacity region: **Sweden Central**, with **West
+> Europe** and **Germany West Central** as alternates for EU data residency. All
+> figures are **illustrative demo estimates**.
 
 **Primary target roles:** CTO / Head of IT/OT (4), CISO (8),
 Chief Data Officer (12), Head of Data Science / ML Lead (13),
 AI Architect / Digital Twin Architect (14), OT Engineer / Automation Engineer (15).
 
-**Editable diagram:** [`../images/fabric-iot-architecture.excalidraw`](../images/fabric-iot-architecture.excalidraw)
+**Editable diagram:** [`../../business/images/fabric-iot-architecture.excalidraw`](../../business/images/fabric-iot-architecture.excalidraw)
 — open in [aka.ms/excalidraw](https://aka.ms/excalidraw) to edit or export to PNG/SVG.
 
-![NovaSteel Microsoft Fabric + IoT reference architecture](../images/fabric-iot-architecture.png)
+![NovaSteel Microsoft Fabric + IoT reference architecture](../../business/images/fabric-iot-architecture.png)
 
 ---
 
@@ -288,7 +288,7 @@ Act and ETS auditability.
   EU AI Act dossier (doc 06) and lets quality engineers trace a yield change back
   to a process parameter.
 - **Least privilege by domain** via OneLake data-access roles; **EU residency** by
-  pinning capacity to West Europe / Germany West Central.
+  pinning capacity to Sweden Central / West Europe / Germany West Central.
 
 ---
 

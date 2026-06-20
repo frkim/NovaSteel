@@ -32,7 +32,7 @@
 
 ## Canonical naming guidance for all work documents
 
-Use the role names above verbatim across `documentation/work/*.md`.
+Use the role names above verbatim across `docs/usecase/First_Proposal/*.md`.
 
 | Use this canonical role | Avoid legacy alias in this workspace |
 | --- | --- |

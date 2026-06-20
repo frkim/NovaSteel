@@ -2,8 +2,8 @@
 
 Infrastructure-as-Code for the **NovaSteel AI-powered steel production optimization
 platform**. It provisions the Azure reference architecture described in
-[`../documentation/work/02-solution-architecture.md`](../documentation/work/02-solution-architecture.md)
-and [`02a-fabric-iot-architecture.md`](../documentation/work/02a-fabric-iot-architecture.md).
+[`../docs/usecase/First_Proposal/02-solution-architecture.md`](../docs/usecase/First_Proposal/02-solution-architecture.md)
+and [`02a-fabric-iot-architecture.md`](../docs/usecase/First_Proposal/02a-fabric-iot-architecture.md).
 
 > **Demo configuration.** These templates use **public network access** for all
 > services and do **not** deploy private endpoints, Private DNS, or a VNet — to keep
@@ -113,4 +113,4 @@ the platform resources into the resource group.
 - API versions target the latest GA (or required preview for AI Foundry projects /
   GPT-5). Run `az bicep upgrade` so the CLI has matching type definitions.
 - All figures and SKUs are **reference/demo defaults** — right-size during a
-  design workshop (see [`../documentation/work/05-cost-estimate.md`](../documentation/work/05-cost-estimate.md)).
+  design workshop (see [`../docs/usecase/First_Proposal/05-cost-estimate.md`](../docs/usecase/First_Proposal/05-cost-estimate.md)).

@@ -1,0 +1,1 @@
+This directory contains all preliminary tasks required to implement the solution for this project. 

@@ -20,7 +20,7 @@ gantt
     dateFormat  YYYY-MM-DD
     axisFormat  %b
     section Mobilize
-    G0 Mobilize & DPIA            :a1, 2026-01-05, 3w
+    G0 Mobilize & DPIA            :a1, 2026-07-06, 3w
     section Foundation
     Landing zone & data assessment :a2, after a1, 5w
     section Pilot

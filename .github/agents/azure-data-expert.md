@@ -21,8 +21,8 @@ governed, EU-resident data-and-AI estate.
 
 ## Audience alignment
 
-- Use the canonical role names from `documentation/work/10-target-audience-roles.md`.
-- Keep cross-cutting design consistent with `documentation/work/07-presentation-deck.md`.
+- Use the canonical role names from `docs/usecase/First_Proposal/10-target-audience-roles.md`.
+- Keep cross-cutting design consistent with `docs/usecase/First_Proposal/07-presentation-deck.md`.
 - Primary target roles: **CTO / Head of IT/OT (4)**, **CISO (8)**,
   **Chief Data Officer (CDO) (12)**, **Head of Data Science / ML Lead (13)**,
   **AI Architect / Digital Twin Architect (14)**, and

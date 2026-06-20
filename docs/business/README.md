@@ -1,0 +1,1 @@
+This business folder contains all data and information related to the business use case. 

@@ -5,8 +5,8 @@ production-optimization platform.
 
 > Designed against the **Azure Well-Architected Framework** (Reliability,
 > Security, Cost Optimization, Operational Excellence, Performance Efficiency)
-> and the **Cloud Adoption Framework**. Default regions: **West Europe** and
-> **Germany West Central** for EU data residency.
+> and the **Cloud Adoption Framework**. Default region: **Sweden Central**, with
+> **West Europe** and **Germany West Central** as alternates for EU data residency.
 
 **Primary target roles:** COO (1), Head of Manufacturing / VP Operations (2),
 Plant Director / Site Manager (3), CTO / Head of IT/OT (4), CISO (8),
@@ -71,10 +71,10 @@ flowchart LR
 ```
 
 > **Editable diagram:** an Excalidraw version of the Fabric + IoT view is at
-> [`../images/fabric-iot-architecture.excalidraw`](../images/fabric-iot-architecture.excalidraw)
+> [`../../business/images/fabric-iot-architecture.excalidraw`](../../business/images/fabric-iot-architecture.excalidraw)
 > — open it in [aka.ms/excalidraw](https://aka.ms/excalidraw) to edit or export.
 
-![NovaSteel Microsoft Fabric + IoT reference architecture](../images/fabric-iot-architecture.png)
+![NovaSteel Microsoft Fabric + IoT reference architecture](../../business/images/fabric-iot-architecture.png)
 
 ## 2. Layer-by-layer
 
@@ -165,6 +165,41 @@ furnace model.
 - **Operational excellence:** MLOps + DevOps, full observability, runbooks.
 - **Performance efficiency:** hot path at the edge/stream, batch training in the
   cloud.
+
+## 4a. Architecture & design patterns
+
+The design is built from explicit, well-known patterns so it is modular,
+testable and scalable:
+
+| Pattern | Where it is applied |
+| ------- | ------------------- |
+| **Medallion (Bronze/Silver/Gold)** | OneLake data platform — separation of raw, conformed and curated data |
+| **Lambda / hot-warm-cold paths** | Real-Time Intelligence (hot furnace alerts), warm analytics, cold ML training on one lake |
+| **Event-driven ingestion** | IoT Hub → Event Hubs → Eventstreams; decoupled producers/consumers |
+| **Edge-cloud split (CQRS-like)** | Low-latency inference at the edge; heavy training/serving in the cloud |
+| **Retrieval-Augmented Generation (RAG)** | Knowledge assistant grounds answers in the procedure library via AI Search |
+| **Agent + human-in-the-loop** | Energy-dispatch agent recommends; an operator confirms before action |
+| **MLOps (registry + CI/CD + monitoring)** | Versioned models, gated promotion, drift detection |
+| **Hub-and-spoke + landing zone** | Subscriptions/resource groups per environment with policy guardrails |
+| **Strangler-style rollout** | Pilot one line, then incrementally onboard lines/sites without big-bang cutover |
+
+## 4b. Monitoring & observability
+
+Observability is first-class, not an afterthought:
+
+- **Structured logging & tracing** — all services emit structured logs and
+  distributed traces to **Application Insights / Log Analytics**; correlation IDs
+  follow a recommendation from sensor → model → dashboard → operator decision.
+- **Platform & app metrics** — **Azure Monitor** dashboards and **KQL** queries
+  track ingestion lag, hot-path alert latency, API health, and Fabric capacity
+  utilisation; **alerts** fire on SLO breaches.
+- **Model monitoring (MLOps)** — Azure ML tracks **data drift, prediction drift,
+  and quality**; degradation triggers retraining with approval gates.
+- **GenAI evaluation** — groundedness, relevance and citation-rate are monitored
+  continuously for the knowledge assistant.
+- **Audit & lineage** — every prediction, recommendation and human approval is
+  logged immutably; **Purview** captures end-to-end lineage for EU AI Act
+  traceability.
 
 ## 5. Environments
 
