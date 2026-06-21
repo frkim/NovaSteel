@@ -13,7 +13,7 @@
 - [ ] Pilot/demo environment reachable; dashboards loaded.
 - [ ] Synthetic datasets generated: furnace telemetry with injected degradation;
       illustrative spot-price/carbon series; synthetic SOP corpus.
-- [ ] Knowledge assistant indexed (Azure AI Search) and responding.
+- [ ] Knowledge assistant grounded (Foundry IQ) and responding.
 - [ ] Fallback: recorded screen capture in case of connectivity issues.
 - [ ] On every screen, a visible "**Synthetic demo data**" label.
 

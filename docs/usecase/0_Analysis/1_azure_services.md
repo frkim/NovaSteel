@@ -36,7 +36,7 @@ The **Priority** column indicates *when* to adopt the service: 🚀 **Now** = fo
 | 🔎 Retrieval | Azure AI Search | Vector / hybrid retrieval engine for RAG grounding | ▫️ 2 | ⏳ Later | 🟢 Low | Foundry IQ already provides managed grounding/retrieval over the procedure library (built on Azure AI Search), so a standalone Azure AI Search instance is optional here — adopt only if you need custom retrieval control beyond Foundry IQ. |
 | 📊 Data & analytics | Microsoft Fabric | Unified analytics foundation / OneLake / BI / data products | ⭐ 5 | 🚀 Now | 🟢 Low | Strong candidate for the enterprise analytics backbone and for grounding AI on trusted industrial data. |
 | 📊 Data & analytics | Azure Databricks | Advanced data engineering / feature engineering / ML / time-series analytics | 🔷 4 | 🚫 Excluded | 🟡 Medium | Out of scope — **Microsoft Fabric** (Data Engineering + Data Science) is the single analytics stack; we do not run a second engine. |
-| 📊 Data & analytics | Azure Data Factory | Batch ingestion from MES/ERP/LIMS/historians and cross-country plants | ⭐ 5 | 🚀 Now | 🟢 Low | Very useful for orchestrating plant and enterprise data ingestion pipelines. |
+| 📊 Data & analytics | Azure Data Factory | Batch ingestion from MES/ERP/LIMS/historians and cross-country plants | ⭐ 5 | � Excluded | 🟢 Low | Out of scope as a standalone service — **Microsoft Fabric Data Factory** (pipelines / Dataflows Gen2) orchestrates ingestion inside the unified platform. |
 | 📊 Data & analytics | Azure Data Lake Storage / OneLake pattern | Central storage for telemetry, quality, maintenance, and emissions data | ⭐ 5 | 🚀 Now | 🟢 Low | Essential data foundation for prediction, optimization, and governance. |
 | 📊 Data & analytics | Azure Stream Analytics | Real-time event processing for process control and anomaly pipelines | 🔹 3 | 🚫 Excluded | 🟡 Medium | Out of scope — **Fabric Real-Time Intelligence** (Eventstreams/KQL) is the hot path. |
 | 📊 Data & analytics | Azure Data Explorer | High-scale time-series / telemetry exploration and operational analytics | 🔷 4 | 🚫 Excluded | 🟡 Medium | Out of scope as a standalone cluster — **Fabric Real-Time Intelligence** already embeds the ADX/Eventhouse engine. |
@@ -45,11 +45,11 @@ The **Priority** column indicates *when* to adopt the service: 🚀 **Now** = fo
 | 🗄️ Databases | Azure Database for PostgreSQL Flexible Server | Operational apps, structured engineering data, backend platforms | 🔷 4 | 🚀 Now | 🟢 Low | Strong general-purpose database option for platform services and engineering applications. |
 | 🗄️ Databases | Azure Database for MySQL Flexible Server | Optional app backend database | ▫️ 2 | ⏳ Later | 🔴 High | Viable but redundant with SQL/PostgreSQL; adding it usually fragments the data estate without benefit. |
 | 🗄️ Databases | Azure Cache for Redis / Azure Managed Redis | Low-latency caching, session handling, agent acceleration | 🔷 4 | ⏭️ Next | 🟡 Medium | Useful for performance optimization of AI apps and APIs, but only justify once latency is a real constraint. |
-| ⚙️ Compute | Azure Kubernetes Service (AKS) | Core platform for industrial AI apps, APIs, digital services, custom inference | 🔹 3 | ⏭️ Next | 🔴 High | Powerful but heavy to operate; for this use case Container Apps + Functions cover the workloads, so adopt AKS only if scale/control genuinely require it. |
+| ⚙️ Compute | Azure Kubernetes Service (AKS) | Core platform for industrial AI apps, APIs, digital services, custom inference | 🔹 3 | 🚫 Excluded | 🔴 High | Out of scope — **Azure Container Apps + Functions** cover the workloads with no cluster to operate; adopt only if scale/control genuinely force it. |
 | ⚙️ Compute | Azure Container Apps | Lightweight hosting for agents, APIs, event-driven services | ⭐ 5 | 🚀 Now | 🟢 Low | Primary host for the energy-dispatch agent microservice and AI/API wrappers — delivers the solution's compute without full AKS complexity. |
 | ⚙️ Compute | Azure Functions | Event-driven logic, alerts, scoring triggers, integration glue | ⭐ 5 | 🚀 Now | 🟢 Low | Very strong for rule execution, event processing, and low-overhead automation. |
 | ⚙️ Compute | Azure App Service | UI / portal / simple business apps | 🔹 3 | ⏭️ Next | 🟢 Low | Useful for web portals, but less central than AKS/Functions for heavy industrial event-driven patterns. |
-| ⚙️ Compute | Azure Virtual Machines | Legacy integration, industrial middleware, vendor software hosting | 🔹 3 | ⏭️ Next | 🟡 Medium | The platform is greenfield cloud-native; VMs are only needed for OT-adjacent or legacy components and add patching/operations burden versus managed services. |
+| ⚙️ Compute | Azure Virtual Machines | Legacy integration, industrial middleware, vendor software hosting | 🔹 3 | 🚫 Excluded | 🟡 Medium | Out of scope — the platform is greenfield cloud-native on managed PaaS (Container Apps / Functions); no VMs to patch and operate. |
 | ⚙️ Compute | Azure Batch | Large simulations / optimization runs / heavy compute jobs | 🔹 3 | ⏭️ Next | 🟡 Medium | Can help with batch simulation and optimization, but only worth it for genuinely heavy compute jobs. |
 | 🌐 Networking | Azure Virtual Network (VNet) | Network isolation for data, AI, and industrial services | ⭐ 5 | 🚀 Now | 🟢 Low | Mandatory for secure industrial landing zones and private service integration. |
 | 🌐 Networking | Azure Private Link | Private access to PaaS services from plants and central platform | ⭐ 5 | 🚀 Now | 🟢 Low | Very important for protecting telemetry, AI endpoints, and regulated workloads. |
@@ -76,16 +76,16 @@ The **Priority** column indicates *when* to adopt the service: 🚀 **Now** = fo
 | 🔄 Integration & events | Azure Logic Apps | Workflow automation, enterprise connectors, operational actions | ⭐ 5 | 🚀 Now | 🟢 Low | Very relevant for integrating AI decisions with business systems and approvals. |
 | 🔄 Integration & events | Azure API Management | Secure API facade, governance, throttling, AI API exposure | ⭐ 5 | 🚀 Now | 🟡 Medium | Important for exposing APIs securely at scale, but heavyweight for a handful of internal APIs early on. |
 | 📡 IoT & edge | Azure IoT Hub | Device onboarding and telemetry ingestion from plant equipment | ⭐ 5 | 🚀 Now | 🟢 Low | Core service for getting furnace, mill, and utility telemetry into Azure. |
-| 📡 IoT & edge | Azure IoT Edge | Edge processing near equipment / local scoring / resilient processing | ⭐ 5 | � Excluded | 🟢 Low | Out of scope to limit footprint — ingestion is **cloud-direct via Azure IoT Hub**; revisit only if edge autonomy becomes a hard requirement. |
+| 📡 IoT & edge | Azure IoT Edge | Edge processing near equipment / local scoring / resilient processing | ⭐ 5 | 🚫 Excluded | 🟢 Low | Out of scope to limit footprint — ingestion is **cloud-direct via Azure IoT Hub**; revisit only if edge autonomy becomes a hard requirement. |
 | 📡 IoT & edge | Azure Digital Twins | Semantic model of plants, assets, processes, dependencies | 🔹 3 | ⏭️ Next | 🔴 High | Useful for furnace/mill topology and what-if analysis, but the use case relies on physics-informed signatures, not a twin; high modeling/maintenance effort, so adopt only when a twin-driven scenario is committed. |
-| 📡 IoT & edge | Azure Sphere | Securing specific IoT devices/microcontroller estates | ▫️ 2 | ⏳ Later | 🔴 High | Only fits greenfield microcontroller estates; usually overkill for existing industrial OT hardware. |
+| 📡 IoT & edge | Azure Sphere | Securing specific IoT devices/microcontroller estates | ▫️ 2 | 🚫 Excluded | 🔴 High | Out of scope — ingestion uses **Azure IoT Hub** on existing OT hardware; no greenfield microcontroller estate to secure. |
 | 🛠️ DevOps & engineering | GitHub Actions | CI/CD for apps, ML pipelines, infra, prompt assets | 🔷 4 | 🚀 Now | 🟢 Low | Strong modern DevOps option for platform delivery and repeatability. |
-| 🛠️ DevOps & engineering | Azure DevOps | Alternative enterprise delivery stack | 🔹 3 | ⏭️ Next | 🟡 Medium | Relevant if the client already standardizes on ADO, but redundant alongside GitHub Actions. |
-| 🛠️ DevOps & engineering | Azure Pipelines | CI/CD in Azure DevOps | 🔹 3 | ⏭️ Next | 🟡 Medium | Useful in ADO-centric enterprises, but redundant if GitHub Actions is the chosen CI/CD. |
+| 🛠️ DevOps & engineering | Azure DevOps | Alternative enterprise delivery stack | 🔹 3 | 🚫 Excluded | 🟡 Medium | Out of scope — **GitHub** (Actions, Repos, Issues) is the single delivery stack; ADO would be redundant. |
+| 🛠️ DevOps & engineering | Azure Pipelines | CI/CD in Azure DevOps | 🔹 3 | 🚫 Excluded | 🟡 Medium | Out of scope — **GitHub Actions** is the chosen CI/CD engine; Azure Pipelines would be redundant. |
 | 🛠️ DevOps & engineering | Azure Boards / Repos / Artifacts | Project, code, and artifact management | ▫️ 2 | ⏳ Later | 🟡 Medium | Useful engineering support tools, but redundant where GitHub already covers code and work tracking. |
-| 🏢 Hybrid & sovereign | Azure Arc | Unified management across cloud, plant edge, on-prem, multi-site | ⭐ 5 | � Excluded | 🟡 Medium | Out of scope — this is a **cloud-first, Fabric-centric** scope with no edge/on-prem control plane to manage. |
+| 🏢 Hybrid & sovereign | Azure Arc | Unified management across cloud, plant edge, on-prem, multi-site | ⭐ 5 | 🚫 Excluded | 🟡 Medium | Out of scope — this is a **cloud-first, Fabric-centric** scope with no edge/on-prem control plane to manage. |
 | 🏢 Hybrid & sovereign | Azure Local | Local infrastructure option for plant-hosted workloads | 🔹 3 | ⏭️ Next | 🟡 Medium | Can matter where workloads must stay local, but adds hybrid operations overhead. |
-| 🏢 Hybrid & sovereign | Azure Stack | Specialized hybrid deployment scenarios | ▫️ 2 | ⏳ Later | 🔴 High | Lower priority and high operational cost; only for very specific disconnected/sovereign requirements. |
+| 🏢 Hybrid & sovereign | Azure Stack | Specialized hybrid deployment scenarios | ▫️ 2 | 🚫 Excluded | 🔴 High | Out of scope — cloud-first scope with no disconnected/sovereign on-prem deployment. |
 | 🏢 Hybrid & sovereign | Foundry Local | On-device / local AI execution | 🔷 4 | ⏭️ Next | 🟡 Medium | Good complement for edge AI scenarios needing local AI execution, but unnecessary if cloud inference is acceptable. |
 | 💬 Communications | Azure Communication Services | Notifications, alerts, operator comms, workflow messaging | 🔹 3 | ⏭️ Next | 🟢 Low | Useful for alerting and workflow interaction, but not core to optimization itself. |
 | 🎮 Gaming/media | Azure PlayFab | Gaming backend | ⬜ 1 | ⏳ Later | 🔴 High | Not relevant for this industrial use case. |
@@ -125,6 +125,13 @@ The **Priority** column indicates *when* to adopt the service: 🚀 **Now** = fo
 | Azure Data Explorer | Fabric Real-Time Intelligence (embeds the ADX / Eventhouse engine) |
 | Azure Stream Analytics | Fabric Real-Time Intelligence (Eventstreams / KQL) |
 | Azure Arc | Not used — cloud-first, Fabric-centric scope; no hybrid control plane |
+| Azure Data Factory | Microsoft Fabric — Data Factory (pipelines / Dataflows Gen2) inside the unified platform |
+| Azure Kubernetes Service (AKS) | Azure Container Apps + Azure Functions (no cluster to operate) |
+| Azure Virtual Machines | Managed PaaS (Container Apps / Functions); greenfield cloud-native, no VMs |
+| Azure Sphere | Azure IoT Hub on existing OT hardware; no microcontroller estate to secure |
+| Azure DevOps | GitHub (Actions, Repos, Issues) as the single delivery stack |
+| Azure Pipelines | GitHub Actions as the single CI/CD engine |
+| Azure Stack | Not used — cloud-first scope; no disconnected/sovereign on-prem deployment |
 
 > These services remain in the matrix above for transparency (their capability
 > relevance is real), but they are marked **🚫 Excluded** and are **not part of
@@ -163,16 +170,15 @@ If you want the top architecture core, prioritize these first:
 - 👁️ Sentinel
 - 💾 Blob Storage
 - 🗄️ Cosmos DB / Redis (depending on app design)
+- 🏢 Azure Local
 - 📍 Foundry Local
 
 ### 🥉 Tier 3 — Optional / Contextual
 
-- ☸️ AKS (only if scale/control exceeds Container Apps + Functions)
 - 🧩 Azure Digital Twins (only if a twin-driven scenario is committed)
 - 🔎 Azure AI Search (optional — Foundry IQ already provides grounding/retrieval)
 - 🌐 App Service
 - 🗄️ Azure SQL
-- 🏢 Azure Local
 - 💬 Azure Communication Services
 - 📁 Azure Files
 - 🗃️ Azure Archive
@@ -208,3 +214,123 @@ That combination is the strongest fit for:
 - ✅ Quality/yield improvement
 - 🧑‍🏭 Operator knowledge retention
 - 🌍 Cross-country governance
+
+## 📡 Focus — Azure IoT Services
+
+UC12 is fundamentally an **IoT-driven** use case: furnace, mill and utility
+telemetry is the raw material for every workload. The **must-have** core keeps
+ingestion deliberately simple — **cloud-direct via Azure IoT Hub** — so the team
+proves the AI value first without standing up edge infrastructure. This section
+evaluates the broader Azure IoT family and sorts each service into a **must-have**,
+**nice-to-have** or **not-retained** tier.
+
+| Azure IoT service | Verdict | Tier |
+| --- | :---: | --- |
+| 📡 Azure IoT Hub | ✅ OK | 🟢 Must-have |
+| 🧩 Azure Digital Twins | ✅ OK | 🟡 Nice-to-have |
+| ⚙️ Azure IoT Operations | ✅ OK | 🟡 Nice-to-have |
+| 📊 Azure IoT Central | 🚫 KO | ⚪ Not retained |
+| 🔌 Azure IoT Edge | 🚫 KO | ⚪ Not retained |
+
+### 🧭 How the project can be implemented — IoT tiers
+
+The IoT scope can be delivered in **layers of commitment**, so the project starts
+lean and earns each addition:
+
+- 🟢 **Must-have (the foundation):** **Azure IoT Hub** — without it there is
+  no telemetry and therefore no use case. It is the single, non-negotiable IoT
+  service the pilot ships with (cloud-direct, no edge runtime).
+- 🟡 **Nice-to-have (value-driven add-ons):** **Azure Digital Twins**
+  and **Azure IoT Operations** — each unlocks real upside (a navigable furnace
+  twin; resilient edge pre-processing at scale) but only becomes worthwhile once
+  the cloud-direct pipeline is proven and a concrete scenario justifies the extra
+  cost and operations. They are adopted **only if** a committed need appears.
+- ⚪ **Not retained (out of scope):** **Azure IoT Central** (packaged SaaS with no
+  clear roadmap) and **Azure IoT Edge** (legacy runtime superseded by IoT
+  Operations) — neither fits UC12's open, custom, Fabric-and-Foundry architecture,
+  and their useful capabilities are already covered by the must-have/nice-to-have
+  services above.
+
+> **Net:** the project is **fully implementable with the single must-have
+> (IoT Hub)**; the nice-to-have services are **optional accelerators** to add
+> later, and the not-retained services add nothing UC12 cannot already do.
+
+### 📡 Azure IoT Hub — ✅ OK (must-have)
+
+**What it is:** a managed cloud gateway for secure, bidirectional device-to-cloud
+telemetry and cloud-to-device messaging, with per-device identity, authentication
+and at-scale device management.
+
+**Why it is relevant here:** it is the **front door** for furnace, mill and energy
+telemetry into Azure — per-device security, EU-resident endpoints behind Private
+Link, and native fan-out into **Fabric Real-Time Intelligence** and **Event Hubs**.
+
+**Tier:** **must-have** — the single non-negotiable IoT service; the cloud-direct
+ingestion path needs no edge runtime to start delivering AI value.
+
+### 🧩 Azure Digital Twins — ✅ OK (nice-to-have)
+
+**What it is:** a platform to build **live, queryable digital models** of physical
+environments (assets, their properties, and relationships) updated from telemetry.
+
+**Why it is relevant here:** modelling each **furnace / line** as a twin — with
+campaign state, refractory context and live thermal data — enables richer
+what-if analysis and a navigable plant topology on top of the RUL signals.
+
+**Tier:** **nice-to-have** — the must-have core relies on **physics-informed
+signatures** and the **Fabric RTI Digital Twin builder**, so a standalone Azure
+Digital Twins instance is only justified once a committed twin-driven scenario
+(e.g. cross-asset what-if) is on the roadmap.
+
+### ⚙️ Azure IoT Operations — ✅ OK (nice-to-have)
+
+**What it is:** the **next-generation, Arc-enabled edge data plane** — an MQTT
+broker plus declarative data flows that normalize, filter and route OT telemetry
+at the plant before it reaches the cloud.
+
+**Why it is relevant here:** at four sites with high-frequency furnace sensors,
+an edge layer can **pre-aggregate and buffer** telemetry (resilience to
+connectivity loss), enforce the **one-way OT/IT boundary**, and cut egress. It is
+also the **modern replacement** for the legacy IoT Edge runtime.
+
+**Tier:** **nice-to-have** — deferred until the cloud-direct pipeline is proven
+and a concrete need for edge autonomy/bandwidth control appears during multi-site
+scale-out.
+
+### 📊 Azure IoT Central — 🚫 KO (no evolution)
+
+**What it is:** a fully managed **IoT SaaS application platform** (prebuilt
+dashboards, rules and device templates) for building IoT solutions with minimal
+custom development.
+
+**Why it is *not* relevant here:** the decisive reason is lifecycle — Azure IoT
+Central has **no clear forward roadmap and carries a real deprecation risk**, and
+it is no longer attracting meaningful feature investment, so building UC12 on it
+would risk a **dead-end dependency** the moment we shipped. Even setting the
+roadmap risk aside, it is the **wrong architectural shape**: IoT Central is a
+closed, low-code SaaS app optimised for quick device dashboards and simple rules,
+whereas UC12 needs **open, custom data + ML + governance** — physics-informed RUL
+models, OneLake medallion data, Purview lineage and EU AI Act traceability — none
+of which fit a packaged SaaS surface. Its genuinely useful pieces (device
+onboarding, rules, dashboards) are already covered, more flexibly, by **Azure IoT
+Hub + Microsoft Fabric (Real-Time Intelligence + Power BI)**. The migration path
+Microsoft itself points to off IoT Central is exactly **IoT Hub + a custom
+solution**, which is the architecture UC12 already adopts.
+
+**Tier:** **not retained** — its capability is covered by **Azure IoT
+Hub + Microsoft Fabric** (a custom solution we fully control).
+
+### 🔌 Azure IoT Edge — 🚫 KO (superseded)
+
+**What it is:** the **first-generation edge runtime** that runs containerized
+modules (including offline ML inference) on plant-side gateways managed from IoT
+Hub.
+
+**Why it is *not* relevant here:** there are two reasons. First, the must-have
+core is **cloud-direct**, so there is no edge runtime to operate. Second — and
+decisive for the longer term — **IoT Edge is effectively superseded by Azure IoT
+Operations**, the Arc-based, declarative successor. If/when an edge layer is
+needed, we would adopt **IoT Operations**, not IoT Edge.
+
+**Tier:** **not retained** — any future edge requirement is met by
+**Azure IoT Operations** instead.

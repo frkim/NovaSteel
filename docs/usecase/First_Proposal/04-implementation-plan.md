@@ -43,14 +43,15 @@ gantt
 ### Phase 1 — Foundation (≈5 weeks) → **Gate G2**
 
 - Deploy **landing zone** via IaC (networking, identity, policy, monitoring).
-- Stand up **Fabric/OneLake** medallion lakehouse and **IoT Operations** edge.
+- Stand up **Fabric/OneLake** medallion lakehouse and **cloud-direct IoT Hub**
+  telemetry ingestion (no edge runtime).
 - **Data assessment**: tag inventory, quality profiling, historian connectivity.
 - Build synthetic-data generators for the demo.
 - **Exit:** telemetry flowing to Bronze/Silver; security baseline passed.
 
 ### Phase 2 — Pilot build (≈8 weeks) → **Gate G3**
 
-- **Workload A** — RUL furnace model + edge alerting; back-test on history.
+- **Workload A** — RUL furnace model + Real-Time Intelligence alerting; back-test on history.
 - **Workload B** — energy-dispatch agent with spot-price/carbon feeds.
 - **Workload C** — knowledge-capture assistant (RAG) on synthetic SOPs.
 - Dashboards (Power BI/Fabric) and operator Teams/Copilot experience.
@@ -74,7 +75,7 @@ gantt
 | ---- | ----- | --------- |
 | Microsoft CSA / Solution Architect | Architecture, enablement | A on design |
 | Data/AI Engineers | Models, pipelines | R on AI quality |
-| Data/Platform Engineers | Landing zone, Fabric, edge | R on platform |
+| Data/Platform Engineers | Landing zone, Fabric, ingestion | R on platform |
 | NovaSteel metallurgist (SME) | Features, validation | A on quality |
 | NovaSteel energy manager (SME) | Constraints, baselines | A on energy |
 | NovaSteel maintenance lead (SME) | Failure labels | A on maintenance |

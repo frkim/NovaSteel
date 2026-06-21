@@ -57,7 +57,7 @@ Head of Sustainability / ESG · Compliance Officer · Data Protection Officer (D
 ## Slide 6 — Solution architecture (Solution)
 
 - **Key message:** A clean path from sensor to decision on Azure.
-- Edge (IoT Operations/Arc) → Fabric/OneLake → Azure ML & Azure OpenAI.
+- Cloud-direct IoT Hub → Fabric/OneLake → Fabric Data Science & Microsoft Foundry.
 - Dashboards + operator Copilot; secure, governed, EU-resident.
 - See [02 — Architecture](02-solution-architecture.md).
 - *Visual:* the Mermaid architecture diagram.
@@ -66,7 +66,7 @@ Head of Sustainability / ESG · Compliance Officer · Data Protection Officer (D
 
 - **Key message:** 21-day warning avoids €8M events.
 - Physics-informed RUL model on thermal/vibration signatures.
-- Edge inference → resilient, low-latency alerts.
+- Real-Time Intelligence → resilient, low-latency cloud alerts.
 - Proven by back-testing historical failures.
 - *Visual:* lining wear curve with 21-day alert marker.
 

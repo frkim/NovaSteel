@@ -25,7 +25,7 @@ Shift Supervisors / Senior Operators (18).
 | **Data sources** | Thermal signatures (pyrometers/IR), vibration, off-gas chemistry, campaign age, heat history, refractory batch |
 | **Features** | Physics-informed: heat-flux estimates, wear-rate proxies, thermal gradients; plus rolling statistics & spectral features |
 | **Model** | Hybrid: first-principles heat-transfer features feeding gradient-boosted / temporal models; survival analysis for time-to-event |
-| **Serving** | Batch retrain in Azure ML; **edge inference** for low-latency, connectivity-resilient alerts |
+| **Serving** | Batch retrain in **Fabric Data Science**; **Fabric ML endpoint** scored on live Real-Time Intelligence (KQL) features for low-latency cloud alerting |
 | **Metrics** | Alert **precision/recall at 21-day horizon**, lead-time MAE weighted toward early warning, false-alarm rate |
 | **Proof** | Back-test on historical failures; track lead-time distribution |
 
@@ -50,9 +50,9 @@ high-grade yield by spreading best-known methods.
 
 | Aspect | Design |
 | ------ | ------ |
-| **Pattern** | Interview assistant (Azure OpenAI) → structured procedure library → **RAG** via Azure AI Search |
+| **Pattern** | Interview assistant (Azure OpenAI) → structured procedure library → **RAG** via Foundry IQ |
 | **Data** | Operator interviews, SOPs, shift logs (anonymised); grounded retrieval only |
-| **Model** | Azure OpenAI chat model with retrieval; citations to source procedures |
+| **Model** | Azure OpenAI / Foundry model with retrieval; citations to source procedures |
 | **Serving** | Teams + Copilot experience for operators and metallurgists |
 | **Metrics** | Groundedness, relevance, answer-with-citation rate, human review pass rate, adoption/usage |
 | **Proof** | Human SME evaluation set; track yield correlation over time |
@@ -72,12 +72,13 @@ but by tightening the process:
 
 ## 5. MLOps
 
-- **Azure Machine Learning** registry + pipelines; **Git + Azure DevOps/GitHub
-  Actions** for CI/CD of models and infra.
-- **Monitoring:** data drift, model quality, and alerting in Azure Monitor;
+- **Microsoft Fabric Data Science** — MLflow experiments, model registry and
+  endpoints inside Fabric; **Git + GitHub Actions / Azure DevOps** for CI/CD of
+  promotion logic and infra.
+- **Monitoring:** data drift, model quality, and alerting via **Azure Monitor**;
   scheduled retraining with approval gates.
-- **Reproducibility:** versioned datasets (OneLake), environments, and lineage
-  in **Microsoft Purview**.
+- **Reproducibility:** versioned datasets (OneLake), pinned Spark environments,
+  and lineage in **Microsoft Purview**.
 
 ## 6. Responsible AI controls
 
@@ -127,10 +128,10 @@ integrates the results — a documented **handoff / reflection** pattern. See
 
 | Workload | Chosen approach | Why this choice | Deployment |
 | -------- | --------------- | --------------- | ---------- |
-| A — RUL | Physics-informed features + gradient-boosted / survival models | Interpretable, data-efficient, gives uncertainty + lead-time | Batch retrain in Azure ML; **edge** serving for resilient low-latency alerts |
+| A — RUL | Physics-informed features + gradient-boosted / survival models | Interpretable, data-efficient, gives uncertainty + lead-time | Batch retrain in **Fabric Data Science**; **Fabric ML endpoint** on live RTI features for low-latency cloud alerts |
 | B — Dispatch | Demand forecast (ML) + MILP/heuristic optimiser | Hard constraints & deadlines need an optimiser, not just a predictor | Azure Functions / Container Apps, event-triggered |
-| C — Assistant | **GPT-5** on Microsoft Foundry + RAG via AI Search | Strong reasoning with grounded, cited answers; EU-resident | Foundry endpoint; `text-embedding-3-large` for vectors |
+| C — Assistant | **GPT-5** on Microsoft Foundry + RAG via Foundry IQ | Strong reasoning with grounded, cited answers; EU-resident | Foundry endpoint; `text-embedding-3-large` for vectors |
 
-> Models are versioned in the Azure ML registry / Foundry, promoted through
-> gated CI/CD, and monitored for drift and quality (see
+> Models are versioned in the **Fabric Data Science** model registry (MLflow),
+> promoted through gated CI/CD, and monitored for drift and quality (see
 > [02 — §4b Monitoring](02-solution-architecture.md) and §5 MLOps above).

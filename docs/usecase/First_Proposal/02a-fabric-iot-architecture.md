@@ -34,7 +34,8 @@ unified and governed.
 
 **Microsoft Fabric** gives that single, SaaS, OneLake-backed data plane (one copy
 of data, many engines), and **Real-Time Intelligence** gives the hot path for IoT
-sensor streams. This lets us run the **hot path** (sub-second furnace alerts),
+sensor streams ingested **cloud-direct via Azure IoT Hub** (no edge runtime to
+operate). This lets us run the **hot path** (sub-second furnace alerts),
 the **warm path** (operational analytics), and the **cold path** (ML training,
 BI) on one logical lake without copying data between silos.
 
@@ -45,9 +46,8 @@ flowchart LR
         HIST["Historian / SCADA / MES"]
     end
 
-    subgraph EDGE["⚙️ Edge (Purdue L3 · Azure Arc)"]
-        IOO["Azure IoT Operations\nMQTT broker + data flows"]
-        EINF["Edge inference\nfurnace hot-path alerts"]
+    subgraph CONN["📡 Cloud-direct ingestion"]
+        IOH["Azure IoT Hub\n+ Event Hubs"]
     end
 
     subgraph FAB["☁️ Microsoft Fabric (EU capacity)"]
@@ -89,8 +89,7 @@ flowchart LR
     EXT["🌐 External feeds\nspot prices • grid carbon"]
     OPS["👷 Operators · Engineers · Execs"]
 
-    SENS --> HIST --> IOO --> ES
-    IOO --> EINF
+    SENS --> HIST --> IOH --> ES
     ES --> KQL --> ACT
     ES --> BRZ
     SC --> BRZ
@@ -174,18 +173,19 @@ Trains, tracks and serves the predictive and generative models on Gold data.
 | Capability | NovaSteel use |
 | --- | --- |
 | **Data Science** | Workspace for the two predictive workloads: **furnace-lining RUL** (remaining-useful-life regression + "failure within 21 days" classifier) and **energy-demand forecasting** feeding the dispatch optimizer. |
-| **Experiments & Models** | **MLflow**-backed experiment tracking, model registry and versioning; compare runs, register the champion, promote with full lineage. **Cross-workspace MLflow logging** (GA) enables clean Dev/Test/Prod MLOps. Models scored in batch in Fabric, served via **ML model endpoints** (preview, real-time online predictions) and exported for **edge inference** at the furnace. |
+| **Experiments & Models** | **MLflow**-backed experiment tracking, model registry and versioning; compare runs, register the champion, promote with full lineage. **Cross-workspace MLflow logging** (GA) enables clean Dev/Test/Prod MLOps. Models scored in **batch** in Fabric and served via **ML model endpoints** (preview, real-time online predictions) for the hot-path furnace alert — all inside Fabric, no separate ML service. |
 | **AI functions** | Built-in **AI functions** (GA, now on **GPT-5 / Phi-4**) bring summarize / classify / extract / translate directly into Spark and **T-SQL** — used to structure shift logs and SOP text for the knowledge assistant. |
 | **Copilot in Fabric** | Now **available worldwide** — generate Spark/SQL, explain pipelines, draft DAX, and **Fix with Copilot** — accelerating engineers and analysts across the workspace. |
-| **Fabric data agents** | A **Fabric data agent** grounded on the curated Gold lakehouse, Warehouse and Eventhouse telemetry answers operational questions in natural language ("which furnaces trend toward early wear this week?"). Recent additions: a **Code Interpreter** tool (Python for forecasting/visuals), an **improved NL2SQL** engine, **service-principal** auth, and integration with **Microsoft 365 Copilot** (GA), **Microsoft Foundry / Azure AI Agent Service** and **Copilot Studio**. Pairs with the **GenAI knowledge-capture assistant** (Azure OpenAI + AI Search, see doc 02/03) for SOP retrieval. |
+| **Fabric data agents** | A **Fabric data agent** grounded on the curated Gold lakehouse, Warehouse and Eventhouse telemetry answers operational questions in natural language ("which furnaces trend toward early wear this week?"). Recent additions: a **Code Interpreter** tool (Python for forecasting/visuals), an **improved NL2SQL** engine, **service-principal** auth, and integration with **Microsoft 365 Copilot** (GA), **Microsoft Foundry / Azure AI Agent Service** and **Copilot Studio**. Pairs with the **GenAI knowledge-capture assistant** (Microsoft Foundry + Foundry IQ, see doc 02/03) for SOP retrieval. |
 
 ### Design choices (Data Science & AI ownership split)
 
-- **Fabric Data Science owns:** feature engineering, exploratory experiments,
-  **MLflow** run tracking, and **batch scoring** inside the data plane.
-- **Azure Machine Learning owns:** the **production model registry**, approval
-  gates, CI/CD deployment, **drift/quality monitoring**, and **edge serving** of
-  the hot-path furnace model plant-side (see doc 02 §2.4 / doc 03).
+- **Fabric Data Science owns the whole ML lifecycle:** feature engineering,
+  exploratory experiments, **MLflow** run tracking, the **model registry**,
+  approval gates, **batch scoring** and **endpoint serving** of the hot-path
+  furnace model — all inside the data plane, with no separate Azure ML service.
+- The **hot-path** furnace alert is served in the cloud via **Real-Time
+  Intelligence** on live KQL features; there is **no plant-side edge runtime**.
 - The **energy-dispatch optimizer** (MILP/heuristic) runs as an Azure Functions /
   Container Apps service that consumes the Fabric energy forecast — keeping the
   combinatorial solve outside the data plane.
@@ -218,7 +218,7 @@ The streaming backbone for sensor telemetry — the heart of the IoT story.
 
 | Capability | NovaSteel use |
 | --- | --- |
-| **Eventstreams** | Ingest high-frequency furnace telemetry from **Azure IoT Operations / IoT Hub / Event Hubs** (thermal, vibration, off-gas, energy) plus external **spot-price & carbon-intensity** streams; route to KQL, OneLake (Bronze) and Activator with no code. |
+| **Eventstreams** | Ingest high-frequency furnace telemetry **cloud-direct from Azure IoT Hub / Event Hubs** (thermal, vibration, off-gas, energy) plus external **spot-price & carbon-intensity** streams; route to KQL, OneLake (Bronze) and Activator with no code. |
 | **KQL databases (Eventhouse)** | Time-series store optimised for sensor data — sub-second queries over billions of readings; **anomaly detection**, thermal-drift trends and spectral analysis on live data; hot-cache analytics with **OneLake availability** for historical lake access. |
 | **IoT telemetry pattern (sensor ingestion & processing on RTI)** | The RTI building blocks handle device telemetry at scale — schema-on-read for heterogeneous tags across four plants, windowed aggregations in Eventstreams, and enrichment with asset/campaign context for downstream features. |
 | **Activator** | No-code rules on KQL/eventstreams → trigger **alerts** (Teams/email) and workflows when a furnace crosses a thermal-wear threshold or energy/carbon spikes. Now also **publishes governed business events** into the Real-Time hub (preview) and can pass parameters to pipelines/notebooks; closes the loop to operators. |
@@ -229,14 +229,14 @@ The streaming backbone for sensor telemetry — the heart of the IoT story.
 
 - **Three paths from one stream:** Eventstream fans out to **KQL** (hot
   analytics + Activator alerts), **OneLake Bronze** (durable history for ML
-  back-tests), and **edge inference** stays plant-side for connectivity-resilient,
-  low-latency furnace alerts.
+  back-tests), and a **Fabric ML endpoint** scored on live KQL features for
+  low-latency furnace alerting — all in the cloud, no plant-side runtime.
 - KQL is the live feature source the **RUL model** taps for current thermal/vibration
   state at scoring time; OneLake holds the long history for training.
 
 ```mermaid
 flowchart LR
-    IOO["IoT Operations / IoT Hub"] --> ES["Eventstream"]
+    IOH["Azure IoT Hub"] --> ES["Eventstream"]
     EXT["Spot price · grid carbon"] --> ES
     ES --> KQL["KQL DB (Eventhouse)"]
     ES --> BRZ["OneLake Bronze"]
@@ -296,9 +296,10 @@ Act and ETS auditability.
 
 ### A — Furnace-lining RUL (predictive maintenance · O3, 21-day warning)
 
-`Sensors → IoT Operations → Eventstream → KQL (live) + Bronze (history)
+`Sensors → Azure IoT Hub → Eventstream → KQL (live) + Bronze (history)
 → Spark feature notebooks → Gold features → Data Science (RUL model)
-→ batch score in Fabric + edge inference plant-side → Activator alert + Power BI`
+→ batch score in Fabric + Fabric ML endpoint on live KQL features
+→ Activator alert + Power BI`
 
 ### B — Energy-dispatch optimization (O1/O2 · −14% energy, −22% CO₂)
 
@@ -310,7 +311,7 @@ Act and ETS auditability.
 ### C — GenAI knowledge capture (O4 enabler · +8% yield)
 
 `Operator interviews + SOPs + shift logs → OneLake (Knowledge lakehouse)
-→ structured procedure library → Azure AI Search (RAG) + Fabric data agent /
+→ structured procedure library → Foundry IQ (grounding/RAG) + Fabric data agent /
 Copilot → Teams assistant for operators & metallurgists` (detail in doc 03 §3)
 
 ---
@@ -331,9 +332,10 @@ Copilot → Teams assistant for operators & metallurgists` (detail in doc 03 §3
 
 - A **Fabric capacity** (e.g. F-SKU) is provisioned in an EU region; sizing is a
   cost lever (see [05](05-cost-estimate.md)).
-- Historian/MES expose the required tags; the edge cluster can be deployed
-  plant-side and ingestion is one-way out for OT safety.
-- The **hot-path furnace model** is deployed to the edge via Azure ML; Fabric Data
-  Science owns experiment tracking and batch scoring.
+- Historian/MES expose the required tags; telemetry is ingested **cloud-direct
+  via Azure IoT Hub** and is one-way out for OT safety (no edge runtime).
+- The **hot-path furnace model** is served from a **Fabric ML endpoint** on live
+  Real-Time Intelligence features; Fabric Data Science owns experiment tracking,
+  the model registry and batch scoring.
 - Demo uses **synthetic / anonymised** data — no real plant or personal data is
   exposed. These are **reference assumptions** to confirm in a design workshop.

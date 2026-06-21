@@ -32,9 +32,9 @@ Head of Energy Management (7), and Head of Sustainability / ESG (11).
 | Category | Representative services | Indicative €/yr |
 | -------- | ----------------------- | --------------- |
 | Data platform | Microsoft Fabric capacity, OneLake/ADLS | €120k–€220k |
-| Ingestion & edge | IoT Hub/Operations, Event Hubs, Arc | €40k–€80k |
-| AI/ML | Azure ML compute (train/serve), monitoring | €90k–€180k |
-| GenAI | Azure OpenAI tokens, AI Search | €30k–€90k |
+| Ingestion | Azure IoT Hub, Event Hubs (cloud-direct) | €40k–€80k |
+| AI/ML | Fabric Data Science compute (train/score), monitoring | €90k–€180k |
+| GenAI | Microsoft Foundry — Azure OpenAI tokens, Foundry IQ | €30k–€90k |
 | Apps & experience | Functions/Container Apps, Power BI | €20k–€50k |
 | Security & governance | Defender, Purview, Key Vault, Monitor | €30k–€60k |
 | Networking | VNet, private endpoints, egress | €10k–€30k |
@@ -47,7 +47,7 @@ Head of Energy Management (7), and Head of Sustainability / ESG (11).
 
 | Item | Indicative € |
 | ---- | ------------ |
-| Foundation (landing zone, data platform, edge) | €150k–€300k |
+| Foundation (landing zone, data platform, ingestion) | €150k–€300k |
 | Three AI workloads (build, MLOps, Responsible AI) | €250k–€500k |
 | Experience, integration, enablement | €100k–€200k |
 | Compliance (DPIA, AI Act file) & change mgmt | €60k–€120k |
