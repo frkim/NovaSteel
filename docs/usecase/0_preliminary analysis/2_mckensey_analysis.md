@@ -1,5 +1,10 @@
 # 📑 Table of Contents — NovaSteel AI-Powered Steel Production Optimisation Platform
 
+> 📖 **This is the outline.** The full, section-by-section analysis is built out in
+> the [`2_mckensey_analysis/`](2_mckensey_analysis/README.md) folder — one file per
+> section (0–15). Start at the [index / README](2_mckensey_analysis/README.md) or the
+> [Executive Summary](2_mckensey_analysis/00-executive-summary.md).
+
 ## 0. 🧭 Executive Summary
 
 - 0.1 Industrial context (NovaSteel — integrated steel producer, HQ Luxembourg; plants in Luxembourg, Germany, Belgium, Spain)
