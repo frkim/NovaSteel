@@ -1,0 +1,2 @@
+{"assetId":"LU-BF1","assetType":"BlastFurnace","site":"LU","metric":"ThermocoupleTemp","value":1487.2,"unit":"C","timestamp":"2026-06-21T10:00:00Z","quality":"Good","origin":"Real","sourceId":"ot:LU-historian"}
+{"assetId":"LU-BF1","assetType":"BlastFurnace","site":"LU","metric":"HeatFlux","value":12.3,"unit":"kW/m2","timestamp":"2026-06-21T10:00:01Z","quality":"Good","origin":"Synthetic","sourceId":"sim:steel_factory_simulator@v1"}

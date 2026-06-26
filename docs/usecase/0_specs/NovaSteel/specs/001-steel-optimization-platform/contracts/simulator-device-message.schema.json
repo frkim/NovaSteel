@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://novasteel.eu/contracts/simulator-device-message.schema.json",
+  "title": "SimulatorDeviceMessage",
+  "description": "Steel-factory simulator -> Azure IoT Hub device-to-cloud message. Device->cloud ONLY (Constitution IV: no reverse path). Payload telemetry MUST conform to telemetry-reading.schema.json and MUST carry origin='Synthetic' (Constitution IX).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["deviceId", "messageId", "enqueuedAt", "readings"],
+  "properties": {
+    "deviceId": { "type": "string", "minLength": 1, "description": "IoT Hub device identity (per-device key in Key Vault), e.g. 'sim-LU-BF1'." },
+    "messageId": { "type": "string", "description": "Idempotency/dedup key." },
+    "enqueuedAt": { "type": "string", "format": "date-time" },
+    "schemaVersion": { "type": "string", "default": "1.0" },
+    "readings": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "telemetry-reading.schema.json" },
+      "description": "Batch of telemetry readings; each MUST have origin='Synthetic' and a sourceId identifying the simulator."
+    },
+    "injectedScenario": {
+      "type": ["string", "null"],
+      "description": "Optional active failure-injection scenario id (e.g. 'degrading-furnace-LU-BF1') for deterministic replay/Independent Tests.",
+      "default": null
+    }
+  },
+  "$defs": {
+    "constraintSyntheticOrigin": {
+      "description": "Engineering rule (enforced by simulator + ingestion tests, not pure JSON Schema): every reading.origin MUST equal 'Synthetic'."
+    }
+  }
+}

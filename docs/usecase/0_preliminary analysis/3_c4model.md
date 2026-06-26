@@ -290,6 +290,7 @@ C4Deployment
 
 - **Data residency**: Fabric capacity and Foundry pinned to **EU regions**; private access via **VNet + Private Link**.
 - **Phased rollout** (per [2_mckensey_analysis.md](2_mckensey_analysis.md) §9): pilot one furnace → multi-line → four-country scale-out.
+- **Demo mode**: a **sensor simulator** (small Functions / Container Apps service) replaces the plant `Sensors / SCADA / Historian` node — it **simulates multi-sensor events for the main factory and mill components** (furnace, refractory, caster, reheat, rolling stands, utilities) and streams synthetic telemetry **cloud-direct to IoT Hub**, exercising the same pipeline end-to-end. See [2_mckensey_analysis/15-appendices.md §G](2_mckensey_analysis/15-appendices.md#g-demo-sensor-simulator-components-sensors--metrics).
 
 ---
 

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://novasteel.eu/contracts/energy-plan.schema.json",
+  "title": "EnergyPlan",
+  "description": "Energy-dispatch recommendation: a proposed schedule of energy-intensive jobs vs day-ahead spot price + grid carbon, with energy/CO2/cost vs the frozen baseline and deadline-breach flags (FR-006/007/008; R2/R8).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["energyPlanId", "site", "planningHorizon", "scheduledJobs", "expectedEnergyPerTon", "expectedCo2PerTon", "expectedCostEur", "baselineComparison", "solver", "status"],
+  "properties": {
+    "energyPlanId": { "type": "string", "format": "uuid" },
+    "site": { "type": "string", "enum": ["LU", "DE", "BE", "ES"] },
+    "planningHorizon": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to"],
+      "properties": {
+        "from": { "type": "string", "format": "date-time" },
+        "to": { "type": "string", "format": "date-time" }
+      }
+    },
+    "scheduledJobs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["jobId", "slotStart", "slotEnd", "energyMwh"],
+        "properties": {
+          "jobId": { "type": "string" },
+          "slotStart": { "type": "string", "format": "date-time" },
+          "slotEnd": { "type": "string", "format": "date-time" },
+          "deadline": { "type": ["string", "null"], "format": "date-time", "default": null },
+          "energyMwh": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "expectedEnergyPerTon": { "type": "number", "description": "Expected energy/ton (FR-007)." },
+    "expectedCo2PerTon": { "type": "number", "description": "Expected CO2/ton (FR-007)." },
+    "expectedCostEur": { "type": "number", "description": "Expected cost (FR-007)." },
+    "baselineComparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baselineEnergyPerTon", "baselineCo2PerTon", "baselineCostEur"],
+      "description": "Frozen trailing-12-month, normalized per-site baseline (R8).",
+      "properties": {
+        "baselineEnergyPerTon": { "type": "number" },
+        "baselineCo2PerTon": { "type": "number" },
+        "baselineCostEur": { "type": "number" }
+      }
+    },
+    "deadlineBreaches": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Job ids that would miss a committed production deadline; such a plan is NOT presented as production-constraint-compliant (FR-008).",
+      "default": []
+    },
+    "solver": { "type": "string", "enum": ["Milp", "Heuristic"], "description": "Engine that produced the plan (R2)." },
+    "origin": { "type": "string", "enum": ["Real", "Synthetic"], "default": "Real" },
+    "status": { "type": "string", "enum": ["Proposed", "UnderReview", "Approved", "Adjusted", "Rejected", "Lapsed"] }
+  }
+}

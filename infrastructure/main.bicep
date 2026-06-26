@@ -25,6 +25,9 @@ param resourceGroupName string = 'rg-${namePrefix}-${environmentName}'
 @description('Enable Microsoft Defender for Cloud plans on the subscription.')
 param enableDefenderForCloud bool = true
 
+@description('Enforce EU data-residency via Azure Policy (allowed locations). Constitution III.')
+param enforceEuResidencyPolicy bool = true
+
 @description('Microsoft Fabric capacity SKU (F-SKU).')
 param fabricSkuName string = 'F8'
 
@@ -36,6 +39,23 @@ param purviewLocation string = ''
 
 @description('Deploy Microsoft Purview (governance/lineage). Disable where tenant/region constraints apply.')
 param deployPurview bool = true
+
+@description('Deploy the Azure SQL audit/app-state store (research.md R7). Requires sqlAadAdminObjectId when true.')
+param deployAppState bool = false
+
+@description('Entra admin display name for the Azure SQL audit store (user UPN, group, or SP name).')
+param sqlAadAdminLogin string = ''
+
+@description('Entra admin object ID for the Azure SQL audit store.')
+param sqlAadAdminObjectId string = ''
+
+@description('Entra admin principal type for the Azure SQL audit store.')
+@allowed([
+  'User'
+  'Group'
+  'Application'
+])
+param sqlAadAdminPrincipalType string = 'Group'
 
 @description('Additional resource tags.')
 param tags object = {}
@@ -61,6 +81,11 @@ module defender 'modules/defender.bicep' = if (enableDefenderForCloud) {
   scope: subscription()
 }
 
+module euResidencyPolicy 'modules/policy.bicep' = if (enforceEuResidencyPolicy) {
+  name: 'eu-residency-policy'
+  scope: subscription()
+}
+
 module platform 'resources.bicep' = {
   name: 'novasteel-platform'
   scope: resourceGroup
@@ -73,6 +98,10 @@ module platform 'resources.bicep' = {
     fabricAdminMembers: fabricAdminMembers
     purviewLocation: purviewLocation
     deployPurview: deployPurview
+    deployAppState: deployAppState
+    sqlAadAdminLogin: sqlAadAdminLogin
+    sqlAadAdminObjectId: sqlAadAdminObjectId
+    sqlAadAdminPrincipalType: sqlAadAdminPrincipalType
   }
 }
 

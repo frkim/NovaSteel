@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://novasteel.eu/contracts/telemetry-reading.schema.json",
+  "title": "TelemetryReading",
+  "description": "Canonical one-way OT/IoT telemetry envelope. Aligned with libs/NovaSteel.Contracts.TelemetryReading, libs/novasteel_core.TelemetryReading, and libs/fixtures/telemetry_reading.json. CT-2 adds origin + sourceId (Constitution IX).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["assetId", "assetType", "site", "metric", "value", "unit", "timestamp", "quality"],
+  "properties": {
+    "assetId": { "type": "string", "minLength": 1, "examples": ["LU-BF1"] },
+    "assetType": { "type": "string", "enum": ["Unknown", "BlastFurnace", "RollingMill", "Utility"] },
+    "site": { "type": "string", "enum": ["LU", "DE", "BE", "ES"] },
+    "metric": { "type": "string", "enum": ["Unknown", "ThermocoupleTemp", "HeatFlux", "Vibration", "Throughput", "PowerDrawKw"] },
+    "value": { "type": "number" },
+    "unit": { "type": "string", "examples": ["C", "kW"] },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "quality": { "type": "string", "enum": ["Good", "Suspect", "Bad"] },
+    "origin": { "type": "string", "enum": ["Real", "Synthetic"], "default": "Real", "description": "CT-2: synthetic-origin marker preserved end-to-end (Constitution IX)." },
+    "sourceId": { "type": "string", "default": "", "description": "CT-2: producing source, e.g. 'sim:steel_factory_simulator@v1' or 'ot:LU-historian'." }
+  }
+}

@@ -1,0 +1,5 @@
+{
+    "workbench.diffEditorAssociations": {
+        "*.md": "vscode.markdown.preview.editor"
+    }
+}

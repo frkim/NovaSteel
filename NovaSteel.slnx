@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/libs/">
+    <Project Path="libs/NovaSteel.Contracts.Tests/NovaSteel.Contracts.Tests.csproj" />
+    <Project Path="libs/NovaSteel.Contracts/NovaSteel.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/apps/">
+    <Project Path="apps/steel_factory_simulator/src/SteelFactorySimulator/SteelFactorySimulator.csproj" />
+    <Project Path="apps/steel_factory_simulator/tests/SteelFactorySimulator.Tests/SteelFactorySimulator.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -33,6 +33,47 @@ In a steel factory, a lot of components are involved in the toolchain, from sens
 - AI agents that deliver actionable, explainable insights to operators.
 - Clear separation of concerns between edge, cloud, and presentation layers.
 
+## Demo Simulator
+
+To exercise the full toolchain — from sensors to AI agents and operators — **without
+connecting to live plant systems**, the solution includes a **demo simulator**: a
+service that **simulates events from multiple sensors for the main components of the
+steel factory and rolling mills** and streams them through the same end-to-end flow
+described above.
+
+**Main components simulated:**
+
+- **Furnace (EAF/BOF)** and its **refractory lining** — the asset behind failure
+  prediction.
+- **Ladle / secondary metallurgy** and **continuous caster**.
+- **Reheat furnace** and **hot rolling-mill stands**.
+- **Cooling / run-out table** and plant **utilities & energy**.
+
+**Representative sensors & metrics:**
+
+| Sensor type | Example metrics (units) |
+|-------------|-------------------------|
+| Pyrometers / IR / thermocouples | Temperature (°C), **heat-flux** (kW/m²), thermal gradient (°C/cm) |
+| Vibration / acoustic | Vibration RMS & spectrum (mm/s), acoustic emission |
+| Electrical | Electrode current (kA), power (MW), energy (kWh) |
+| Off-gas analysers | CO / CO₂ / O₂ (%), dust (mg/Nm³) |
+| Flow / pressure / level | Water & gas flow (m³/h, Nm³/h), pressure (bar), mould level (mm) |
+| Mill instrumentation | Rolling force (MN), roll gap & strip thickness (mm/µm), strip tension (kN), speed (m/s) |
+
+**Key characteristics:**
+
+- Streams **synthetic, per-device telemetry cloud-direct via Azure IoT Hub** — the
+  simulator sits at the **Sensors / Edge Devices** layer with no other change.
+- Produces **physically correlated** signals and **injectable scenarios** (refractory
+  wear-to-failure, vibration spike, off-gas drift, energy-price spike, quality
+  excursion) for **reproducible, seeded** demos, with an optional accelerated clock.
+- Every event is tagged `source=simulator` — **no real plant or personal data**.
+- Replacing the simulator with live SCADA/historian tags is a **connection change,
+  not a redesign**.
+
+> Detailed component/sensor/metric/scenario catalogue:
+> [`2_mckensey_analysis/15-appendices.md` §G](2_mckensey_analysis/15-appendices.md#g-demo-sensor-simulator-components-sensors--metrics).
+
 ## Azure Services
 
 Lastly, this analysis evaluates which Azure services will be involved in this project. Candidate services include:

@@ -1,0 +1,85 @@
+@page
+@model SteelFactorySimulator.Pages.IndexModel
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NovaSteel Steel Factory Simulator</title>
+    <style>
+        :root { color-scheme: light dark; font-family: "Segoe UI", system-ui, sans-serif; }
+        body { margin: 0; background: #0f172a; color: #e2e8f0; }
+        header { padding: 1.25rem 2rem; background: #111827; border-bottom: 1px solid #334155; }
+        main { padding: 1.5rem 2rem; display: grid; gap: 1rem; }
+        button, input { padding: .55rem .75rem; border-radius: .45rem; border: 1px solid #475569; }
+        button { background: #2563eb; color: white; cursor: pointer; }
+        button.secondary { background: #475569; }
+        button.danger { background: #dc2626; }
+        section { background: #111827; border: 1px solid #334155; border-radius: .75rem; padding: 1rem; }
+        table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+        th, td { border-bottom: 1px solid #334155; padding: .45rem .5rem; text-align: left; }
+        th { color: #93c5fd; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+        .status { color: #a7f3d0; }
+        .badge { border-radius: 999px; padding: .2rem .5rem; background: #1e293b; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>NovaSteel Steel Factory Simulator</h1>
+    <p>Device-side synthetic OT telemetry for blast furnaces, rolling mills, and utilities. Device→cloud only.</p>
+</header>
+<main>
+    <section>
+        <h2>Simulation control</h2>
+        <div class="toolbar">
+            <button onclick="post('/api/simulation/start')">Start</button>
+            <button class="secondary" onclick="post('/api/simulation/stop')">Stop</button>
+            <span id="status" class="status">Loading...</span>
+        </div>
+    </section>
+
+    <section>
+        <h2>Incident / failure injection</h2>
+        <div class="toolbar">
+            <label>Furnace asset <input id="assetId" value="LU-BF1" /></label>
+            <label>Horizon days <input id="horizonDays" type="number" min="21" value="30" /></label>
+            <button class="danger" onclick="injectDegradingFurnace()">Trigger degrading-furnace</button>
+            <button class="secondary" onclick="post('/api/scenarios/clear')">Clear scenario</button>
+        </div>
+        <p>The degrading-furnace scenario deterministically ramps heat flux, thermal signatures, and vibration so a ≥21-day trend is visible on replay.</p>
+    </section>
+
+    <section>
+        <h2>Sensor overview <span id="count" class="badge">0 readings</span></h2>
+        <table>
+            <thead>
+            <tr><th>Site</th><th>Asset</th><th>Type</th><th>Metric</th><th>Value</th><th>Unit</th><th>Quality</th><th>Origin</th><th>Source</th><th>Timestamp</th></tr>
+            </thead>
+            <tbody id="readings"></tbody>
+        </table>
+    </section>
+</main>
+<script>
+async function post(url, body) {
+    await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+    await refresh();
+}
+async function injectDegradingFurnace() {
+    await post('/api/scenarios/degrading-furnace', {
+        assetId: document.getElementById('assetId').value,
+        horizonDays: Number(document.getElementById('horizonDays').value)
+    });
+}
+async function refresh() {
+    const status = await (await fetch('/api/status')).json();
+    document.getElementById('status').textContent = `${status.isRunning ? 'Running' : 'Stopped'} | step ${status.stepIndex} | scenario ${status.activeScenario ?? 'none'} | sim time ${status.simulationTime}`;
+    const readings = await (await fetch('/api/readings')).json();
+    document.getElementById('count').textContent = `${readings.length} readings`;
+    document.getElementById('readings').innerHTML = readings.map(r => `<tr><td>${r.site}</td><td>${r.assetId}</td><td>${r.assetType}</td><td>${r.metric}</td><td>${r.value}</td><td>${r.unit}</td><td>${r.quality}</td><td>${r.origin}</td><td>${r.sourceId}</td><td>${r.timestamp}</td></tr>`).join('');
+}
+setInterval(refresh, 1500);
+refresh();
+</script>
+</body>
+</html>

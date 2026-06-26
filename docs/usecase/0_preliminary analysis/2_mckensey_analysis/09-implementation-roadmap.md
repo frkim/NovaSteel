@@ -53,7 +53,9 @@ gantt
 - Stand up the **Fabric / OneLake medallion lakehouse** and **cloud-direct IoT Hub**
   ingestion (no edge runtime).
 - **Data assessment:** tag inventory, quality profiling, historian connectivity.
-- Build **synthetic-data generators** for the demo.
+- Build the **demo sensor simulator** and **synthetic-data generators** for the demo —
+  multi-sensor events for furnace, caster, rolling mill and utilities, streamed
+  cloud-direct via IoT Hub (see [§G](15-appendices.md#g-demo-sensor-simulator-components-sensors--metrics)).
 - **Exit:** telemetry flowing to Bronze/Silver; **security baseline passed**.
 
 ## 9.3 Phase 2 — Pilot build (≈8 weeks) → Gate G3

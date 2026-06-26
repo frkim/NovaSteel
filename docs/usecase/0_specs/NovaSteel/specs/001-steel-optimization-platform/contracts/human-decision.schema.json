@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://novasteel.eu/contracts/human-decision.schema.json",
+  "title": "HumanDecision",
+  "description": "A reviewer confirming/editing/rejecting a Prediction, Recommendation, or EnergyPlan. No downstream action occurs without one (FR-016, NFR-001, SC-005; Constitution I).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decisionId", "subjectType", "subjectId", "site", "decision", "reviewerId", "reviewerRole", "decidedAt"],
+  "properties": {
+    "decisionId": { "type": "string", "format": "uuid" },
+    "subjectType": { "type": "string", "enum": ["Prediction", "Recommendation", "EnergyPlan"] },
+    "subjectId": { "type": "string" },
+    "site": { "type": "string", "enum": ["LU", "DE", "BE", "ES"] },
+    "decision": { "type": "string", "enum": ["Confirm", "Edit", "Reject"] },
+    "reviewerId": { "type": "string", "description": "Entra identity; pseudonymized in audit where feasible (FR-024)." },
+    "reviewerRole": { "type": "string", "enum": ["Operator", "Maintenance", "Energy", "Quality", "ExecutiveEsg", "ComplianceDpo"] },
+    "rationale": { "type": "string" },
+    "decidedAt": { "type": "string", "format": "date-time" },
+    "resultingWorkOrderId": { "type": ["string", "null"], "description": "If an approved maintenance recommendation proposed a work order (FR-004/019). Platform proposes only; never auto-executes.", "default": null }
+  }
+}

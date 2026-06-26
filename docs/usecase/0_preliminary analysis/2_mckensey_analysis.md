@@ -64,6 +64,7 @@
 - 6.4 Quality prediction models (steel composition consistency for automotive grades)
 - 6.5 GenAI knowledge-capture assistant (operator interviews → procedure library; RAG via Microsoft Foundry / Foundry IQ)
 - 6.6 Model lifecycle (MLOps in Microsoft Fabric Data Science)
+- 6.7 Demo sensor simulator (simulates multi-sensor events for the main factory/mill components; injectable scenarios for live demos)
 
 ## 7. 📊 Data Strategy & Governance
 
@@ -137,3 +138,4 @@
 - D. Data schema overview
 - E. Model technical specifications
 - F. EU ETS overview and assumptions
+- G. Demo sensor simulator (main components, sensors, metrics & scenarios)

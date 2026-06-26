@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://novasteel.eu/contracts/audit-record.schema.json",
+  "title": "AuditRecord",
+  "description": "Immutable, append-only traceability entry for every prediction, recommendation, and human decision (FR-017, NFR-003; Constitution II). INSERT-only; 10y/5y retention per class (NFR-008); exempt from GDPR erasure (Art. 17(3)(b)).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["auditId", "subjectType", "subjectId", "site", "action", "inputsRef", "modelOrLogicVersion", "output", "timestamp", "retentionClass"],
+  "properties": {
+    "auditId": { "type": "string", "format": "uuid" },
+    "subjectType": { "type": "string", "enum": ["Prediction", "Recommendation", "EnergyPlan", "HumanDecision", "WorkOrder", "KnowledgeItem"] },
+    "subjectId": { "type": "string" },
+    "site": { "type": "string", "enum": ["LU", "DE", "BE", "ES"] },
+    "action": { "type": "string", "examples": ["PredictionRaised", "DecisionConfirmed", "EnergyPlanLapsed"] },
+    "inputsRef": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Pointers to the inputs/evidence used (sensor windows, feature snapshots, source docs)."
+    },
+    "modelOrLogicVersion": { "type": "string", "description": "Model/solver/agent version that produced the output." },
+    "output": { "type": "object", "description": "Snapshot of the produced output." },
+    "reviewerId": { "type": ["string", "null"], "description": "Pseudonymized reviewer identity where feasible (FR-024).", "default": null },
+    "rationale": { "type": ["string", "null"], "default": null },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "origin": { "type": "string", "enum": ["Real", "Synthetic"], "default": "Real", "description": "Provenance of the underlying data (Constitution IX)." },
+    "retentionClass": { "type": "string", "enum": ["PredictionDecisionAudit", "EnergyEts"], "description": "PredictionDecisionAudit=10y; EnergyEts=5y. Configurable per class and per site (NFR-008)." }
+  }
+}

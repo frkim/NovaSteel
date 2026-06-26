@@ -8,6 +8,7 @@
 - [D. Data schema overview](#d-data-schema-overview)
 - [E. Model technical specifications](#e-model-technical-specifications)
 - [F. EU ETS overview and assumptions](#f-eu-ets-overview-and-assumptions)
+- [G. Demo sensor simulator (components, sensors & metrics)](#g-demo-sensor-simulator-components-sensors--metrics)
 
 ---
 
@@ -133,6 +134,91 @@ versioning + Purview lineage; **uncertainty bounds** on every prediction.
 | **Reporting integrity** | Emissions reporting is **read-only** to the AI; optimisation is separate & human-approved; reconciliation evidence retained |
 | **Benefit** | Avoided ETS penalty cost **+** verifiable sustainability narrative for customers/investors |
 | **Caveat** | Site-specific; confirm tonnage, tCO₂/t and price during the design workshop |
+
+## G. Demo sensor simulator (components, sensors & metrics)
+
+To run the platform end-to-end **without connecting to live plant OT**, the demo
+ships a **sensor simulator**: a lightweight service that **simulates events from
+multiple sensors for the main components of the steel factory and rolling mills** and
+streams them, **cloud-direct via Azure IoT Hub**, exactly as real equipment would.
+It is the safe, repeatable data source behind the §6.8 demo-data plan, the §7.3
+synthetic augmentation, and the §9.2 *"build synthetic-data generators"* task.
+
+> **All simulator output is clearly labelled `synthetic`** (a `source=simulator`
+> tag on every event) — no real plant, personal or customer data is ever used.
+
+### G.1 What it does
+
+- Emulates a fleet of **per-device** sensors (one IoT Hub identity per simulated
+  device) across the **main steelmaking components** below.
+- Generates **physically plausible** time series (correlated temperatures, heat-flux,
+  vibration, off-gas, energy) rather than independent random noise.
+- **Injects scenarios on demand** — e.g. a refractory-wear ramp that drives the
+  **21-day furnace alert**, a vibration spike, an off-gas drift, or an energy-price
+  spike — so every workload can be demonstrated live and reproducibly.
+- Runs from a **seeded** configuration for **deterministic, repeatable** demos, with
+  an optional **accelerated clock** to compress a furnace campaign into minutes.
+
+### G.2 Main components & their sensors
+
+| # | Plant component | Simulated sensors | Representative metrics (units) | Nominal sample rate |
+|---|-----------------|-------------------|--------------------------------|---------------------|
+| 1 | **Electric-Arc / Basic-Oxygen Furnace (EAF/BOF)** | Pyrometers / IR cameras, shell thermocouples, electrode current & voltage, off-gas analyser | Bath/shell temperature (°C), **heat-flux** (kW/m²), thermal gradient (°C/cm), electrode current (kA), active power (MW), tap temperature (°C) | 1 Hz (thermal), 50 Hz (electrical) |
+| 2 | **Refractory lining** *(the RUL asset)* | Embedded thermocouples, IR shell scanning, derived wear proxy | Hot-face/cold-face temperature (°C), heat-flux trend (kW/m²), **wear-rate proxy** (mm/heat), campaign age (heats) | per-heat + 1 Hz thermal |
+| 3 | **Ladle / secondary metallurgy** | Thermocouples, stirring/argon flow, weigh cells | Steel temperature (°C), argon flow (Nm³/h), ladle mass (t), holding time (s) | 1 Hz |
+| 4 | **Continuous caster** | Mould thermocouples, cooling-water flow/temp, level sensor, casting-speed encoder | Mould temperature (°C), water flow (m³/h), ΔT water (°C), mould level (mm), casting speed (m/min) | 1–10 Hz |
+| 5 | **Reheat furnace** | Zone thermocouples, fuel-gas flow, O₂/air ratio | Zone temperatures (°C), fuel flow (Nm³/h), air/fuel ratio, slab residence (min) | 1 Hz |
+| 6 | **Hot rolling mill (stands)** | Load cells (roll force), motor current, roll-gap & strip-thickness gauges, tensiometers, accelerometers, acoustic emission | **Rolling force** (MN), motor power (MW), roll gap (mm), strip thickness (mm) & deviation (µm), strip tension (kN), strip speed (m/s), **vibration RMS / spectrum** (mm/s) | 1 Hz process, **1–10 kHz vibration** |
+| 7 | **Cooling & run-out table** | Thermal cameras, water headers flow/pressure | Strip temperature profile (°C), water flow (m³/h), header pressure (bar) | 1–5 Hz |
+| 8 | **Utilities & energy** | Plant power meters, compressed-air & cooling-water meters, off-gas dust/emissions | **Electrical energy** (kWh, MW), compressed-air flow (Nm³/h), cooling-water flow (m³/h), off-gas CO/CO₂/O₂ (%), dust (mg/Nm³) | 1 Hz / 1 min |
+
+### G.3 Signal characteristics & metrics it emits
+
+- **Process metrics** (1 Hz): temperatures, flows, pressures, levels, speeds.
+- **High-frequency metrics** (1–10 kHz): vibration waveforms and acoustic emission
+  for the rolling mill and rotating equipment, downsampled to **RMS + spectral
+  bands** before streaming.
+- **Electrical / energy metrics**: per-component **kW / kWh**, plant **MW**, power
+  factor — the inputs for the energy-dispatch agent (paired with **public/illustrative
+  spot-price and grid-carbon** series).
+- **Derived / physics-informed metrics**: heat-flux, thermal gradients, wear-rate
+  proxy and campaign age — the same **Gold-layer features** the RUL model consumes.
+- **Per-heat / per-coil events**: heat start/stop, tap, cast, coil produced — carrying
+  `heat_id` / `coil_id` so the **heat → coil traceability chain** (App. D) is intact.
+- **Data-quality realism**: optional dropouts, out-of-range spikes and clock skew so
+  the **Silver-layer quality rules** (§7.3) can be demonstrated, not just assumed.
+
+### G.4 Built-in demo scenarios (injectable)
+
+| Scenario | What the simulator injects | Workload demonstrated |
+|----------|----------------------------|-----------------------|
+| **Refractory wear → failure** | Gradual heat-flux / hot-face-temperature ramp over a compressed campaign | **A — 21-day furnace RUL alert** |
+| **Vibration / bearing fault** | Rising spectral peak on a mill stand | A — anomaly + maintenance triage |
+| **Off-gas drift** | Shift in CO/CO₂/O₂ ratios | A — process anomaly detection |
+| **Price / carbon spike** | High-cost, high-carbon window in the market feed | **B — energy-dispatch optimisation** |
+| **Quality excursion** | Tap-temperature / thickness variability increase | **Quality SPC** (Cp/Cpk, yield) |
+| **Nominal / steady state** | Healthy baseline for A/B and false-alarm checks | Baseline & precision/recall |
+
+### G.5 How it fits the architecture
+
+```mermaid
+graph LR
+    SIM[Demo Sensor Simulator<br/>per-device, scenario-driven] -->|synthetic telemetry<br/>cloud-direct| IOT[Azure IoT Hub]
+    MKT[Illustrative spot price / grid carbon] --> EVH[Azure Event Hubs]
+    IOT --> RTI[Fabric Real-Time Intelligence]
+    EVH --> RTI
+    RTI --> OL[OneLake medallion] --> DS[Data Science — RUL / energy]
+    DS --> PBI[Power BI / Activator — alerts & KPIs]
+```
+
+- **No architecture change**: the simulator simply takes the place of plant OT on the
+  **left edge** of the §5.1 diagram, so the **exact same** ingestion, hot path,
+  medallion and AI/ML pipeline is exercised end-to-end.
+- **Deployment**: a small **Azure Functions / Container Apps** service (the in-scope
+  compute), seeded from config, that authenticates per-device to **IoT Hub**.
+- **From demo to real**: swapping the simulator for live SCADA/historian tags is a
+  **connection change, not a redesign** — the contract (device identities, message
+  schema, units) is shared.
 
 ---
 

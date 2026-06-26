@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://novasteel.eu/contracts/market-signal.schema.json",
+  "title": "MarketSignal",
+  "description": "Day-ahead energy-market signal driving the energy-dispatch agent. Aligned with libs/NovaSteel.Contracts.MarketSignal, libs/novasteel_core.MarketSignal, and libs/fixtures/market_signal.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["market", "timestamp", "spotPriceEurMwh", "gridCarbonGramsPerKwh"],
+  "properties": {
+    "market": { "type": "string", "enum": ["LU", "DE", "BE", "ES"], "description": "National market (reuses Site codes)." },
+    "timestamp": { "type": "string", "format": "date-time", "description": "Delivery hour." },
+    "spotPriceEurMwh": { "type": "number", "description": "Day-ahead spot price (EUR/MWh)." },
+    "gridCarbonGramsPerKwh": { "type": "number", "minimum": 0, "description": "Grid carbon intensity (gCO2/kWh)." }
+  }
+}

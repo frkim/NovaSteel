@@ -25,16 +25,16 @@ Default region is **Sweden Central** (`swedencentral`) for EU data residency.
 | `identity.bicep` | User-assigned managed identity | Entra ID workload identity |
 | `keyvault.bicep` | Key Vault (RBAC) | Secrets / keys |
 | `storage.bicep` | Storage (ADLS Gen2) | Medallion data lake (bronze/silver/gold) |
-| `container-registry.bicep` | Container Registry | ML & container images |
-| `iot-hub.bicep` | IoT Hub | Device telemetry ingestion (edge → cloud) |
+| `container-registry.bicep` | Container Registry | Container images (apps & agents) |
+| `iot-hub.bicep` | IoT Hub | Cloud-direct device telemetry ingestion (one-way OT→IT) |
 | `event-hubs.bicep` | Event Hubs | Streaming telemetry → Fabric RTI |
-| `fabric.bicep` | Microsoft Fabric capacity | OneLake, data engineering, RTI, Power BI |
-| `search.bicep` | Azure AI Search | RAG over the procedure library |
-| `foundry.bicep` | Microsoft Foundry (AI Services) + **GPT-5** + embeddings | Knowledge-capture assistant |
-| `machine-learning.bicep` | Azure Machine Learning | RUL + energy models, MLOps |
+| `fabric.bicep` | Microsoft Fabric capacity | OneLake, data engineering, **Data Science (ML)**, RTI, Power BI |
+| `foundry.bicep` | Microsoft Foundry (AI Services) + **GPT-5** + embeddings | Knowledge-capture assistant + **Foundry IQ grounding/RAG** |
 | `functions.bicep` | Azure Functions (Elastic Premium) | Energy-dispatch optimization agent |
-| `container-apps.bicep` | Container Apps | Long-running dispatch microservice |
+| `container-apps.bicep` | Container Apps | Energy-dispatch microservice + steel factory simulator |
 | `purview.bicep` | Microsoft Purview | Governance, lineage, EU AI Act traceability |
+| `policy.bicep` | Azure Policy (allowed locations) | EU data-residency guardrail (Constitution III) |
+| `app-state.bicep` | Azure SQL (serverless) | Immutable audit records + app/workflow state (opt-in) |
 | `defender.bicep` | Microsoft Defender for Cloud | Subscription-wide posture & workload protection |
 | `rbac.bicep` | Role assignments | Least-privilege data-plane access wiring |
 
@@ -55,12 +55,9 @@ Foundry portal if a deployment is blocked.
 Some listed services are not ARM/Bicep resources or are tenant/SaaS-level and are
 onboarded separately:
 
-- **Azure Arc** + **Azure IoT Operations** — onboarded as extensions on the
-  plant-side Arc-enabled Kubernetes edge cluster.
 - **Microsoft Entra ID** — tenant identity (represented here via managed
   identities and RBAC).
 - **Power BI** — runs on the deployed **Microsoft Fabric** capacity.
-- **Microsoft Defender for IoT (OT sensors)** — provisioned on the OT network.
 
 ## Prerequisites
 
@@ -68,7 +65,7 @@ onboarded separately:
 - Permission to create resource groups and assign roles (Owner or
   User Access Administrator + Contributor) on the target subscription.
 - Resource providers registered (e.g. `Microsoft.Fabric`, `Microsoft.Purview`,
-  `Microsoft.CognitiveServices`, `Microsoft.App`, `Microsoft.MachineLearningServices`).
+  `Microsoft.CognitiveServices`, `Microsoft.App`).
 
 ## Configure
 
@@ -107,6 +104,10 @@ the platform resources into the resource group.
 | `enableDefenderForCloud` | `true` | Defender for Cloud plans |
 | `deployPurview` | `true` | Disable if Purview is unavailable in your tenant/region |
 | `purviewLocation` | `''` | Optional Purview region override |
+| `enforceEuResidencyPolicy` | `true` | Assign Azure Policy allowed-locations (EU residency, Constitution III) |
+| `deployAppState` | `false` | Deploy the Azure SQL audit/app-state store; requires `sqlAadAdminObjectId` |
+| `sqlAadAdminObjectId` | `''` | Entra admin object ID for the Azure SQL audit store |
+| `sqlAadAdminLogin` | `''` | Entra admin display name for the Azure SQL audit store |
 
 ## Notes
 

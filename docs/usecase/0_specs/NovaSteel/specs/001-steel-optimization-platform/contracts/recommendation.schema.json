@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://novasteel.eu/contracts/recommendation.schema.json",
+  "title": "Recommendation",
+  "description": "Proposed action (maintenance, quality process adjustment, or grounded knowledge answer) with rationale and expected impact. Knowledge recommendations MUST carry citations or be declined (FR-013/014, SC-008; Constitution I/VI).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["recommendationId", "pillar", "site", "summary", "rationale", "status"],
+  "properties": {
+    "recommendationId": { "type": "string", "format": "uuid" },
+    "pillar": { "type": "string", "enum": ["Maintenance", "Quality", "Knowledge"] },
+    "site": { "type": "string", "enum": ["LU", "DE", "BE", "ES"] },
+    "relatedPredictionId": { "type": ["string", "null"], "default": null },
+    "relatedHeatId": { "type": ["string", "null"], "default": null },
+    "summary": { "type": "string" },
+    "rationale": { "type": "string" },
+    "expectedImpact": { "type": "object", "description": "Pillar-specific expected impact (e.g. yield delta, downtime avoided)." },
+    "citations": {
+      "type": ["array", "null"],
+      "description": "REQUIRED for Knowledge: each answer cites source material (SC-008). Empty/null for Knowledge => must decline, not fabricate (FR-014).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sourceId", "title"],
+        "properties": {
+          "sourceId": { "type": "string" },
+          "title": { "type": "string" },
+          "locator": { "type": "string", "description": "Section/timestamp/page within the source." }
+        }
+      },
+      "default": null
+    },
+    "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1, "default": null },
+    "contentSafetyPassed": { "type": "boolean", "description": "Generative outputs MUST pass Azure AI Content Safety (Constitution VI).", "default": true },
+    "conflictsWith": {
+      "type": ["array", "null"],
+      "items": { "type": "string" },
+      "description": "Cross-pillar conflicts (e.g. energy vs maintenance window) surfaced for human resolution, never auto-resolved (FR-021).",
+      "default": null
+    },
+    "status": { "type": "string", "enum": ["Proposed", "UnderReview", "Approved", "Edited", "Rejected", "Lapsed"] }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "pillar": { "const": "Knowledge" }, "status": { "const": "Approved" } } },
+      "then": { "properties": { "citations": { "type": "array", "minItems": 1 } }, "required": ["citations"] }
+    }
+  ]
+}

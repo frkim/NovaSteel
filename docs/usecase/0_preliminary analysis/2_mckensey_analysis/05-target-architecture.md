@@ -123,7 +123,28 @@ A **medallion lakehouse** in **OneLake** is the single source of truth:
   workflow, with **cited** answers.
 - **Activator** triggers sub-second furnace alerts from the hot path.
 
-## 5.7 Architecture decision records (key choices)
+## 5.8 Demo sensor simulator (telemetry generation)
+
+For demos, pilots and pre-connection testing, a **sensor simulator** stands in for
+live plant OT. It **simulates events from multiple sensors for the main components of
+the steel factory and rolling mills** — EAF/BOF furnace, refractory lining, ladle,
+continuous caster, reheat furnace, rolling-mill stands, cooling, and utilities — and
+streams **synthetic, per-device telemetry cloud-direct via Azure IoT Hub**.
+
+| Concern | Decision |
+|---------|----------|
+| **Placement** | Sits on the **left edge** of §5.1 in place of `SEN/SCADA`; **no change** to ingestion, hot path, medallion or AI/ML downstream. |
+| **Hosting** | A small **Azure Functions / Container Apps** service (in-scope compute), per-device authenticated to **IoT Hub**. |
+| **Realism** | Physically correlated signals (thermal, heat-flux, vibration/acoustic, electrical, off-gas, force/thickness), optional dropouts/spikes for data-quality demos. |
+| **Scenarios** | Injectable wear-to-failure, vibration, off-gas drift, price spike, quality excursion — **seeded for reproducible** runs; optional accelerated campaign clock. |
+| **Safety** | Every event tagged `source=simulator`; **no real plant or personal data**. |
+| **To production** | Swapping in real SCADA/historian tags is a **connection change, not a redesign** — shared device identities, schema and units. |
+
+> Full sensor/metric/scenario catalogue is in
+> [15. Appendices §G](15-appendices.md#g-demo-sensor-simulator-components-sensors--metrics);
+> see also the AI demo-data plan in [§6.8](06-ai-analytics-design.md).
+
+## 5.9 Architecture decision records (key choices)
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|

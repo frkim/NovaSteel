@@ -53,7 +53,9 @@ Model quality is bounded by data quality, so quality is engineered upstream:
   connectivity, completeness checks (a named pilot exit criterion).
 - **Quality rules** at Silver: range/spike checks on sensors, schema validation,
   de-duplication, time-alignment across sources.
-- **Synthetic augmentation** for the demo and for sparse failure labels.
+- **Synthetic augmentation** for the demo and for sparse failure labels — produced by
+  the **demo sensor simulator** that emulates the plant's main components and sensors
+  (see [Appendix G](15-appendices.md#g-demo-sensor-simulator-components-sensors--metrics)).
 - **Drift monitoring** at serving time (Azure Monitor) to catch input distribution
   shifts before they degrade predictions.
 

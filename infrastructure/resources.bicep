@@ -25,6 +25,23 @@ param purviewLocation string = ''
 @description('Deploy Microsoft Purview (governance/lineage). Disable where tenant/region constraints apply.')
 param deployPurview bool = true
 
+@description('Deploy the Azure SQL audit/app-state store. Requires sqlAadAdminObjectId when true.')
+param deployAppState bool = false
+
+@description('Entra admin display name for the Azure SQL audit store (user UPN, group, or SP name).')
+param sqlAadAdminLogin string = ''
+
+@description('Entra admin object ID for the Azure SQL audit store.')
+param sqlAadAdminObjectId string = ''
+
+@description('Entra admin principal type for the Azure SQL audit store.')
+@allowed([
+  'User'
+  'Group'
+  'Application'
+])
+param sqlAadAdminPrincipalType string = 'Group'
+
 // ---------- Naming ----------
 var token = toLower(take(uniqueString(resourceGroup().id, environmentName), 6))
 var short = toLower(take(replace(namePrefix, '-', ''), 8))
@@ -36,19 +53,18 @@ var names = {
   identity: 'id-${namePrefix}-${env}'
   keyVault: take('kv${short}${env}${token}', 24)
   dataLake: take('dl${short}${env}${token}', 24)
-  mlStorage: take('mls${short}${token}', 24)
   funcStorage: take('fns${short}${token}', 24)
   acr: take('acr${short}${env}${token}', 50)
   iotHub: 'iot-${short}-${env}-${token}'
   eventHubs: 'evhns-${short}-${env}-${token}'
   fabric: take('fab${short}${env}${token}', 63)
-  search: 'srch-${short}-${env}-${token}'
   foundry: 'aif-${short}-${env}-${token}'
-  mlWorkspace: 'mlw-${short}-${env}-${token}'
   purview: 'pview-${short}-${env}-${token}'
   functionApp: 'func-${short}-${env}-${token}'
   functionPlan: 'plan-${short}-${env}-${token}'
   containerEnv: 'cae-${short}-${env}-${token}'
+  simulatorApp: 'sim-${short}-${env}-${token}'
+  sqlServer: 'sql-${short}-${env}-${token}'
 }
 
 // ---------- Observability ----------
@@ -134,16 +150,6 @@ module fabric 'modules/fabric.bicep' = {
   }
 }
 
-// ---------- AI Search ----------
-module search 'modules/search.bicep' = {
-  name: 'search'
-  params: {
-    location: location
-    tags: tags
-    name: names.search
-  }
-}
-
 // ---------- Microsoft Foundry (AI Services + GPT-5) ----------
 module foundry 'modules/foundry.bicep' = {
   name: 'foundry'
@@ -151,20 +157,6 @@ module foundry 'modules/foundry.bicep' = {
     location: location
     tags: tags
     name: names.foundry
-  }
-}
-
-// ---------- Azure Machine Learning ----------
-module machineLearning 'modules/machine-learning.bicep' = {
-  name: 'machinelearning'
-  params: {
-    location: location
-    tags: tags
-    name: names.mlWorkspace
-    workspaceStorageName: names.mlStorage
-    keyVaultId: keyVault.outputs.id
-    applicationInsightsId: monitoring.outputs.applicationInsightsId
-    containerRegistryId: acr.outputs.id
   }
 }
 
@@ -192,6 +184,22 @@ module containerApps 'modules/container-apps.bicep' = {
   }
 }
 
+module simulatorApp 'modules/container-app-simulator.bicep' = {
+  name: 'simulator-containerapp'
+  params: {
+    location: location
+    tags: tags
+    appName: names.simulatorApp
+    managedEnvironmentId: containerApps.outputs.environmentId
+    containerRegistryName: names.acr
+    keyVaultName: names.keyVault
+  }
+  dependsOn: [
+    acr
+    keyVault
+  ]
+}
+
 // ---------- Purview ----------
 module purview 'modules/purview.bicep' = if (deployPurview) {
   name: 'purview'
@@ -202,6 +210,19 @@ module purview 'modules/purview.bicep' = if (deployPurview) {
   }
 }
 
+// ---------- App-state / audit store (Azure SQL) ----------
+module appState 'modules/app-state.bicep' = if (deployAppState && !empty(sqlAadAdminObjectId)) {
+  name: 'appstate'
+  params: {
+    location: location
+    tags: tags
+    serverName: names.sqlServer
+    aadAdminLogin: sqlAadAdminLogin
+    aadAdminObjectId: sqlAadAdminObjectId
+    aadAdminPrincipalType: sqlAadAdminPrincipalType
+  }
+}
+
 // ---------- RBAC wiring ----------
 module rbac 'modules/rbac.bicep' = {
   name: 'rbac'
@@ -209,13 +230,9 @@ module rbac 'modules/rbac.bicep' = {
     dataLakeStorageName: names.dataLake
     keyVaultName: names.keyVault
     aiServicesName: names.foundry
-    searchName: names.search
     containerRegistryName: names.acr
-    mlPrincipalId: machineLearning.outputs.principalId
     functionPrincipalId: functions.outputs.principalId
     containerAppPrincipalId: containerApps.outputs.appPrincipalId
-    searchPrincipalId: search.outputs.principalId
-    foundryPrincipalId: foundry.outputs.principalId
   }
   dependsOn: [
     dataLake
@@ -232,10 +249,12 @@ output containerRegistryName string = acr.outputs.name
 output iotHubName string = iotHub.outputs.name
 output eventHubsNamespace string = eventHubs.outputs.namespaceName
 output fabricCapacityName string = fabric.outputs.name
-output searchName string = search.outputs.name
 output foundryName string = foundry.outputs.name
 output foundryEndpoint string = foundry.outputs.endpoint
-output machineLearningWorkspaceName string = machineLearning.outputs.name
 output functionAppName string = functions.outputs.name
 output containerAppsEnvironmentName string = containerApps.outputs.environmentName
+output simulatorAppName string = simulatorApp.outputs.appName
+output simulatorAppFqdn string = simulatorApp.outputs.appFqdn
 output purviewName string = deployPurview ? purview!.outputs.name : ''
+output appStateServerName string = (deployAppState && !empty(sqlAadAdminObjectId)) ? appState!.outputs.serverName : ''
+output appStateDatabaseName string = (deployAppState && !empty(sqlAadAdminObjectId)) ? appState!.outputs.databaseName : ''

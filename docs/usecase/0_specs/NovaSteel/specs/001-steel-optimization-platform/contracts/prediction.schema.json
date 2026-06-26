@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://novasteel.eu/contracts/prediction.schema.json",
+  "title": "Prediction",
+  "description": "Model output (RUL failure-risk, quality outcome, SPC drift) with confidence, evidence, and model version (FR-002/003/009; Constitution VI explainability, II traceability, IX provenance).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["predictionId", "pillar", "site", "kind", "predictedAt", "confidence", "evidence", "modelVersion", "status"],
+  "properties": {
+    "predictionId": { "type": "string", "format": "uuid" },
+    "pillar": { "type": "string", "enum": ["Maintenance", "Quality"] },
+    "site": { "type": "string", "enum": ["LU", "DE", "BE", "ES"] },
+    "assetId": { "type": ["string", "null"], "default": null },
+    "heatId": { "type": ["string", "null"], "default": null },
+    "kind": { "type": "string", "enum": ["LiningFailureRisk", "QualityOutcome", "SpcDrift"] },
+    "timeToFailureDays": { "type": ["number", "null"], "description": ">=21 expected for a valid furnace-lining warning (SC-003).", "default": null },
+    "predictedAt": { "type": "string", "format": "date-time" },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Contributing signals so a human can understand why (FR-003).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["metric", "value"],
+        "properties": {
+          "metric": { "type": "string" },
+          "value": { "type": "number" },
+          "weight": { "type": "number" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "modelVersion": { "type": "string", "description": "MLflow model/version (Fabric Data Science) for traceability." },
+    "inputWindowRef": { "type": "string", "description": "Pointer to the Silver/Gold feature snapshot used." },
+    "origin": { "type": "string", "enum": ["Real", "Synthetic"], "default": "Real", "description": "Synthetic if any input reading was synthetic (Constitution IX)." },
+    "status": { "type": "string", "enum": ["Raised", "UnderReview", "Confirmed", "Rejected", "Lapsed"] }
+  }
+}

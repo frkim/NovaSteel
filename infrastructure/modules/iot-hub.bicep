@@ -1,5 +1,5 @@
-// Azure IoT Hub for plant device telemetry (edge -> cloud ingestion).
-metadata description = 'IoT Hub for device telemetry ingestion from the Arc/IoT Operations edge.'
+// Azure IoT Hub for plant device telemetry (cloud-direct ingestion).
+metadata description = 'IoT Hub for cloud-direct, one-way (device->cloud) plant telemetry ingestion. No edge runtime; no cloud-to-device path (Constitution IV).'
 
 @description('Azure region.')
 param location string

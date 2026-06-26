@@ -105,13 +105,29 @@ The platform raises yield **not by automating** but by **tightening the process*
 | **Fairness & robustness** | Bias/robustness checks on the assistant; back-testing across diverse failure modes |
 | **Accountability** | Named owners per workload; audit logs; **EU AI Act risk file** (see [Section 8](08-security-risk-compliance.md)) |
 
-## 6.8 Demo data plan (safe to show)
+## 6.8 Demo data plan — the sensor simulator (safe to show)
+
+The demo is driven by a **sensor simulator**: a small service that **simulates
+events from multiple sensors for the main components of the steel factory and rolling
+mills** (furnace, refractory lining, ladle, caster, reheat furnace, rolling stands,
+cooling, utilities) and streams them **cloud-direct via Azure IoT Hub** — the same
+path real equipment would use. It lets us prove every workload end-to-end without
+touching live plant OT.
 
 - **Synthetic furnace telemetry** with injected degradation patterns to demonstrate
-  the **21-day alert live**.
-- **Public/illustrative** spot-price & carbon series for energy optimisation.
+  the **21-day alert live** (compressed campaign clock).
+- **Per-component sensors & metrics** — thermal (°C, heat-flux), vibration/acoustic
+  (RMS + spectrum), electrical (kW/kWh/MW), off-gas (CO/CO₂/O₂), force/thickness on
+  the mill — physically correlated, not independent noise.
+- **Public/illustrative** spot-price & grid-carbon series for energy optimisation.
 - A **synthetic SOP corpus** for the knowledge assistant.
-- **All demo data clearly labelled synthetic** — no real plant or personal data.
+- **Injectable scenarios** (wear-to-failure, vibration spike, off-gas drift, price
+  spike, quality excursion, nominal) for **reproducible, seeded** demos.
+- **All demo data clearly labelled synthetic** (`source=simulator`) — no real plant
+  or personal data.
+
+> Full simulator spec — components, sensors, metrics, sample rates and scenarios — is
+> in [Appendix G](15-appendices.md#g-demo-sensor-simulator-components-sensors--metrics).
 
 ---
 

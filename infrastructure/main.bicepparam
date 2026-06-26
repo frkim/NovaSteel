@@ -20,6 +20,13 @@ param fabricAdminMembers = [
 // Microsoft Purview (set to false if Purview is unavailable in your region/tenant).
 param deployPurview = true
 
+// Azure SQL audit/app-state store (research.md R7). Opt-in: set deployAppState = true
+// and provide the Entra admin object ID (Entra-only auth; no SQL logins).
+param deployAppState = false
+// param sqlAadAdminObjectId = '00000000-0000-0000-0000-000000000000'
+// param sqlAadAdminLogin = 'novasteel-sql-admins'
+// param sqlAadAdminPrincipalType = 'Group'
+
 param tags = {
   costCenter: 'manufacturing-it'
   owner: 'platform-team'
