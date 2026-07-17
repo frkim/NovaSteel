@@ -4,6 +4,21 @@
     ViewData["Title"] = "Home";
 }
 
+<style>
+    .reading-row { cursor: pointer; }
+    .reading-row:hover td { background: #172033; }
+    .reading-row.selected td { background: #1e3a5f; }
+    #chart svg { display: block; max-width: 100%; }
+    .chart-tools label { font-size: .85rem; }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .6rem; }
+    .chart-legend:empty { display: none; }
+    .legend-item { display: inline-flex; align-items: center; gap: .4rem; font-size: .8rem;
+                   background: #1e293b; border: 1px solid #334155; border-radius: 999px; padding: .2rem .6rem; }
+    .legend-swatch { width: .8rem; height: .8rem; border-radius: 2px; flex: 0 0 auto; }
+    .legend-remove { cursor: pointer; color: #94a3b8; font-weight: 700; }
+    .legend-remove:hover { color: #ef4444; }
+</style>
+
 <section>
     <h2>Simulation control</h2>
     <div class="toolbar">
@@ -28,17 +43,7 @@
     <h2>Sensor overview <span id="count" class="badge">0 readings</span></h2>
     <div class="toolbar" style="margin-bottom:.75rem;">
         <input id="search" type="search" placeholder="Search all columns…" style="min-width:16rem;" />
-        <label>Filter column
-            <select id="filterColumn">
-                <option value="">(any)</option>
-                <option value="site">Site</option>
-                <option value="assetId">Asset</option>
-                <option value="assetType">Type</option>
-                <option value="metric">Metric</option>
-                <option value="quality">Quality</option>
-                <option value="origin">Origin</option>
-            </select>
-        </label>
+        <button class="secondary" type="button" onclick="clearColumnFilters()">Clear column filters</button>
         <span id="filterInfo" class="badge">0 / 0</span>
     </div>
     <table>
@@ -55,6 +60,7 @@
             <th data-col="sourceId">Source</th>
             <th data-col="timestamp">Timestamp</th>
         </tr>
+        <tr id="filterRow"></tr>
         </thead>
         <tbody id="readings"></tbody>
     </table>
@@ -67,7 +73,37 @@
     </div>
 </section>
 
+<section id="chartSection">
+    <h2>Sensor chart <span id="chartTitle" class="badge">Click a sensor row to plot it</span></h2>
+    <div class="toolbar chart-tools" style="margin-bottom:.75rem;">
+        <label>Chart
+            <select id="chartType">
+                <option value="line">Line</option>
+                <option value="scatter">Plot (scatter)</option>
+                <option value="histogram">Histogram</option>
+            </select>
+        </label>
+        <label id="binsControl" style="display:none;">Bins
+            <input id="chartBins" type="number" min="3" max="60" value="20" style="width:5rem;" />
+        </label>
+        <label><input type="checkbox" id="chartNormalize" /> Normalize (0–1)</label>
+        <button class="secondary" type="button" id="resetZoom" disabled>Reset zoom</button>
+        <button class="secondary" type="button" id="exportCsv" disabled>Export CSV</button>
+        <label><input type="checkbox" id="chartLive" checked /> Live</label>
+        <span id="chartInfo" class="badge">no selection</span>
+    </div>
+    <div id="chartLegend" class="chart-legend"></div>
+    <div id="chart"></div>
+    <p id="chartHint" style="color:#94a3b8; font-size:.82rem; margin:.5rem 0 0;">
+        <strong>Click</strong> a sensor row to plot it · <strong>Ctrl/Cmd-click</strong> (or Shift-click) to overlay several metrics.
+        Drag horizontally across the chart to zoom into a period · double-click (or <em>Reset zoom</em>) to clear.
+        For a single series, points are colored by quality (green Good · amber Suspect · red Bad).
+        Overlaying different units? Enable <em>Normalize</em> to compare their shapes. <em>Export CSV</em> saves the points in view.
+    </p>
+</section>
+
 @section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script>
     const PAGE_SIZE = 32;
     const COLUMNS = ['site','assetId','assetType','metric','value','unit','quality','origin','sourceId','timestamp'];
@@ -75,6 +111,16 @@
     let sortCol = 'site';
     let sortDir = 1;         // 1 = asc, -1 = desc
     let page = 1;
+
+    // ----- Chart selection state (multiple overlaid series) -----
+    // Each series: { assetId, metric, unit, color, data: [{ t: Date, v: number, quality, origin }] }
+    let selectedSeries = [];
+    let zoomDomain = null;   // [Date, Date] or null
+    const SERIES_COLORS = ['#38bdf8', '#f472b6', '#a3e635', '#fbbf24', '#c084fc', '#34d399', '#fb7185', '#60a5fa'];
+    function seriesKey(assetId, metric) { return `${assetId}\u0001${metric}`; }
+    function findSeries(assetId, metric) {
+        return selectedSeries.find(s => s.assetId === assetId && s.metric === metric);
+    }
 
     async function post(url, body) {
         await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
@@ -87,15 +133,24 @@
         });
     }
 
+    // Per-column filters: dropdowns for categorical columns, text inputs for value/timestamp.
+    const CATEGORICAL = ['site','assetId','assetType','metric','unit','quality','origin','sourceId'];
+    const colFilters = {};   // col -> selected/typed value
+
     function getFiltered() {
         const q = document.getElementById('search').value.trim().toLowerCase();
-        const col = document.getElementById('filterColumn').value;
         let rows = allReadings;
         if (q) {
-            rows = rows.filter(r => {
-                const fields = col ? [r[col]] : COLUMNS.map(c => r[c]);
-                return fields.some(v => String(v ?? '').toLowerCase().includes(q));
-            });
+            rows = rows.filter(r => COLUMNS.some(c => String(r[c] ?? '').toLowerCase().includes(q)));
+        }
+        for (const [col, val] of Object.entries(colFilters)) {
+            if (!val) continue;
+            if (CATEGORICAL.includes(col)) {
+                rows = rows.filter(r => String(r[col] ?? '') === val);                         // exact match
+            } else {
+                const needle = val.toLowerCase();
+                rows = rows.filter(r => String(r[col] ?? '').toLowerCase().includes(needle));  // contains
+            }
         }
         const dir = sortDir;
         rows = [...rows].sort((a, b) => {
@@ -106,6 +161,48 @@
         return rows;
     }
 
+    function buildFilterRow() {
+        const row = document.getElementById('filterRow');
+        row.innerHTML = COLUMNS.map(c => CATEGORICAL.includes(c)
+            ? `<td><select class="col-filter" data-col="${c}" style="width:100%;font-size:.8rem;padding:.25rem;"><option value="">(all)</option></select></td>`
+            : `<td><input class="col-filter" data-col="${c}" placeholder="filter…" style="width:100%;font-size:.8rem;padding:.25rem;" /></td>`
+        ).join('');
+        row.addEventListener('input', onColumnFilterChange);
+        row.addEventListener('change', onColumnFilterChange);
+    }
+
+    function onColumnFilterChange(e) {
+        const el = e.target.closest('.col-filter');
+        if (!el) return;
+        colFilters[el.getAttribute('data-col')] = el.value;
+        page = 1;
+        render();
+    }
+
+    // Populate each categorical column's dropdown with its distinct values (preserving selection).
+    function updateFilterOptions() {
+        for (const c of CATEGORICAL) {
+            const sel = document.querySelector(`.col-filter[data-col="${c}"]`);
+            if (!sel || sel.tagName !== 'SELECT') continue;
+            const values = [...new Set(allReadings.map(r => String(r[c] ?? '')).filter(v => v))].sort();
+            const signature = values.join('|');
+            if (sel.dataset.optsig === signature) continue;   // unchanged -> don't disturb an open dropdown
+            sel.dataset.optsig = signature;
+            const current = colFilters[c] || '';
+            sel.innerHTML = '<option value="">(all)</option>' +
+                values.map(v => `<option value="${v}">${v}</option>`).join('');
+            sel.value = values.includes(current) ? current : '';
+            colFilters[c] = sel.value;
+        }
+    }
+
+    function clearColumnFilters() {
+        for (const el of document.querySelectorAll('.col-filter')) el.value = '';
+        for (const k of Object.keys(colFilters)) colFilters[k] = '';
+        page = 1;
+        render();
+    }
+
     function render() {
         const rows = getFiltered();
         const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
@@ -114,10 +211,13 @@
         const start = (page - 1) * PAGE_SIZE;
         const pageRows = rows.slice(start, start + PAGE_SIZE);
 
-        document.getElementById('readings').innerHTML = pageRows.map(r =>
-            `<tr><td>${r.site}</td><td>${r.assetId}</td><td>${r.assetType}</td><td>${r.metric}</td>` +
+        document.getElementById('readings').innerHTML = pageRows.map(r => {
+            const selected = findSeries(r.assetId, r.metric) ? ' selected' : '';
+            return `<tr class="reading-row${selected}" data-asset="${r.assetId}" data-metric="${r.metric}" data-unit="${r.unit ?? ''}">` +
+            `<td>${r.site}</td><td>${r.assetId}</td><td>${r.assetType}</td><td>${r.metric}</td>` +
             `<td>${r.value}</td><td>${r.unit}</td><td>${r.quality}</td><td>${r.origin}</td>` +
-            `<td>${r.sourceId}</td><td>${r.timestamp}</td></tr>`).join('');
+            `<td>${r.sourceId}</td><td>${r.timestamp}</td></tr>`;
+        }).join('');
 
         document.getElementById('count').textContent = `${allReadings.length} readings`;
         document.getElementById('filterInfo').textContent = `${rows.length} / ${allReadings.length}`;
@@ -146,16 +246,331 @@
         render();
     });
     document.getElementById('search').addEventListener('input', () => { page = 1; render(); });
-    document.getElementById('filterColumn').addEventListener('change', () => { page = 1; render(); });
+    buildFilterRow();
+
+    // ----- Sensor row click -> select / overlay sensor and plot it -----
+    document.getElementById('readings').addEventListener('click', (e) => {
+        const tr = e.target.closest('tr.reading-row');
+        if (!tr) return;
+        const assetId = tr.getAttribute('data-asset');
+        const metric = tr.getAttribute('data-metric');
+        const unit = tr.getAttribute('data-unit') || '';
+        const overlay = e.ctrlKey || e.metaKey || e.shiftKey;
+
+        if (overlay) {
+            const existing = findSeries(assetId, metric);
+            if (existing) {
+                removeSeries(assetId, metric);   // toggle off
+            } else {
+                addSeries(assetId, metric, unit);
+            }
+        } else {
+            selectedSeries = [];
+            addSeries(assetId, metric, unit);
+            zoomDomain = null;
+            document.getElementById('resetZoom').disabled = true;
+        }
+        updateChartHeader();
+        render();               // refresh selected-row highlight
+        document.getElementById('chartSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    function nextColor() {
+        const used = new Set(selectedSeries.map(s => s.color));
+        return SERIES_COLORS.find(c => !used.has(c)) || SERIES_COLORS[selectedSeries.length % SERIES_COLORS.length];
+    }
+    function addSeries(assetId, metric, unit) {
+        if (findSeries(assetId, metric)) return;
+        const series = { assetId, metric, unit, color: nextColor(), data: [] };
+        selectedSeries.push(series);
+        loadSeries(series).then(drawChart);
+    }
+    function removeSeries(assetId, metric) {
+        selectedSeries = selectedSeries.filter(s => !(s.assetId === assetId && s.metric === metric));
+        updateChartHeader();
+        drawChart();
+    }
+    function updateChartHeader() {
+        const title = document.getElementById('chartTitle');
+        title.textContent = selectedSeries.length === 0 ? 'Click a sensor row to plot it'
+            : selectedSeries.length === 1 ? `${selectedSeries[0].assetId} · ${selectedSeries[0].metric}`
+            : `${selectedSeries.length} series overlaid`;
+        const hasData = selectedSeries.some(s => s.data.length);
+        document.getElementById('exportCsv').disabled = !hasData;
+        // Auto-enable normalize when overlaying mixed units (once), for meaningful comparison.
+        const units = new Set(selectedSeries.map(s => s.unit));
+        if (selectedSeries.length > 1 && units.size > 1) {
+            document.getElementById('chartNormalize').checked = true;
+        }
+    }
 
     async function refresh() {
         const status = await (await fetch('/api/status')).json();
         document.getElementById('status').textContent =
             `${status.isRunning ? 'Running' : 'Stopped'} | step ${status.stepIndex} | scenario ${status.activeScenario ?? 'none'} | sim time ${status.simulationTime}`;
         allReadings = await (await fetch('/api/readings')).json();
-        render();   // preserves current search / sort / page
+        updateFilterOptions();
+        render();   // preserves current search / column filters / sort / page
+        if (selectedSeries.length && document.getElementById('chartLive').checked) {
+            await Promise.all(selectedSeries.map(loadSeries));   // keep the chart live
+            drawChart();
+        }
     }
     setInterval(refresh, 1500);
     refresh();
+
+    // ===================== D3 sensor chart =====================
+    async function loadSeries(series) {
+        try {
+            const url = `/api/history?assetId=${encodeURIComponent(series.assetId)}&metric=${encodeURIComponent(series.metric)}`;
+            const raw = await (await fetch(url)).json();
+            series.data = raw.map(p => ({ t: new Date(p.timestamp), v: +p.value, quality: p.quality, origin: p.origin }));
+            if (!series.unit && raw.length) series.unit = raw[raw.length - 1].unit || '';
+        } catch {
+            series.data = [];
+        }
+        return series;
+    }
+
+    function seriesPointsInView(series) {
+        if (!zoomDomain) return series.data;
+        return series.data.filter(p => p.t >= zoomDomain[0] && p.t <= zoomDomain[1]);
+    }
+
+    function normalizeOn() { return document.getElementById('chartNormalize').checked; }
+
+    // Map a series' value into display space (raw, or 0–1 using that series' own in-view min/max).
+    function valueMapper(series, pts) {
+        if (!normalizeOn()) return d => d.v;
+        const ext = d3.extent(pts.length ? pts : series.data, d => d.v);
+        const span = (ext[1] - ext[0]) || 1;
+        return d => (d.v - ext[0]) / span;
+    }
+
+    function updateChartInfo() {
+        const info = document.getElementById('chartInfo');
+        if (!selectedSeries.length) { info.textContent = 'no selection'; return; }
+        const total = selectedSeries.reduce((n, s) => n + seriesPointsInView(s).length, 0);
+        const suffix = zoomDomain ? ' · zoomed' : '';
+        const label = selectedSeries.length > 1 ? `${selectedSeries.length} series · ` : '';
+        info.textContent = `${label}${total} pts${suffix}`;
+    }
+
+    function renderLegend() {
+        const host = document.getElementById('chartLegend');
+        host.innerHTML = selectedSeries.map(s => {
+            const pts = seriesPointsInView(s);
+            const ext = pts.length ? d3.extent(pts, d => d.v) : [null, null];
+            const range = pts.length ? ` (${ext[0]}–${ext[1]} ${s.unit})` : '';
+            return `<span class="legend-item"><span class="legend-swatch" style="background:${s.color}"></span>` +
+                   `${s.assetId} · ${s.metric}${range}` +
+                   `<span class="legend-remove" data-asset="${s.assetId}" data-metric="${s.metric}" title="Remove">×</span></span>`;
+        }).join('');
+    }
+
+    document.getElementById('chartLegend').addEventListener('click', (e) => {
+        const rm = e.target.closest('.legend-remove');
+        if (!rm) return;
+        removeSeries(rm.getAttribute('data-asset'), rm.getAttribute('data-metric'));
+        render();   // update row highlight
+    });
+
+    const QUALITY_COLOR = { Good: '#22c55e', Suspect: '#f59e0b', Bad: '#ef4444' };
+    const AXIS_COLOR = '#94a3b8';
+    const GRID_COLOR = '#334155';
+
+    function styleAxis(sel) {
+        sel.selectAll('text').attr('fill', AXIS_COLOR);
+        sel.selectAll('line,path').attr('stroke', GRID_COLOR);
+    }
+
+    function drawChart() {
+        const host = document.getElementById('chart');
+        host.innerHTML = '';
+        updateChartInfo();
+        renderLegend();
+        updateChartHeader();
+        if (!selectedSeries.length) return;
+        const anyData = selectedSeries.some(s => s.data.length);
+        if (!anyData) {
+            host.innerHTML = '<p style="color:#94a3b8;">No history captured yet — start the simulation and readings will accumulate.</p>';
+            return;
+        }
+        if (typeof d3 === 'undefined') {
+            host.innerHTML = '<p style="color:#f59e0b;">Chart library (D3) failed to load.</p>';
+            return;
+        }
+
+        const type = document.getElementById('chartType').value;
+        const width = Math.max(host.clientWidth || 800, 320);
+        const height = 340;
+        const margin = { top: 16, right: 20, bottom: 42, left: 60 };
+        const iw = width - margin.left - margin.right;
+        const ih = height - margin.top - margin.bottom;
+
+        const svg = d3.select(host).append('svg')
+            .attr('width', width).attr('height', height)
+            .style('font', '11px "Segoe UI", sans-serif');
+        const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+        if (type === 'histogram') {
+            drawHistogram(g, iw, ih);
+        } else {
+            drawTimeSeries(g, svg, iw, ih, type);
+        }
+    }
+
+    function yAxisLabel() {
+        if (normalizeOn()) return 'normalized (0–1)';
+        const units = [...new Set(selectedSeries.map(s => s.unit).filter(Boolean))];
+        return units.length === 1 ? units[0] : 'value';
+    }
+
+    function drawTimeSeries(g, svg, iw, ih, type) {
+        const single = selectedSeries.length === 1;
+        const xDomain = zoomDomain ?? [
+            d3.min(selectedSeries, s => d3.min(s.data, d => d.t)),
+            d3.max(selectedSeries, s => d3.max(s.data, d => d.t))
+        ];
+        const x = d3.scaleTime().domain(xDomain).range([0, iw]);
+
+        // Y domain across all mapped, in-view values.
+        let yMin = Infinity, yMax = -Infinity;
+        for (const s of selectedSeries) {
+            const pts = seriesPointsInView(s);
+            const map = valueMapper(s, pts);
+            for (const p of (pts.length ? pts : s.data)) { const v = map(p); if (v < yMin) yMin = v; if (v > yMax) yMax = v; }
+        }
+        if (!isFinite(yMin)) { yMin = 0; yMax = 1; }
+        const pad = ((yMax - yMin) * 0.1) || Math.abs(yMin || 1) * 0.1 || 1;
+        const y = d3.scaleLinear().domain([yMin - pad, yMax + pad]).nice().range([ih, 0]);
+
+        g.append('g').attr('transform', `translate(0,${ih})`).call(d3.axisBottom(x).ticks(6)).call(styleAxis);
+        g.append('g').call(d3.axisLeft(y).ticks(6)).call(styleAxis);
+        g.append('text').attr('transform', 'rotate(-90)').attr('x', -ih / 2).attr('y', -46)
+            .attr('text-anchor', 'middle').attr('fill', AXIS_COLOR).text(yAxisLabel());
+
+        const clipId = 'clip-' + Math.random().toString(36).slice(2);
+        g.append('clipPath').attr('id', clipId).append('rect').attr('width', iw).attr('height', ih);
+        const plot = g.append('g').attr('clip-path', `url(#${clipId})`);
+
+        for (const s of selectedSeries) {
+            const pts = seriesPointsInView(s);
+            if (!pts.length) continue;
+            const map = valueMapper(s, pts);
+            if (type === 'line') {
+                const line = d3.line().x(d => x(d.t)).y(d => y(map(d)));
+                plot.append('path').datum(pts).attr('fill', 'none')
+                    .attr('stroke', s.color).attr('stroke-width', 1.6).attr('d', line);
+            }
+            // Single series: color points by quality. Overlay: color by series for legibility.
+            plot.selectAll(`circle.s-${cssId(s)}`).data(pts).join('circle')
+                .attr('class', `s-${cssId(s)}`)
+                .attr('cx', d => x(d.t)).attr('cy', d => y(map(d)))
+                .attr('r', type === 'scatter' ? 3 : 2)
+                .attr('fill', d => single ? (QUALITY_COLOR[d.quality] || s.color) : s.color)
+                .append('title')
+                .text(d => `${s.assetId} · ${s.metric}\n${d.t.toLocaleString()}\n${d.v} ${s.unit}\nquality: ${d.quality} · origin: ${d.origin}`);
+        }
+
+        // Drag-to-zoom a period
+        const brush = d3.brushX().extent([[0, 0], [iw, ih]]).on('end', (ev) => {
+            if (!ev.selection) return;
+            const [x0, x1] = ev.selection;
+            if (Math.abs(x1 - x0) < 4) return;   // ignore accidental clicks
+            zoomDomain = [x.invert(x0), x.invert(x1)];
+            document.getElementById('resetZoom').disabled = false;
+            drawChart();
+        });
+        g.append('g').attr('class', 'brush').call(brush)
+            .call(sel => sel.selectAll('.selection').attr('fill', '#93c5fd').attr('fill-opacity', 0.15));
+        svg.on('dblclick', resetZoom);
+    }
+
+    function cssId(series) {
+        return (series.assetId + '-' + series.metric).replace(/[^a-zA-Z0-9_-]/g, '');
+    }
+
+    function drawHistogram(g, iw, ih) {
+        // Shared value domain across series (raw or normalized) so distributions are comparable.
+        const perSeries = selectedSeries.map(s => {
+            const pts = seriesPointsInView(s);
+            const map = valueMapper(s, pts);
+            return { s, values: pts.map(map) };
+        });
+        const allValues = perSeries.flatMap(p => p.values);
+        if (!allValues.length) {
+            g.append('text').attr('x', iw / 2).attr('y', ih / 2).attr('text-anchor', 'middle')
+                .attr('fill', AXIS_COLOR).text('No points in the selected period.');
+            return;
+        }
+        const bins = Math.min(60, Math.max(3, +document.getElementById('chartBins').value || 20));
+        const x = d3.scaleLinear().domain(d3.extent(allValues)).nice().range([0, iw]);
+        const binner = d3.bin().domain(x.domain()).thresholds(bins);
+        const histos = perSeries.map(p => ({ s: p.s, bins: binner(p.values) }));
+        const yMax = d3.max(histos, h => d3.max(h.bins, b => b.length)) || 1;
+        const y = d3.scaleLinear().domain([0, yMax]).nice().range([ih, 0]);
+
+        g.append('g').attr('transform', `translate(0,${ih})`).call(d3.axisBottom(x).ticks(6)).call(styleAxis);
+        g.append('g').call(d3.axisLeft(y).ticks(5)).call(styleAxis);
+        g.append('text').attr('x', iw / 2).attr('y', ih + 36).attr('text-anchor', 'middle')
+            .attr('fill', AXIS_COLOR).text(yAxisLabel());
+        g.append('text').attr('transform', 'rotate(-90)').attr('x', -ih / 2).attr('y', -46)
+            .attr('text-anchor', 'middle').attr('fill', AXIS_COLOR).text('count');
+
+        const overlay = histos.length > 1;
+        for (const h of histos) {
+            g.selectAll(`rect.b-${cssId(h.s)}`).data(h.bins).join('rect').attr('class', `b-${cssId(h.s)}`)
+                .attr('x', d => x(d.x0) + 1).attr('y', d => y(d.length))
+                .attr('width', d => Math.max(0, x(d.x1) - x(d.x0) - 1))
+                .attr('height', d => ih - y(d.length))
+                .attr('fill', h.s.color).attr('fill-opacity', overlay ? 0.5 : 0.9)
+                .append('title')
+                .text(d => `${h.s.assetId} · ${h.s.metric}\n${d.x0.toFixed(2)} – ${d.x1.toFixed(2)}${normalizeOn() ? '' : ' ' + h.s.unit}\n${d.length} readings`);
+        }
+    }
+
+    function resetZoom() {
+        zoomDomain = null;
+        document.getElementById('resetZoom').disabled = true;
+        drawChart();
+    }
+
+    // Export the in-view points of all selected series as CSV.
+    function exportCsv() {
+        if (!selectedSeries.length) return;
+        const rows = [['assetId', 'metric', 'unit', 'timestamp', 'value', 'quality', 'origin']];
+        for (const s of selectedSeries) {
+            for (const p of seriesPointsInView(s)) {
+                rows.push([s.assetId, s.metric, s.unit, p.t.toISOString(), p.v, p.quality, p.origin]);
+            }
+        }
+        const csv = rows.map(r => r.map(csvCell).join(',')).join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const name = selectedSeries.length === 1
+            ? `${selectedSeries[0].assetId}_${selectedSeries[0].metric}_${stamp}.csv`
+            : `sensors_${selectedSeries.length}series_${stamp}.csv`;
+        a.href = url; a.download = name;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
+    function csvCell(v) {
+        const s = String(v ?? '');
+        return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    }
+
+    // Chart control wiring
+    document.getElementById('chartType').addEventListener('change', (e) => {
+        document.getElementById('binsControl').style.display = e.target.value === 'histogram' ? '' : 'none';
+        drawChart();
+    });
+    document.getElementById('chartBins').addEventListener('input', drawChart);
+    document.getElementById('chartNormalize').addEventListener('change', drawChart);
+    document.getElementById('resetZoom').addEventListener('click', resetZoom);
+    document.getElementById('exportCsv').addEventListener('click', exportCsv);
+    window.addEventListener('resize', () => { if (selectedSeries.length) drawChart(); });
 </script>
 }

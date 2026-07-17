@@ -13,6 +13,8 @@ public sealed class SimulationController(
     ILogger<SimulationController> logger)
 {
     private readonly ConcurrentDictionary<string, TelemetryReading> _latest = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, SensorSeries> _history = new(StringComparer.OrdinalIgnoreCase);
+    private const int MaxHistoryPointsPerSensor = 1000;
     private readonly SemaphoreSlim _stepLock = new(1, 1);
     private readonly SimulatorOptions _options = options.Value;
     private int _stepIndex;
@@ -52,7 +54,9 @@ public sealed class SimulationController(
             var readings = engine.Generate(_currentTime, _stepIndex, _scenario);
             foreach (var reading in readings)
             {
-                _latest[$"{reading.AssetId}:{reading.Metric}"] = reading;
+                var key = $"{reading.AssetId}:{reading.Metric}";
+                _latest[key] = reading;
+                _history.GetOrAdd(key, _ => new SensorSeries(MaxHistoryPointsPerSensor)).Add(reading);
                 await sink.PublishAsync(reading, cancellationToken);
             }
 
@@ -73,6 +77,15 @@ public sealed class SimulationController(
         .ThenBy(reading => reading.Metric)
         .ToArray();
 
+    /// <summary>Time-ordered history for a single sensor (asset + metric), for charting.</summary>
+    public IReadOnlyList<SensorHistoryPoint> GetHistory(string assetId, string metric)
+    {
+        var key = $"{assetId}:{metric}";
+        return _history.TryGetValue(key, out var series)
+            ? series.Snapshot()
+            : Array.Empty<SensorHistoryPoint>();
+    }
+
     public SimulationStatus GetStatus() => new(
         IsRunning,
         _stepIndex,
@@ -91,3 +104,46 @@ public sealed record SimulationStatus(
     string? ScenarioAssetId,
     int? ScenarioHorizonDays,
     int ReadingCount);
+
+/// <summary>A single point in a sensor's charted time series.</summary>
+public sealed record SensorHistoryPoint(
+    DateTimeOffset Timestamp,
+    double Value,
+    string Unit,
+    Quality Quality,
+    Origin Origin);
+
+/// <summary>Thread-safe bounded ring buffer of readings for one sensor.</summary>
+internal sealed class SensorSeries(int capacity)
+{
+    private readonly object _gate = new();
+    private readonly Queue<TelemetryReading> _points = new();
+
+    public void Add(TelemetryReading reading)
+    {
+        lock (_gate)
+        {
+            _points.Enqueue(reading);
+            while (_points.Count > capacity)
+            {
+                _points.Dequeue();
+            }
+        }
+    }
+
+    public IReadOnlyList<SensorHistoryPoint> Snapshot()
+    {
+        lock (_gate)
+        {
+            return _points
+                .OrderBy(reading => reading.Timestamp)
+                .Select(reading => new SensorHistoryPoint(
+                    reading.Timestamp,
+                    reading.Value,
+                    reading.Unit,
+                    reading.Quality,
+                    reading.Origin))
+                .ToArray();
+        }
+    }
+}

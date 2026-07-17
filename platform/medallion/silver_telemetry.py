@@ -10,7 +10,7 @@ from pyspark.sql import functions as F, Window
 
 STALE_AFTER_SECONDS = 900  # 15 min
 
-bronze = spark.read.table("onelake_novasteel.bronze_telemetry")
+bronze = spark.read.table("bronze_telemetry")
 
 # Dedup: keep the latest ingested row per (asset, metric, timestamp).
 w = Window.partitionBy("AssetId", "Metric", "Timestamp").orderBy(F.col("_ingested_at").desc())
@@ -39,6 +39,6 @@ for col in ("Origin", "SourceId", "Site", "Quality"):
     .mode("overwrite")
     .partitionBy("Site")
     .option("overwriteSchema", "true")
-    .saveAsTable("onelake_novasteel.silver_telemetry")
+    .saveAsTable("silver_telemetry")
 )
 print(f"Silver rows: {silver.count()}")

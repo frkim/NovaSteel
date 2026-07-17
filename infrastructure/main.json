@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.43.8.12551",
-      "templateHash": "9971526442835275605"
+      "templateHash": "14653704149151090680"
     },
     "description": "Top-level deployment for the NovaSteel AI-powered steel production optimization platform."
   },
@@ -420,7 +420,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.43.8.12551",
-              "templateHash": "6472115088980168809"
+              "templateHash": "1063352523019600576"
             },
             "description": "Deploys the NovaSteel \"Project Ignition\" Azure platform (data, AI/ML, ingestion, apps, governance, security) into a resource group. Demo configuration: public network access, no private endpoints."
           },
@@ -1599,7 +1599,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.43.8.12551",
-                      "templateHash": "2647948638795351563"
+                      "templateHash": "10257437654815343875"
                     },
                     "description": "Scheduled Logic App (Consumption) that suspends the Microsoft Fabric capacity nightly at 02:00 when it is Active."
                   },
@@ -1647,7 +1647,7 @@
                     }
                   },
                   "variables": {
-                    "contributorRoleId": "b24988ac-6180-42a0-ab88-79f87b25b2e3",
+                    "contributorRoleId": "b24988ac-6180-42a0-ab88-20f7382dd24c",
                     "armAudience": "[environment().resourceManager]",
                     "armBase": "[substring(variables('armAudience'), 0, sub(length(variables('armAudience')), 1))]"
                   },
@@ -2355,6 +2355,9 @@
                   },
                   "keyVaultName": {
                     "value": "[variables('names').keyVault]"
+                  },
+                  "fabricCapacityName": {
+                    "value": "[variables('names').fabric]"
                   }
                 },
                 "template": {
@@ -2364,7 +2367,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.43.8.12551",
-                      "templateHash": "15862580388047895794"
+                      "templateHash": "14575671052801511735"
                     },
                     "description": "Deploys the NovaSteel steel-factory simulator Container App into the existing managed environment."
                   },
@@ -2426,6 +2429,13 @@
                       "metadata": {
                         "description": "Key Vault secret name containing the IoT Hub device connection string."
                       }
+                    },
+                    "fabricCapacityName": {
+                      "type": "string",
+                      "defaultValue": "",
+                      "metadata": {
+                        "description": "Microsoft Fabric capacity name the Settings page can pause/resume (empty = feature disabled)."
+                      }
                     }
                   },
                   "variables": {
@@ -2433,7 +2443,8 @@
                     "usesAcrImage": "[startsWith(parameters('containerImage'), variables('acrLoginServer'))]",
                     "roles": {
                       "acrPull": "7f951dda-4ed3-4680-a7ca-43fe172d538d",
-                      "keyVaultSecretsUser": "4633458b-17de-408a-b874-0445c86b69e6"
+                      "keyVaultSecretsUser": "4633458b-17de-408a-b874-0445c86b69e6",
+                      "contributor": "b24988ac-6180-42a0-ab88-20f7382dd24c"
                     }
                   },
                   "resources": [
@@ -2484,6 +2495,18 @@
                                 {
                                   "name": "Simulator__IotHub__ConnectionStringSecretName",
                                   "value": "[parameters('iotHubConnectionStringSecretName')]"
+                                },
+                                {
+                                  "name": "Fabric__SubscriptionId",
+                                  "value": "[subscription().subscriptionId]"
+                                },
+                                {
+                                  "name": "Fabric__ResourceGroup",
+                                  "value": "[resourceGroup().name]"
+                                },
+                                {
+                                  "name": "Fabric__CapacityName",
+                                  "value": "[parameters('fabricCapacityName')]"
                                 }
                               ],
                               "resources": {
@@ -2521,6 +2544,21 @@
                       "properties": {
                         "principalId": "[reference(resourceId('Microsoft.App/containerApps', parameters('appName')), '2025-01-01', 'full').identity.principalId]",
                         "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('roles').keyVaultSecretsUser)]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.App/containerApps', parameters('appName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('fabricCapacityName')))]",
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[resourceId('Microsoft.Fabric/capacities', parameters('fabricCapacityName'))]",
+                      "name": "[guid(subscription().id, resourceGroup().name, parameters('fabricCapacityName'), parameters('appName'), variables('roles').contributor)]",
+                      "properties": {
+                        "principalId": "[reference(resourceId('Microsoft.App/containerApps', parameters('appName')), '2025-01-01', 'full').identity.principalId]",
+                        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('roles').contributor)]",
                         "principalType": "ServicePrincipal"
                       },
                       "dependsOn": [

@@ -28,11 +28,15 @@ param simulatorDeviceId string = 'sim-steel-factory-simulator'
 @description('Key Vault secret name containing the IoT Hub device connection string.')
 param iotHubConnectionStringSecretName string = 'iothub-simulator-device-connection-string'
 
+@description('Microsoft Fabric capacity name the Settings page can pause/resume (empty = feature disabled).')
+param fabricCapacityName string = ''
+
 var acrLoginServer = '${containerRegistryName}.azurecr.io'
 var usesAcrImage = startsWith(containerImage, acrLoginServer)
 var roles = {
   acrPull: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
   keyVaultSecretsUser: '4633458b-17de-408a-b874-0445c86b69e6'
+  contributor: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 }
 
 resource acr 'Microsoft.ContainerRegistry/registries@2025-11-01' existing = {
@@ -94,6 +98,18 @@ resource app 'Microsoft.App/containerApps@2025-01-01' = {
               name: 'Simulator__IotHub__ConnectionStringSecretName'
               value: iotHubConnectionStringSecretName
             }
+            {
+              name: 'Fabric__SubscriptionId'
+              value: subscription().subscriptionId
+            }
+            {
+              name: 'Fabric__ResourceGroup'
+              value: resourceGroup().name
+            }
+            {
+              name: 'Fabric__CapacityName'
+              value: fabricCapacityName
+            }
           ]
           resources: {
             cpu: json('0.5')
@@ -125,6 +141,21 @@ resource keyVaultSecretsUser 'Microsoft.Authorization/roleAssignments@2022-04-01
   properties: {
     principalId: app.identity.principalId
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roles.keyVaultSecretsUser)
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// Lets the Settings page pause/resume the Fabric capacity via the app's managed identity.
+resource fabricCapacity 'Microsoft.Fabric/capacities@2023-11-01' existing = if (!empty(fabricCapacityName)) {
+  name: fabricCapacityName
+}
+
+resource fabricContributor 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(fabricCapacityName)) {
+  name: guid(subscription().id, resourceGroup().name, fabricCapacityName, app.name, roles.contributor)
+  scope: fabricCapacity
+  properties: {
+    principalId: app.identity.principalId
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roles.contributor)
     principalType: 'ServicePrincipal'
   }
 }

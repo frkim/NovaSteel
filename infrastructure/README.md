@@ -102,6 +102,8 @@ the platform resources into the resource group.
 | `environmentName` | `dev` | Suffix; part of resource names |
 | `fabricSkuName` | `F8` | Fabric capacity F-SKU (F2..F128) |
 | `fabricAdminMembers` | — | **Required**; Fabric capacity admins |
+| `deployFabricPauseSchedule` | `true` | Deploy the Logic App that pauses the Fabric capacity nightly at 02:00 |
+| `fabricPauseHour` | `2` | Hour (0-23, W. Europe time) at which the Fabric capacity is paused |
 | `enableDefenderForCloud` | `true` | Defender for Cloud plans |
 | `deployPurview` | `true` | Disable if Purview is unavailable in your tenant/region |
 | `purviewLocation` | `''` | Optional Purview region override |

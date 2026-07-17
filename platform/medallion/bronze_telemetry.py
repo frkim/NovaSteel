@@ -11,12 +11,12 @@
 # ------------------------------------------------------------------------------
 from pyspark.sql import functions as F
 
-BRONZE_TABLE = "onelake_novasteel.bronze_telemetry"
+BRONZE_TABLE = "bronze_telemetry"
 VALID_ORIGIN = ("Real", "Synthetic")
 VALID_SITE = ("LU", "DE", "BE", "ES")
 
 # Read the hot-path raw table exported from the RTI Eventhouse (KQL DB -> OneLake shortcut).
-raw = spark.read.table("onelake_novasteel.telemetry_raw_kql")
+raw = spark.read.table("telemetry_raw_kql")
 
 # --- Provenance gate (Constitution IX): split clean vs quarantine, never default Origin ---
 has_provenance = (
@@ -31,7 +31,7 @@ quarantine = raw.where(~has_provenance).withColumn("_reason", F.lit("missing_or_
 
 # Append-only Bronze write (history retained; nothing overwritten).
 clean.write.format("delta").mode("append").saveAsTable(BRONZE_TABLE)
-quarantine.write.format("delta").mode("append").saveAsTable("onelake_novasteel.bronze_telemetry_quarantine")
+quarantine.write.format("delta").mode("append").saveAsTable("bronze_telemetry_quarantine")
 
 print(f"Bronze appended: {clean.count()} rows; quarantined: {quarantine.count()} rows")
 # Fail the pipeline if any row lost provenance upstream (gate; see platform/medallion/data_quality.py).

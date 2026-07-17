@@ -40,6 +40,8 @@ app.UseRouting();
 app.MapRazorPages();
 app.MapGet("/api/status", (SimulationController controller) => Results.Json(controller.GetStatus(), NovaSteelJson.Options));
 app.MapGet("/api/readings", (SimulationController controller) => Results.Json(controller.GetSnapshot(), NovaSteelJson.Options));
+app.MapGet("/api/history", (string assetId, string metric, SimulationController controller) =>
+    Results.Json(controller.GetHistory(assetId ?? string.Empty, metric ?? string.Empty), NovaSteelJson.Options));
 app.MapPost("/api/simulation/start", (SimulationController controller) =>
 {
     controller.Start();

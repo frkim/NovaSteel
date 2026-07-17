@@ -8,7 +8,7 @@
 # ------------------------------------------------------------------------------
 from pyspark.sql import functions as F
 
-silver = spark.read.table("onelake_novasteel.silver_telemetry")
+silver = spark.read.table("silver_telemetry")
 
 # Explicit provenance class on every Gold row.
 classed = silver.withColumn(
@@ -32,13 +32,13 @@ kpi = (
 # Real KPI mart — the ONLY table dashboards/KPI baselines read for real metrics.
 kpi_real = kpi.where(F.col("data_class") == "real")
 kpi_real.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable(
-    "onelake_novasteel.gold_kpi_real"
+    "gold_kpi_real"
 )
 
 # Synthetic mart kept separate for demo/validation only, explicitly labelled.
 kpi.where(F.col("data_class") == "synthetic").write.format("delta").mode("overwrite").option(
     "overwriteSchema", "true"
-).saveAsTable("onelake_novasteel.gold_kpi_synthetic")
+).saveAsTable("gold_kpi_synthetic")
 
 # Physics-informed furnace feature table for the P1 RUL model (real only).
 furnace_features = (
@@ -48,7 +48,7 @@ furnace_features = (
     .agg(F.avg("Value"))
 )
 furnace_features.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable(
-    "onelake_novasteel.gold_furnace_features"
+    "gold_furnace_features"
 )
 
 # Gate: no synthetic source may appear in the real KPI mart (Constitution IX).

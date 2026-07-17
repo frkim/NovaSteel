@@ -223,6 +223,7 @@ module simulatorApp 'modules/container-app-simulator.bicep' = if (deploySimulato
     managedEnvironmentId: containerApps.outputs.environmentId
     containerRegistryName: names.acr
     keyVaultName: names.keyVault
+    fabricCapacityName: names.fabric
   }
   dependsOn: [
     acr

@@ -24,7 +24,9 @@ param timeZone string = 'W. Europe Standard Time'
 
 // Contributor is required to read capacity state and invoke the suspend action
 // (Microsoft.Fabric/capacities/suspend/action). Scoped to the capacity only.
-var contributorRoleId = 'b24988ac-6180-42a0-ab88-79f87b25b2e3'
+// NOTE: Contributor's role-definition GUID in this environment is 20f7382dd24c
+// (matches container-app-simulator.bicep); the public-cloud GUID differs.
+var contributorRoleId = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 
 // Azure Resource Manager endpoint for the current cloud. resourceManager ends with '/',
 // while resource ids start with '/', so trim the trailing slash to avoid '//'.
