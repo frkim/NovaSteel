@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.43.8.12551",
-      "templateHash": "14653704149151090680"
+      "templateHash": "13214927668805433796"
     },
     "description": "Top-level deployment for the NovaSteel AI-powered steel production optimization platform."
   },
@@ -420,7 +420,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.43.8.12551",
-              "templateHash": "1063352523019600576"
+              "templateHash": "3300084425870803532"
             },
             "description": "Deploys the NovaSteel \"Project Ignition\" Azure platform (data, AI/ML, ingestion, apps, governance, security) into a resource group. Demo configuration: public network access, no private endpoints."
           },
@@ -522,6 +522,20 @@
               ],
               "metadata": {
                 "description": "Entra admin principal type for the Azure SQL audit store."
+              }
+            },
+            "deployAlerts": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Deploy Azure Monitor alert rules (action group + drift/SLO scheduled queries)."
+              }
+            },
+            "alertEmail": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Email address that receives Azure Monitor alert notifications (optional)."
               }
             },
             "deployFabricPauseSchedule": {
@@ -706,6 +720,223 @@
                   }
                 }
               }
+            },
+            {
+              "condition": "[parameters('deployAlerts')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "monitoring-alerts",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "namePrefix": {
+                    "value": "[parameters('namePrefix')]"
+                  },
+                  "env": {
+                    "value": "[variables('env')]"
+                  },
+                  "logAnalyticsId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring'), '2025-04-01').outputs.logAnalyticsId.value]"
+                  },
+                  "alertEmail": {
+                    "value": "[parameters('alertEmail')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.43.8.12551",
+                      "templateHash": "9038902931472807506"
+                    },
+                    "description": "Observability hardening — model-drift and freshness/SLO alerts on the NovaSteel Log Analytics workspace (Constitution VI/observability). Alerts are advisory; they never actuate plant equipment."
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Azure region."
+                      }
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {},
+                      "metadata": {
+                        "description": "Resource tags."
+                      }
+                    },
+                    "namePrefix": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Name prefix, e.g. novasteel."
+                      }
+                    },
+                    "env": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Environment short name, e.g. dev."
+                      }
+                    },
+                    "logAnalyticsId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Resource id of the Log Analytics workspace the alerts query."
+                      }
+                    },
+                    "alertEmail": {
+                      "type": "string",
+                      "defaultValue": "",
+                      "metadata": {
+                        "description": "Email address that receives alert notifications."
+                      }
+                    },
+                    "freshnessSloMinutes": {
+                      "type": "int",
+                      "defaultValue": 20,
+                      "minValue": 5,
+                      "maxValue": 240,
+                      "metadata": {
+                        "description": "Freshness SLO: alert if no simulator telemetry logs arrive within this many minutes."
+                      }
+                    },
+                    "enableAlerts": {
+                      "type": "bool",
+                      "defaultValue": true,
+                      "metadata": {
+                        "description": "Enable the scheduled-query alert rules."
+                      }
+                    }
+                  },
+                  "variables": {
+                    "actionGroupName": "[format('ag-{0}-{1}', parameters('namePrefix'), parameters('env'))]",
+                    "hasEmail": "[not(empty(parameters('alertEmail')))]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Insights/actionGroups",
+                      "apiVersion": "2023-01-01",
+                      "name": "[variables('actionGroupName')]",
+                      "location": "global",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "groupShortName": "[take(format('{0}{1}', parameters('namePrefix'), parameters('env')), 12)]",
+                        "enabled": true,
+                        "emailReceivers": "[if(variables('hasEmail'), createArray(createObject('name', 'ops-email', 'emailAddress', parameters('alertEmail'), 'useCommonAlertSchema', true())), createArray())]"
+                      }
+                    },
+                    {
+                      "condition": "[parameters('enableAlerts')]",
+                      "type": "Microsoft.Insights/scheduledQueryRules",
+                      "apiVersion": "2023-03-15",
+                      "name": "[format('alert-{0}-{1}-telemetry-freshness', parameters('namePrefix'), parameters('env'))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "displayName": "NovaSteel telemetry freshness SLO breach",
+                        "description": "No simulator telemetry logs observed within the freshness SLO window; ingestion may be stalled.",
+                        "severity": 2,
+                        "enabled": true,
+                        "scopes": [
+                          "[parameters('logAnalyticsId')]"
+                        ],
+                        "evaluationFrequency": "PT5M",
+                        "windowSize": "[format('PT{0}M', parameters('freshnessSloMinutes'))]",
+                        "criteria": {
+                          "allOf": [
+                            {
+                              "query": "ContainerAppConsoleLogs_CL\n| where Log_s has \"telemetry\" or Log_s has \"readings\"\n| summarize Count = count()",
+                              "timeAggregation": "Total",
+                              "metricMeasureColumn": "Count",
+                              "operator": "LessThanOrEqual",
+                              "threshold": 0,
+                              "failingPeriods": {
+                                "numberOfEvaluationPeriods": 1,
+                                "minFailingPeriodsToAlert": 1
+                              }
+                            }
+                          ]
+                        },
+                        "autoMitigate": true,
+                        "actions": {
+                          "actionGroups": [
+                            "[resourceId('Microsoft.Insights/actionGroups', variables('actionGroupName'))]"
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Insights/actionGroups', variables('actionGroupName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[parameters('enableAlerts')]",
+                      "type": "Microsoft.Insights/scheduledQueryRules",
+                      "apiVersion": "2023-03-15",
+                      "name": "[format('alert-{0}-{1}-model-drift', parameters('namePrefix'), parameters('env'))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "displayName": "NovaSteel P1 model drift (low mean confidence)",
+                        "description": "Mean P1 prediction confidence has dropped below the drift threshold over the window; review model/features.",
+                        "severity": 3,
+                        "enabled": true,
+                        "scopes": [
+                          "[parameters('logAnalyticsId')]"
+                        ],
+                        "evaluationFrequency": "PT30M",
+                        "windowSize": "PT6H",
+                        "criteria": {
+                          "allOf": [
+                            {
+                              "query": "P1Predictions_CL\n| summarize AvgConfidence = avg(todouble(confidence_d))",
+                              "timeAggregation": "Average",
+                              "metricMeasureColumn": "AvgConfidence",
+                              "operator": "LessThan",
+                              "threshold": "[json('0.5')]",
+                              "failingPeriods": {
+                                "numberOfEvaluationPeriods": 1,
+                                "minFailingPeriodsToAlert": 1
+                              }
+                            }
+                          ]
+                        },
+                        "autoMitigate": false,
+                        "actions": {
+                          "actionGroups": [
+                            "[resourceId('Microsoft.Insights/actionGroups', variables('actionGroupName'))]"
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Insights/actionGroups', variables('actionGroupName'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "actionGroupId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Insights/actionGroups', variables('actionGroupName'))]"
+                    },
+                    "actionGroupName": {
+                      "type": "string",
+                      "value": "[variables('actionGroupName')]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'monitoring')]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",

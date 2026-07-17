@@ -1,10 +1,11 @@
 # Fabric notebook wrapper for P1 predictive furnace-lining maintenance.
 #
-# This file is intentionally Spark-light for local py_compile. In Fabric, bind
-# ``spark`` to the lakehouse session, read Gold furnace features from
-# ``onelake_novasteel.gold_furnace_features``, score the RUL model, and write
-# contract-shaped Prediction rows for human review. Synthetic provenance must be
-# preserved and predictions remain decision-support only (no actuation).
+# Spark-light for local py_compile. In Fabric this runs against the default lakehouse
+# (bare table names resolve once a default lakehouse is bound — see
+# platform/scripts/bind_medallion_lakehouse.py). It reads Silver telemetry (TelemetryReading
+# shaped), builds per-asset windows, scores the tested RUL model and appends contract-shaped
+# Prediction rows for human review. Synthetic provenance is preserved and predictions are
+# decision-support only (no actuation) — Constitution I/IX.
 
 from __future__ import annotations
 
@@ -12,16 +13,24 @@ from novasteel_core.models import TelemetryReading
 
 from workloads.p1_predictive_maintenance.rul_model import score_rul
 
-GOLD_FEATURE_TABLE = "onelake_novasteel.gold_furnace_features"
-PREDICTION_TABLE = "onelake_novasteel.p1_predictions"
+SILVER_TABLE = "silver_telemetry"
+PREDICTION_TABLE = "p1_predictions"
+
+# Silver columns that are optional for scoring; supply safe defaults if a column is absent.
+_DEFAULTS = {"assetType": "Furnace", "unit": "", "quality": "Good", "sourceId": "", "origin": "Real"}
+
+
+def _to_reading(row_dict: dict) -> TelemetryReading:
+    payload = {**_DEFAULTS, **{k: v for k, v in row_dict.items() if v is not None}}
+    return TelemetryReading.model_validate(payload)
 
 
 def score_gold_furnace_features(spark_session) -> int:  # pragma: no cover - Fabric wrapper
-    """Score Gold furnace feature windows in Fabric and append Prediction rows."""
-    rows = spark_session.table(GOLD_FEATURE_TABLE).collect()
+    """Score furnace windows from Silver telemetry and append Prediction rows."""
+    rows = spark_session.table(SILVER_TABLE).collect()
     windows: dict[str, list[TelemetryReading]] = {}
     for row in rows:
-        reading = TelemetryReading.model_validate(row.asDict(recursive=True))
+        reading = _to_reading(row.asDict(recursive=True))
         key = f"{reading.site}:{reading.asset_id}"
         windows.setdefault(key, []).append(reading)
 
@@ -36,6 +45,6 @@ def score_gold_furnace_features(spark_session) -> int:  # pragma: no cover - Fab
     return len(predictions)
 
 
-# Fabric usage:
+# Fabric usage (after %pip install of the novasteel wheels):
 # emitted_count = score_gold_furnace_features(spark)
 # display({"p1PredictionsEmitted": emitted_count})

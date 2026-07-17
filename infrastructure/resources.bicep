@@ -50,6 +50,12 @@ param sqlAadAdminObjectId string = ''
 ])
 param sqlAadAdminPrincipalType string = 'Group'
 
+@description('Deploy Azure Monitor alert rules (action group + drift/SLO scheduled queries).')
+param deployAlerts bool = true
+
+@description('Email address that receives Azure Monitor alert notifications (optional).')
+param alertEmail string = ''
+
 // ---------- Naming ----------
 var token = toLower(take(uniqueString(resourceGroup().id, environmentName), 6))
 var short = toLower(take(replace(namePrefix, '-', ''), 8))
@@ -84,6 +90,19 @@ module monitoring 'modules/monitoring.bicep' = {
     tags: tags
     logAnalyticsName: names.logAnalytics
     applicationInsightsName: names.appInsights
+  }
+}
+
+// Drift + freshness/SLO alerting on the Log Analytics workspace (advisory only).
+module monitoringAlerts 'modules/monitoring-alerts.bicep' = if (deployAlerts) {
+  name: 'monitoring-alerts'
+  params: {
+    location: location
+    tags: tags
+    namePrefix: namePrefix
+    env: env
+    logAnalyticsId: monitoring.outputs.logAnalyticsId
+    alertEmail: alertEmail
   }
 }
 

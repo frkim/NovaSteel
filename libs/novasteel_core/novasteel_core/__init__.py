@@ -1,5 +1,6 @@
 """Shared NovaSteel contracts — Python parity of the C# NovaSteel.Contracts library."""
 
+from novasteel_core.audit import AuditLog, ImmutableAuditError
 from novasteel_core.models import (
     AuditRecord,
     AuditSubjectType,
@@ -29,6 +30,7 @@ from novasteel_core.models import (
 )
 
 __all__ = [
+    "AuditLog",
     "AuditRecord",
     "AuditSubjectType",
     "BaselineComparison",
@@ -39,6 +41,7 @@ __all__ = [
     "EnergyPlanStatus",
     "EvidenceItem",
     "HumanDecision",
+    "ImmutableAuditError",
     "MarketSignal",
     "Origin",
     "Pillar",
