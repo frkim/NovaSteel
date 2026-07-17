@@ -1,0 +1,66 @@
+{
+  "$schema": "https://fabric.microsoft.com/datafactory/pipeline-schema.json",
+  "name": "df_mes_erp_eam",
+  "description": "T031 — Fabric Data Factory batch ingestion of MES / ERP / EAM-CMMS reference data into OneLake Bronze. These remain systems of record: the platform reads and proposes only, never writes back (FR-019, Constitution I/IV). Real business data lands with origin='Real'.",
+  "properties": {
+    "activities": [
+      {
+        "name": "CopyProductionOrders",
+        "type": "Copy",
+        "description": "MES production orders + heat/coil context -> bronze_production_orders",
+        "typeProperties": {
+          "source": { "type": "RestSource", "note": "MES read-only API; credentials from Key Vault." },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "workspace": "novasteel",
+            "lakehouse": "onelake_novasteel",
+            "table": "bronze_production_orders"
+          },
+          "translator": {
+            "type": "TabularTranslator",
+            "mappings": [
+              { "source": "orderId", "sink": "order_id" },
+              { "source": "heatId", "sink": "heat_id" },
+              { "source": "site", "sink": "site" },
+              { "source": "grade", "sink": "grade" },
+              { "source": "plannedStart", "sink": "planned_start" },
+              { "source": "deadline", "sink": "deadline" }
+            ]
+          },
+          "defaultColumns": { "origin": "Real", "source_id": "mes:production" }
+        }
+      },
+      {
+        "name": "CopyWorkOrders",
+        "type": "Copy",
+        "description": "EAM/CMMS maintenance work orders -> bronze_work_orders (read/propose only)",
+        "typeProperties": {
+          "source": { "type": "RestSource", "note": "EAM-CMMS read-only API; credentials from Key Vault." },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "workspace": "novasteel",
+            "lakehouse": "onelake_novasteel",
+            "table": "bronze_work_orders"
+          },
+          "defaultColumns": { "origin": "Real", "source_id": "eam:workorders" }
+        }
+      },
+      {
+        "name": "CopyEnergyMarket",
+        "type": "Copy",
+        "description": "Day-ahead spot price + grid carbon intensity feed -> bronze_market_signal (drives P2)",
+        "typeProperties": {
+          "source": { "type": "RestSource", "note": "National energy-market API (LU/DE/BE/ES)." },
+          "sink": {
+            "type": "LakehouseTableSink",
+            "workspace": "novasteel",
+            "lakehouse": "onelake_novasteel",
+            "table": "bronze_market_signal"
+          },
+          "defaultColumns": { "origin": "Real", "source_id": "market:dayahead" }
+        }
+      }
+    ],
+    "policy": { "note": "Scheduled every 15 min; systems of record are authoritative. No write-back activities are permitted (Constitution IV)." }
+  }
+}

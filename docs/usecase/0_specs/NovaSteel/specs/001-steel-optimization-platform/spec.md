@@ -172,6 +172,7 @@ A retiring Senior Operator's expertise must be captured before it is lost, and S
 - **Human Decision / Approval**: A record of a reviewer confirming, editing, or rejecting a prediction/recommendation, including identity, timestamp, and rationale.
 - **Work Order**: A maintenance or production task created in/synchronized with MES/ERP/EAM-CMMS following an approved recommendation.
 - **Energy Plan**: A proposed schedule of energy-intensive jobs aligned to spot prices and grid carbon intensity, with expected energy/CO₂/cost outcomes.
+- **Market Signal**: A day-ahead energy-market data point (electricity spot price and grid carbon intensity per market) that drives the energy-dispatch agent.
 - **Heat / Coil (Production Lot)**: A traceable unit of steel production with process parameters and predicted/actual quality outcomes.
 - **Procedure / Knowledge Item**: A structured, source-cited piece of captured operator expertise in the searchable library.
 - **Operator Interview**: A recorded/transcribed knowledge-capture session containing operator personal data subject to GDPR.

@@ -29,6 +29,7 @@ Default region is **Sweden Central** (`swedencentral`) for EU data residency.
 | `iot-hub.bicep` | IoT Hub | Cloud-direct device telemetry ingestion (one-way OT→IT) |
 | `event-hubs.bicep` | Event Hubs | Streaming telemetry → Fabric RTI |
 | `fabric.bicep` | Microsoft Fabric capacity | OneLake, data engineering, **Data Science (ML)**, RTI, Power BI |
+| `fabric-pause-schedule.bicep` | Logic App (Consumption) | Nightly (02:00) auto-pause of the Fabric capacity when Active (cost control) |
 | `foundry.bicep` | Microsoft Foundry (AI Services) + **GPT-5** + embeddings | Knowledge-capture assistant + **Foundry IQ grounding/RAG** |
 | `functions.bicep` | Azure Functions (Elastic Premium) | Energy-dispatch optimization agent |
 | `container-apps.bicep` | Container Apps | Energy-dispatch microservice + steel factory simulator |

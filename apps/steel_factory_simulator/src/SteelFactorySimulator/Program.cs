@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 using NovaSteel.Contracts;
 using SteelFactorySimulator.Options;
+using SteelFactorySimulator.Services;
 using SteelFactorySimulator.Simulation;
 using SteelFactorySimulator.Transport;
 
@@ -11,6 +12,8 @@ builder.Configuration.AddInMemoryCollection(cliConfiguration);
 builder.Services.AddRazorPages();
 builder.Services.Configure<SimulatorOptions>(builder.Configuration.GetSection("Simulator"));
 builder.Services.Configure<IotHubOptions>(builder.Configuration.GetSection("Simulator:IotHub"));
+builder.Services.Configure<FabricOptions>(builder.Configuration.GetSection("Fabric"));
+builder.Services.AddHttpClient<FabricCapacityService>();
 builder.Services.AddSingleton<InMemoryTelemetryChannel>();
 builder.Services.AddSingleton<ScenarioState>();
 builder.Services.AddSingleton<SensorReadingEngine>();
@@ -59,6 +62,33 @@ app.MapPost("/api/scenarios/clear", (SimulationController controller) =>
 {
     controller.ClearScenario();
     return Results.Json(controller.GetStatus(), NovaSteelJson.Options);
+});
+
+app.MapGet("/api/fabric/status", async (FabricCapacityService fabric, CancellationToken ct) =>
+    Results.Json(await fabric.GetStatusAsync(ct), NovaSteelJson.Options));
+app.MapPost("/api/fabric/resume", async (FabricCapacityService fabric, CancellationToken ct) =>
+{
+    try
+    {
+        await fabric.ResumeAsync(ct);
+        return Results.Json(await fabric.GetStatusAsync(ct), NovaSteelJson.Options);
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message, statusCode: 502, title: "Fabric resume failed");
+    }
+});
+app.MapPost("/api/fabric/pause", async (FabricCapacityService fabric, CancellationToken ct) =>
+{
+    try
+    {
+        await fabric.SuspendAsync(ct);
+        return Results.Json(await fabric.GetStatusAsync(ct), NovaSteelJson.Options);
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message, statusCode: 502, title: "Fabric pause failed");
+    }
 });
 
 var controller = app.Services.GetRequiredService<SimulationController>();

@@ -37,10 +37,10 @@ warning at a single pilot furnace before multi-line and four-country scale-out
 ## Technical Context
 
 **Language/Version**:
-- Python 3.11 — Microsoft Fabric Spark notebooks (data engineering, Data Science RUL/quality
+- Python 3.13 — Microsoft Fabric Spark notebooks (data engineering, Data Science RUL/quality
   models), the energy-dispatch solver and Functions, and `libs/novasteel_core` (the Python
   mirror of the shared contracts).
-- C# / .NET 8 — `libs/NovaSteel.Contracts` (+ `.Tests`), platform services, and the
+- C# / .NET 10 (`net10.0`) — `libs/NovaSteel.Contracts` (+ `.Tests`), platform services, and the
   `apps/steel_factory_simulator` Container App (C# / Razor).
 - KQL — Fabric Real-Time Intelligence (Eventhouse / KQL Database, Activator rules) on the
   sub-second furnace hot path.
@@ -137,7 +137,7 @@ I–IX are NON-NEGOTIABLE merge-blocking gates; X is advisory.*
 | II | End-to-End Traceability | **PASS** | Immutable `AuditRecord` entity (append-only, 10-yr retention) links inputs/evidence, model/logic version, output, reviewer, timestamp, rationale. Purview captures sensor→feature→model→report lineage; audit tables are append-only with no UPDATE/DELETE grant. |
 | III | EU Data Residency | **PASS** | `main.bicep` restricts `location` to `swedencentral`/`westeurope`/`germanywestcentral`; research.md adds an Azure Policy `allowedLocations` deny assignment so non-EU regions fail deployment. All stores (OneLake, KQL, SQL, Blob) are EU-pinned. |
 | IV | One-Way OT→IT Boundary | **PASS** | Ingestion is cloud-direct IoT Hub → Event Hubs → Fabric; no module, function, or simulator path writes back toward OT/SCADA. IoT Hub is configured device→cloud only (no cloud-to-device/direct-method usage). |
-| V | Scoped, Unified Stack | **PASS (with compliance action)** | Only the `1_azure_services.md` "Final Decision — Scoped Service Set" is used. Two out-of-scope modules currently present (`machine-learning.bicep` = Azure ML, `search.bicep` = AI Search) MUST be removed — see Complexity Tracking CT-1. No other excluded service is introduced. |
+| V | Scoped, Unified Stack | **PASS** | Only the `1_azure_services.md` "Final Decision — Scoped Service Set" is used. The two out-of-scope modules (`machine-learning.bicep` = Azure ML, `search.bicep` = AI Search) have been **removed (CT-1 COMPLETE)**, including all wiring in `resources.bicep`/`rbac.bicep`/`README.md`; `az bicep build` is clean. No other excluded service is introduced. |
 | VI | Explainability & Responsible AI | **PASS** | `Prediction`/`Recommendation` carry confidence + contributing-evidence fields; GenAI answers grounded via Foundry IQ with mandatory citations and decline-on-no-source; all generative output passes Content Safety; telemetry `Quality` + freshness flags drive reduced-confidence presentation. |
 | VII | RBAC & Per-Site Isolation | **PASS** | Entra ID least-privilege per persona (operator/maintenance/energy/quality/exec-ESG/compliance-DPO); `Site` is a first-class scoping dimension on every entity; per-site row/workspace isolation prevents onboarded↔not-onboarded bleed. |
 | VIII | Contract-First, Test-First | **PASS** | `libs/NovaSteel.Contracts` + `libs/novasteel_core` are the single source of truth, validated against `libs/fixtures` golden files by both xUnit and pytest. TDD: contract, integration (agent decision logging), and model eval/drift tests precede ship. |
@@ -262,7 +262,7 @@ workloads/                              (new) — four pillar workloads (Fabric 
 ├── p3_quality_control/                (new)  quality prediction + SPC (Fabric Data Science)
 └── p4_knowledge_capture/              (new)  Speech→Language→Doc Intel→Foundry IQ→Agent
 
-.github/workflows/                      (new) — GitHub Actions CI/CD (build/test/deploy)
+.github/workflows/                      (exists) — GitHub Actions CI/CD (build/test/deploy)
 ```
 
 **Structure Decision**: **Multi-workload monorepo.** The four pillars are independently

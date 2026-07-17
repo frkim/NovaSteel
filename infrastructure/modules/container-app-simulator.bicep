@@ -19,8 +19,8 @@ param containerRegistryName string
 @description('Key Vault name containing the optional IoT Hub simulator device connection-string secret.')
 param keyVaultName string
 
-@description('Container image for the simulator app.')
-param containerImage string = '${containerRegistryName}.azurecr.io/steel-factory-simulator:latest'
+@description('Container image for the simulator app. Defaults to a public placeholder until CI builds/pushes the real image to ACR (then override this param).')
+param containerImage string = 'mcr.microsoft.com/k8se/quickstart:latest'
 
 @description('IoT Hub simulator device identity.')
 param simulatorDeviceId string = 'sim-steel-factory-simulator'
@@ -29,6 +29,7 @@ param simulatorDeviceId string = 'sim-steel-factory-simulator'
 param iotHubConnectionStringSecretName string = 'iothub-simulator-device-connection-string'
 
 var acrLoginServer = '${containerRegistryName}.azurecr.io'
+var usesAcrImage = startsWith(containerImage, acrLoginServer)
 var roles = {
   acrPull: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
   keyVaultSecretsUser: '4633458b-17de-408a-b874-0445c86b69e6'
@@ -60,12 +61,12 @@ resource app 'Microsoft.App/containerApps@2025-01-01' = {
         transport: 'auto'
         allowInsecure: false
       }
-      registries: [
+      registries: usesAcrImage ? [
         {
           server: acrLoginServer
           identity: 'system'
         }
-      ]
+      ] : []
     }
     template: {
       containers: [

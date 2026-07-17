@@ -1,0 +1,78 @@
+@page
+@model SteelFactorySimulator.Pages.SettingsModel
+@{
+    ViewData["Title"] = "Settings";
+}
+
+<h1>Settings</h1>
+
+<section>
+    <h2>Database</h2>
+    <p>Microsoft Fabric capacity (OneLake / Eventhouse / Lakehouse) backing the platform.
+       Pausing the capacity stops compute billing; all data and items persist.</p>
+    <div class="toolbar">
+        <span class="fabric-led">
+            <span id="dbLed" class="led grey"></span>
+            <strong id="dbState">Loading…</strong>
+        </span>
+    </div>
+    <div class="toolbar" style="margin-top:.9rem;">
+        <button id="startBtn" onclick="fabricAction('resume')">Start capacity</button>
+        <button class="danger" id="pauseBtn" onclick="fabricAction('pause')">Pause capacity</button>
+        <span id="dbMsg" class="status"></span>
+    </div>
+    <p id="dbHint" class="badge" style="margin-top:.9rem; display:none;"></p>
+</section>
+
+@section Scripts {
+<script>
+    function paint(status) {
+        const state = (status && status.state) || 'Unknown';
+        const led = document.getElementById('dbLed');
+        led.className = 'led ' + ({ Active:'green', Paused:'red', Pausing:'amber', Resuming:'amber', NotConfigured:'grey', Unknown:'grey' }[state] || 'grey');
+        document.getElementById('dbState').textContent =
+            state === 'Active' ? 'Running' : state === 'Paused' ? 'Paused' : state;
+
+        const configured = status && status.configured;
+        const start = document.getElementById('startBtn');
+        const pause = document.getElementById('pauseBtn');
+        start.disabled = !configured || state === 'Active' || state === 'Resuming' || state === 'Pausing';
+        pause.disabled = !configured || state === 'Paused' || state === 'Resuming' || state === 'Pausing';
+
+        const hint = document.getElementById('dbHint');
+        if (!configured) {
+            hint.style.display = 'block';
+            hint.textContent = 'Fabric capacity is not configured for this deployment (set Fabric__SubscriptionId / ResourceGroup / CapacityName).';
+        } else {
+            hint.style.display = 'none';
+        }
+    }
+    async function loadStatus() {
+        try { paint(await (await fetch('/api/fabric/status')).json()); }
+        catch { paint({ state: 'Unknown' }); }
+    }
+    async function fabricAction(action) {
+        const msg = document.getElementById('dbMsg');
+        msg.textContent = action === 'resume' ? 'Starting capacity…' : 'Pausing capacity…';
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('pauseBtn').disabled = true;
+        try {
+            const resp = await fetch('/api/fabric/' + action, { method: 'POST' });
+            if (!resp.ok) {
+                const problem = await resp.json().catch(() => ({}));
+                msg.textContent = 'Failed: ' + (problem.detail || resp.statusText);
+            } else {
+                paint(await resp.json());
+                msg.textContent = action === 'resume' ? 'Start requested.' : 'Pause requested.';
+            }
+        } catch (e) {
+            msg.textContent = 'Error: ' + e.message;
+        }
+        setTimeout(loadStatus, 3000);
+    }
+    // Reuse the shared LED broadcast, and poll here too.
+    document.addEventListener('fabric-status', (e) => paint(e.detail));
+    setInterval(loadStatus, 5000);
+    loadStatus();
+</script>
+}

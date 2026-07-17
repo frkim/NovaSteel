@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.43.8.12551",
-      "templateHash": "10216070629915960749"
+      "templateHash": "9971526442835275605"
     },
     "description": "Top-level deployment for the NovaSteel AI-powered steel production optimization platform."
   },
@@ -77,11 +77,46 @@
         "description": "Optional region override for Microsoft Purview (defaults to location). Some tenants restrict Purview regions."
       }
     },
+    "iotHubLocation": {
+      "type": "string",
+      "defaultValue": "westeurope",
+      "allowedValues": [
+        "westeurope",
+        "germanywestcentral",
+        "northeurope"
+      ],
+      "metadata": {
+        "description": "Region for Azure IoT Hub (not available in swedencentral). Kept within the EU allowed set for data residency."
+      }
+    },
     "deployPurview": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
         "description": "Deploy Microsoft Purview (governance/lineage). Disable where tenant/region constraints apply."
+      }
+    },
+    "deploySimulator": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Deploy the steel-factory simulator Container App. Disable to skip re-provisioning an already-deployed simulator."
+      }
+    },
+    "deployFabricPauseSchedule": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Deploy the Logic App that pauses the Fabric capacity nightly at 02:00 (cost control)."
+      }
+    },
+    "fabricPauseHour": {
+      "type": "int",
+      "defaultValue": 2,
+      "minValue": 0,
+      "maxValue": 23,
+      "metadata": {
+        "description": "Hour (0-23, W. Europe time) at which the Fabric capacity is paused."
       }
     },
     "deployAppState": {
@@ -131,7 +166,8 @@
       "application": "novasteel-optimization-platform",
       "environment": "[parameters('environmentName')]",
       "dataResidency": "eu",
-      "managedBy": "bicep"
+      "managedBy": "bicep",
+      "SecurityControl": "Ignore"
     },
     "allTags": "[union(variables('defaultTags'), parameters('tags'))]"
   },
@@ -161,7 +197,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.43.8.12551",
-              "templateHash": "13973098857394485688"
+              "templateHash": "15532186490301323051"
             },
             "description": "Enables Microsoft Defender for Cloud plans across the subscription (posture + workload protection)."
           },
@@ -191,10 +227,6 @@
                 },
                 {
                   "name": "Arm",
-                  "tier": "Standard"
-                },
-                {
-                  "name": "Api",
                   "tier": "Standard"
                 },
                 {
@@ -242,7 +274,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.43.8.12551",
-              "templateHash": "12676952932253622311"
+              "templateHash": "10602475935543189366"
             },
             "description": "Assigns built-in Allowed Locations policies to restrict all resources and resource groups to approved EU regions."
           },
@@ -271,8 +303,8 @@
             }
           },
           "variables": {
-            "allowedLocationsResourcesDef": "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'e56962a6-4747-49cd-b67b-bf8b01975c4c')]",
-            "allowedLocationsResourceGroupsDef": "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'e765b5de-1225-4ba3-bd56-1ac6695af988')]"
+            "allowedLocationsResourcesDef": "[tenantResourceId('Microsoft.Authorization/policyDefinitions', 'e56962a6-4747-49cd-b67b-bf8b01975c4c')]",
+            "allowedLocationsResourceGroupsDef": "[tenantResourceId('Microsoft.Authorization/policyDefinitions', 'e765b5de-1225-4ba3-bd56-1ac6695af988')]"
           },
           "resources": [
             {
@@ -353,8 +385,20 @@
           "purviewLocation": {
             "value": "[parameters('purviewLocation')]"
           },
+          "iotHubLocation": {
+            "value": "[parameters('iotHubLocation')]"
+          },
           "deployPurview": {
             "value": "[parameters('deployPurview')]"
+          },
+          "deploySimulator": {
+            "value": "[parameters('deploySimulator')]"
+          },
+          "deployFabricPauseSchedule": {
+            "value": "[parameters('deployFabricPauseSchedule')]"
+          },
+          "fabricPauseHour": {
+            "value": "[parameters('fabricPauseHour')]"
           },
           "deployAppState": {
             "value": "[parameters('deployAppState')]"
@@ -376,7 +420,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.43.8.12551",
-              "templateHash": "9738657631387220139"
+              "templateHash": "6472115088980168809"
             },
             "description": "Deploys the NovaSteel \"Project Ignition\" Azure platform (data, AI/ML, ingestion, apps, governance, security) into a resource group. Demo configuration: public network access, no private endpoints."
           },
@@ -428,6 +472,18 @@
                 "description": "Optional region override for Microsoft Purview (defaults to location). Some tenants restrict Purview regions."
               }
             },
+            "iotHubLocation": {
+              "type": "string",
+              "defaultValue": "westeurope",
+              "allowedValues": [
+                "westeurope",
+                "germanywestcentral",
+                "northeurope"
+              ],
+              "metadata": {
+                "description": "Region for Azure IoT Hub. IoT Hub is not available in every EU region (e.g. not swedencentral), so it is placed in an EU region that supports it while keeping data EU-resident."
+              }
+            },
             "deployPurview": {
               "type": "bool",
               "defaultValue": true,
@@ -467,6 +523,27 @@
               "metadata": {
                 "description": "Entra admin principal type for the Azure SQL audit store."
               }
+            },
+            "deployFabricPauseSchedule": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Deploy the Logic App that pauses the Fabric capacity nightly at 02:00 (cost control)."
+              }
+            },
+            "fabricPauseHour": {
+              "type": "int",
+              "defaultValue": 2,
+              "metadata": {
+                "description": "Hour (0-23, W. Europe time) at which the Fabric capacity is paused."
+              }
+            },
+            "deploySimulator": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Deploy the steel-factory simulator Container App. Disable to skip re-provisioning an already-deployed simulator (avoids ACA update lag)."
+              }
             }
           },
           "variables": {
@@ -490,7 +567,8 @@
               "functionPlan": "[format('plan-{0}-{1}-{2}', variables('short'), variables('env'), variables('token'))]",
               "containerEnv": "[format('cae-{0}-{1}-{2}', variables('short'), variables('env'), variables('token'))]",
               "simulatorApp": "[format('sim-{0}-{1}-{2}', variables('short'), variables('env'), variables('token'))]",
-              "sqlServer": "[format('sql-{0}-{1}-{2}', variables('short'), variables('env'), variables('token'))]"
+              "sqlServer": "[format('sql-{0}-{1}-{2}', variables('short'), variables('env'), variables('token'))]",
+              "fabricPause": "[format('logic-{0}-fabricpause-{1}', variables('short'), variables('env'))]"
             }
           },
           "resources": [
@@ -1087,7 +1165,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "location": {
-                    "value": "[parameters('location')]"
+                    "value": "[parameters('iotHubLocation')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -1486,6 +1564,211 @@
                   }
                 }
               }
+            },
+            {
+              "condition": "[parameters('deployFabricPauseSchedule')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "fabric-pause-schedule",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "name": {
+                    "value": "[variables('names').fabricPause]"
+                  },
+                  "fabricCapacityName": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'fabric'), '2025-04-01').outputs.name.value]"
+                  },
+                  "scheduleHour": {
+                    "value": "[parameters('fabricPauseHour')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.43.8.12551",
+                      "templateHash": "2647948638795351563"
+                    },
+                    "description": "Scheduled Logic App (Consumption) that suspends the Microsoft Fabric capacity nightly at 02:00 when it is Active."
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Azure region for the Logic App."
+                      }
+                    },
+                    "tags": {
+                      "type": "object",
+                      "defaultValue": {},
+                      "metadata": {
+                        "description": "Resource tags."
+                      }
+                    },
+                    "name": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Logic App (workflow) name."
+                      }
+                    },
+                    "fabricCapacityName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Name of the Microsoft Fabric capacity to pause."
+                      }
+                    },
+                    "scheduleHour": {
+                      "type": "int",
+                      "defaultValue": 2,
+                      "minValue": 0,
+                      "maxValue": 23,
+                      "metadata": {
+                        "description": "Hour of day (0-23, local to timeZone) at which the pause runs."
+                      }
+                    },
+                    "timeZone": {
+                      "type": "string",
+                      "defaultValue": "W. Europe Standard Time",
+                      "metadata": {
+                        "description": "Windows time zone id used to evaluate the schedule."
+                      }
+                    }
+                  },
+                  "variables": {
+                    "contributorRoleId": "b24988ac-6180-42a0-ab88-79f87b25b2e3",
+                    "armAudience": "[environment().resourceManager]",
+                    "armBase": "[substring(variables('armAudience'), 0, sub(length(variables('armAudience')), 1))]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Logic/workflows",
+                      "apiVersion": "2019-05-01",
+                      "name": "[parameters('name')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
+                      "properties": {
+                        "state": "Enabled",
+                        "definition": {
+                          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                          "contentVersion": "1.0.0.0",
+                          "parameters": {
+                            "capacityResourceId": {
+                              "type": "String",
+                              "defaultValue": "[resourceId('Microsoft.Fabric/capacities', parameters('fabricCapacityName'))]"
+                            }
+                          },
+                          "triggers": {
+                            "Daily_at_scheduled_hour": {
+                              "type": "Recurrence",
+                              "recurrence": {
+                                "frequency": "Day",
+                                "interval": 1,
+                                "timeZone": "[parameters('timeZone')]",
+                                "schedule": {
+                                  "hours": [
+                                    "[string(parameters('scheduleHour'))]"
+                                  ],
+                                  "minutes": [
+                                    0
+                                  ]
+                                }
+                              }
+                            }
+                          },
+                          "actions": {
+                            "Get_capacity_state": {
+                              "type": "Http",
+                              "runAfter": {},
+                              "inputs": {
+                                "method": "GET",
+                                "uri": "[format('{0}@{{parameters(''capacityResourceId'')}}?api-version=2023-11-01', variables('armBase'))]",
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "[variables('armAudience')]"
+                                }
+                              }
+                            },
+                            "If_capacity_is_running": {
+                              "type": "If",
+                              "runAfter": {
+                                "Get_capacity_state": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "expression": {
+                                "equals": [
+                                  "@toLower(coalesce(body('Get_capacity_state')?['properties']?['state'], ''))",
+                                  "active"
+                                ]
+                              },
+                              "actions": {
+                                "Suspend_capacity": {
+                                  "type": "Http",
+                                  "runAfter": {},
+                                  "inputs": {
+                                    "method": "POST",
+                                    "uri": "[format('{0}@{{parameters(''capacityResourceId'')}}/suspend?api-version=2023-11-01', variables('armBase'))]",
+                                    "authentication": {
+                                      "type": "ManagedServiceIdentity",
+                                      "audience": "[variables('armAudience')]"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[resourceId('Microsoft.Fabric/capacities', parameters('fabricCapacityName'))]",
+                      "name": "[guid(resourceId('Microsoft.Fabric/capacities', parameters('fabricCapacityName')), resourceId('Microsoft.Logic/workflows', parameters('name')), variables('contributorRoleId'))]",
+                      "properties": {
+                        "principalId": "[reference(resourceId('Microsoft.Logic/workflows', parameters('name')), '2019-05-01', 'full').identity.principalId]",
+                        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('contributorRoleId'))]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Logic/workflows', parameters('name'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Logic/workflows', parameters('name'))]"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "[parameters('name')]"
+                    },
+                    "principalId": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Logic/workflows', parameters('name')), '2019-05-01', 'full').identity.principalId]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'fabric')]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -2045,6 +2328,7 @@
               ]
             },
             {
+              "condition": "[parameters('deploySimulator')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
               "name": "simulator-containerapp",
@@ -2080,7 +2364,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.43.8.12551",
-                      "templateHash": "18240262783889908501"
+                      "templateHash": "15862580388047895794"
                     },
                     "description": "Deploys the NovaSteel steel-factory simulator Container App into the existing managed environment."
                   },
@@ -2124,9 +2408,9 @@
                     },
                     "containerImage": {
                       "type": "string",
-                      "defaultValue": "[format('{0}.azurecr.io/steel-factory-simulator:latest', parameters('containerRegistryName'))]",
+                      "defaultValue": "mcr.microsoft.com/k8se/quickstart:latest",
                       "metadata": {
-                        "description": "Container image for the simulator app."
+                        "description": "Container image for the simulator app. Defaults to a public placeholder until CI builds/pushes the real image to ACR (then override this param)."
                       }
                     },
                     "simulatorDeviceId": {
@@ -2146,6 +2430,7 @@
                   },
                   "variables": {
                     "acrLoginServer": "[format('{0}.azurecr.io', parameters('containerRegistryName'))]",
+                    "usesAcrImage": "[startsWith(parameters('containerImage'), variables('acrLoginServer'))]",
                     "roles": {
                       "acrPull": "7f951dda-4ed3-4680-a7ca-43fe172d538d",
                       "keyVaultSecretsUser": "4633458b-17de-408a-b874-0445c86b69e6"
@@ -2172,12 +2457,7 @@
                             "transport": "auto",
                             "allowInsecure": false
                           },
-                          "registries": [
-                            {
-                              "server": "[variables('acrLoginServer')]",
-                              "identity": "system"
-                            }
-                          ]
+                          "registries": "[if(variables('usesAcrImage'), createArray(createObject('server', variables('acrLoginServer'), 'identity', 'system')), createArray())]"
                         },
                         "template": {
                           "containers": [
@@ -2757,6 +3037,10 @@
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Resources/deployments', 'fabric'), '2025-04-01').outputs.name.value]"
             },
+            "fabricPauseWorkflowName": {
+              "type": "string",
+              "value": "[if(parameters('deployFabricPauseSchedule'), reference(resourceId('Microsoft.Resources/deployments', 'fabric-pause-schedule'), '2025-04-01').outputs.name.value, '')]"
+            },
             "foundryName": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.name.value]"
@@ -2775,11 +3059,11 @@
             },
             "simulatorAppName": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'simulator-containerapp'), '2025-04-01').outputs.appName.value]"
+              "value": "[if(parameters('deploySimulator'), reference(resourceId('Microsoft.Resources/deployments', 'simulator-containerapp'), '2025-04-01').outputs.appName.value, '')]"
             },
             "simulatorAppFqdn": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'simulator-containerapp'), '2025-04-01').outputs.appFqdn.value]"
+              "value": "[if(parameters('deploySimulator'), reference(resourceId('Microsoft.Resources/deployments', 'simulator-containerapp'), '2025-04-01').outputs.appFqdn.value, '')]"
             },
             "purviewName": {
               "type": "string",
@@ -2825,6 +3109,10 @@
     "fabricCapacityName": {
       "type": "string",
       "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'novasteel-platform'), '2025-04-01').outputs.fabricCapacityName.value]"
+    },
+    "fabricPauseWorkflowName": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'novasteel-platform'), '2025-04-01').outputs.fabricPauseWorkflowName.value]"
     }
   }
 }

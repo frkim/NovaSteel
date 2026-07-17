@@ -11,7 +11,6 @@ param plans array = [
   { name: 'Containers', tier: 'Standard' }
   { name: 'AppServices', tier: 'Standard' }
   { name: 'Arm', tier: 'Standard' }
-  { name: 'Api', tier: 'Standard' }
   { name: 'VirtualMachines', tier: 'Standard' }
 ]
 

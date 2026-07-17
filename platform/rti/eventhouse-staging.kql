@@ -1,0 +1,42 @@
+// Eventhouse staging + fan-out for the live IoT Hub -> Eventstream binding.
+// IoT Hub device messages are BATCHES (SimulatorDeviceMessage.readings[]), so the
+// Eventstream Eventhouse destination lands the raw message into `TelemetryIngest`;
+// this update policy expands readings[] into the flat `TelemetryRaw` table
+// (see platform/rti/eventhouse.kql for TelemetryRaw). Provenance (origin/sourceId)
+// is carried through unchanged (Constitution IX). Apply against the KQL DB novasteel_rti.
+
+// Staging table: one row per device message; `readings` is the raw array.
+.create-merge table TelemetryIngest (
+    DeviceId: string,
+    MessageId: string,
+    EnqueuedAt: datetime,
+    SchemaVersion: string,
+    readings: dynamic,
+    InjectedScenario: string
+)
+
+// Fan-out function: one output row per reading, shaped like TelemetryRaw.
+.create-or-alter function ExpandTelemetry() {
+    TelemetryIngest
+    | mv-expand r = readings
+    | project
+        AssetId = tostring(r.assetId),
+        AssetType = tostring(r.assetType),
+        Site = tostring(r.site),
+        Metric = tostring(r.metric),
+        Value = toreal(r.value),
+        Unit = tostring(r.unit),
+        Timestamp = todatetime(r.timestamp),
+        Quality = tostring(r.quality),
+        Origin = tostring(r.origin),
+        SourceId = tostring(r.sourceId),
+        EnqueuedAt = EnqueuedAt,
+        DeviceId = DeviceId,
+        InjectedScenario = InjectedScenario
+}
+
+// Update policy: every batch ingested into TelemetryIngest is expanded into TelemetryRaw.
+.alter table TelemetryRaw policy update
+```
+[{"IsEnabled": true, "Source": "TelemetryIngest", "Query": "ExpandTelemetry()", "IsTransactional": false}]
+```

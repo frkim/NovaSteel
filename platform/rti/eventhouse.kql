@@ -1,0 +1,88 @@
+// T027 — Fabric Real-Time Intelligence Eventhouse (KQL Database) schema for the
+// hot path. Telemetry lands here from the Eventstream (IoT Hub -> Eventstream -> KQL).
+// Provenance columns (Origin, SourceId) are first-class so synthetic data is never
+// mistaken for real (Constitution IX). Deploy against the Eventhouse created on the
+// live Fabric capacity (fabnovasteedevox26fi).
+
+//------------------------------------------------------------------------------
+// Raw telemetry table (bronze hot path). One row per reading.
+//------------------------------------------------------------------------------
+.create-merge table TelemetryRaw (
+    AssetId: string,
+    AssetType: string,
+    Site: string,
+    Metric: string,
+    Value: real,
+    Unit: string,
+    Timestamp: datetime,
+    Quality: string,
+    Origin: string,        // 'Real' | 'Synthetic' — preserved end-to-end (Constitution IX)
+    SourceId: string,
+    EnqueuedAt: datetime,  // IoT Hub enqueue time
+    DeviceId: string,
+    InjectedScenario: string
+)
+
+// Retention/caching for the hot path (short hot cache; full history goes to OneLake).
+.alter-merge table TelemetryRaw policy retention softdelete = 30d
+.alter table TelemetryRaw policy caching hot = 3d
+
+//------------------------------------------------------------------------------
+// JSON ingestion mapping matching the simulator device message / telemetry contract
+// (camelCase). Origin defaults to 'Synthetic' only via the simulator; real OT sets 'Real'.
+//------------------------------------------------------------------------------
+.create-or-alter table TelemetryRaw ingestion json mapping "TelemetryRawMapping"
+```
+[
+  {"column":"AssetId","path":"$.assetId"},
+  {"column":"AssetType","path":"$.assetType"},
+  {"column":"Site","path":"$.site"},
+  {"column":"Metric","path":"$.metric"},
+  {"column":"Value","path":"$.value"},
+  {"column":"Unit","path":"$.unit"},
+  {"column":"Timestamp","path":"$.timestamp"},
+  {"column":"Quality","path":"$.quality"},
+  {"column":"Origin","path":"$.origin"},
+  {"column":"SourceId","path":"$.sourceId"},
+  {"column":"EnqueuedAt","path":"$.enqueuedAt"},
+  {"column":"DeviceId","path":"$.deviceId"},
+  {"column":"InjectedScenario","path":"$.injectedScenario"}
+]
+```
+
+//------------------------------------------------------------------------------
+// Update policy: enforce that a reading missing Origin is quarantined, never
+// defaulted to 'Real' (fail-safe provenance, Constitution IX).
+//------------------------------------------------------------------------------
+.create-merge table TelemetryQuarantine (
+    AssetId: string, Metric: string, Site: string, Timestamp: datetime,
+    Origin: string, SourceId: string, Reason: string
+)
+
+.create-or-alter function ExtractQuarantine() {
+    TelemetryRaw
+    | where isempty(Origin) or Origin !in ('Real','Synthetic') or isempty(SourceId)
+    | project AssetId, Metric, Site, Timestamp, Origin, SourceId, Reason = "missing_or_invalid_provenance"
+}
+
+.alter table TelemetryQuarantine policy update
+```
+[{"IsEnabled": true, "Source": "TelemetryRaw", "Query": "ExtractQuarantine()", "IsTransactional": true}]
+```
+
+//------------------------------------------------------------------------------
+// Live furnace features view for the RUL scorer (P1 hot path).
+//------------------------------------------------------------------------------
+.create-or-alter function FurnaceLiveFeatures(lookback: timespan = 1h) {
+    TelemetryRaw
+    | where AssetType == "BlastFurnace"
+        and Metric in ("ThermocoupleTemp", "HeatFlux", "Vibration")
+        and Timestamp > ago(lookback)
+        and Origin in ("Real", "Synthetic")   // provenance carried into features
+    | summarize
+        avgValue = avg(Value),
+        maxValue = max(Value),
+        p95Value = percentile(Value, 95),
+        n = count()
+      by AssetId, Site, Metric, Origin, bin(Timestamp, 5m)
+}

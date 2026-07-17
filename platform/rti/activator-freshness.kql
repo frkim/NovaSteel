@@ -1,0 +1,35 @@
+// T033 — Fabric Activator (Real-Time Intelligence) rule: flag missing / delayed /
+// stale telemetry as reduced-confidence or unavailable, never silently stale
+// (FR-022, Constitution VI). Bind these queries to Activator alerts on the live
+// Eventhouse; route to the operations dashboard + ops persona.
+
+// 1) Staleness / dropout: an asset+metric that was reporting has gone quiet.
+.create-or-alter function DetectTelemetryDropout(staleAfter: timespan = 15m) {
+    let recent = TelemetryRaw | where Timestamp > ago(2h);
+    recent
+    | summarize lastSeen = max(Timestamp), lastOrigin = arg_max(Timestamp, Origin) by AssetId, Site, Metric
+    | extent_gap = now() - lastSeen
+    | where extent_gap > staleAfter
+    | project AssetId, Site, Metric, lastSeen, staleSeconds = toreal(extent_gap) / 1s,
+              signal = "TELEMETRY_STALE", confidence = "reduced"
+}
+
+// 2) Out-of-order / late arrival: enqueue time lags the reading timestamp materially.
+.create-or-alter function DetectLateArrival(maxLagSeconds: real = 120) {
+    TelemetryRaw
+    | where Timestamp > ago(1h) and isnotempty(EnqueuedAt)
+    | extend lagSeconds = toreal(EnqueuedAt - Timestamp) / 1s
+    | where lagSeconds > maxLagSeconds
+    | project AssetId, Site, Metric, Timestamp, EnqueuedAt, lagSeconds,
+              signal = "TELEMETRY_LATE", confidence = "reduced"
+}
+
+// 3) Quality degradation burst: many Suspect/Bad readings in a short window.
+.create-or-alter function DetectQualityDegradation(window: timespan = 10m, badRatioThreshold: real = 0.3) {
+    TelemetryRaw
+    | where Timestamp > ago(window)
+    | summarize total = count(), bad = countif(Quality in ("Suspect","Bad")) by AssetId, Site, Metric
+    | extend badRatio = todouble(bad) / total
+    | where badRatio >= badRatioThreshold
+    | project AssetId, Site, Metric, badRatio, signal = "QUALITY_DEGRADED", confidence = "reduced"
+}

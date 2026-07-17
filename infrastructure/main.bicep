@@ -37,8 +37,27 @@ param fabricAdminMembers array
 @description('Optional region override for Microsoft Purview (defaults to location). Some tenants restrict Purview regions.')
 param purviewLocation string = ''
 
+@description('Region for Azure IoT Hub (not available in swedencentral). Kept within the EU allowed set for data residency.')
+@allowed([
+  'westeurope'
+  'germanywestcentral'
+  'northeurope'
+])
+param iotHubLocation string = 'westeurope'
+
 @description('Deploy Microsoft Purview (governance/lineage). Disable where tenant/region constraints apply.')
 param deployPurview bool = true
+
+@description('Deploy the steel-factory simulator Container App. Disable to skip re-provisioning an already-deployed simulator.')
+param deploySimulator bool = true
+
+@description('Deploy the Logic App that pauses the Fabric capacity nightly at 02:00 (cost control).')
+param deployFabricPauseSchedule bool = true
+
+@description('Hour (0-23, W. Europe time) at which the Fabric capacity is paused.')
+@minValue(0)
+@maxValue(23)
+param fabricPauseHour int = 2
 
 @description('Deploy the Azure SQL audit/app-state store (research.md R7). Requires sqlAadAdminObjectId when true.')
 param deployAppState bool = false
@@ -66,6 +85,7 @@ var defaultTags = {
   environment: environmentName
   dataResidency: 'eu'
   managedBy: 'bicep'
+  SecurityControl: 'Ignore'
 }
 
 var allTags = union(defaultTags, tags)
@@ -97,7 +117,11 @@ module platform 'resources.bicep' = {
     fabricSkuName: fabricSkuName
     fabricAdminMembers: fabricAdminMembers
     purviewLocation: purviewLocation
+    iotHubLocation: iotHubLocation
     deployPurview: deployPurview
+    deploySimulator: deploySimulator
+    deployFabricPauseSchedule: deployFabricPauseSchedule
+    fabricPauseHour: fabricPauseHour
     deployAppState: deployAppState
     sqlAadAdminLogin: sqlAadAdminLogin
     sqlAadAdminObjectId: sqlAadAdminObjectId
@@ -111,3 +135,4 @@ output foundryEndpoint string = platform.outputs.foundryEndpoint
 output keyVaultName string = platform.outputs.keyVaultName
 output dataLakeName string = platform.outputs.dataLakeName
 output fabricCapacityName string = platform.outputs.fabricCapacityName
+output fabricPauseWorkflowName string = platform.outputs.fabricPauseWorkflowName

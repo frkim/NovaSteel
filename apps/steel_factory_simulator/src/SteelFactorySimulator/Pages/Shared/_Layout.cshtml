@@ -1,0 +1,134 @@
+@{
+    var title = ViewData["Title"] as string ?? "Steel Factory Simulator";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NovaSteel — @title</title>
+    <style>
+        :root { color-scheme: light dark; font-family: "Segoe UI", system-ui, sans-serif; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #0f172a; color: #e2e8f0; }
+        a { color: #93c5fd; text-decoration: none; }
+
+        /* Top navigation bar */
+        .topnav { display: flex; align-items: center; justify-content: space-between;
+                  padding: .85rem 1.5rem; background: #111827; border-bottom: 1px solid #334155; position: relative; }
+        .topnav .brand { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; }
+        .topnav .brand small { display: block; font-weight: 400; font-size: .72rem; color: #94a3b8; }
+        .nav-right { display: flex; align-items: center; gap: 1rem; }
+
+        /* Fabric status LED */
+        .fabric-led { display: flex; align-items: center; gap: .5rem; font-size: .82rem; color: #cbd5e1; }
+        .led { width: .85rem; height: .85rem; border-radius: 50%; background: #64748b;
+               box-shadow: 0 0 .4rem rgba(0,0,0,.4); transition: background .3s, box-shadow .3s; }
+        .led.green { background: #22c55e; box-shadow: 0 0 .6rem #22c55e; }
+        .led.red   { background: #ef4444; box-shadow: 0 0 .6rem #ef4444; }
+        .led.amber { background: #f59e0b; box-shadow: 0 0 .6rem #f59e0b; animation: pulse 1s infinite; }
+        .led.grey  { background: #64748b; }
+        @@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+
+        /* Hamburger button + dropdown menu */
+        .hamburger { background: #1e293b; border: 1px solid #475569; border-radius: .45rem;
+                     width: 2.4rem; height: 2.4rem; cursor: pointer; display: flex; flex-direction: column;
+                     align-items: center; justify-content: center; gap: .22rem; padding: 0; }
+        .hamburger span { display: block; width: 1.2rem; height: 2px; background: #e2e8f0; border-radius: 2px; }
+        .menu { position: absolute; top: 3.4rem; right: 1.5rem; min-width: 12rem; background: #111827;
+                border: 1px solid #334155; border-radius: .6rem; box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.5);
+                overflow: hidden; z-index: 30; display: none; }
+        .menu.open { display: block; }
+        .menu a { display: block; padding: .7rem 1rem; color: #e2e8f0; }
+        .menu a:hover { background: #1e293b; }
+        .menu a.active { background: #1e293b; color: #93c5fd; }
+
+        /* Shared content styles */
+        main { padding: 1.5rem 2rem; display: grid; gap: 1rem; max-width: 1200px; }
+        h1 { margin: .2rem 0 1rem; font-size: 1.4rem; }
+        h2 { margin: 0 0 .75rem; font-size: 1.1rem; }
+        button, input, select { padding: .55rem .75rem; border-radius: .45rem; border: 1px solid #475569;
+                                background: #1e293b; color: #e2e8f0; }
+        button { background: #2563eb; color: white; cursor: pointer; }
+        button.secondary { background: #475569; }
+        button.danger { background: #dc2626; }
+        button:disabled { opacity: .5; cursor: not-allowed; }
+        section { background: #111827; border: 1px solid #334155; border-radius: .75rem; padding: 1.15rem; }
+        table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+        th, td { border-bottom: 1px solid #334155; padding: .45rem .5rem; text-align: left; }
+        th { color: #93c5fd; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+        .status { color: #a7f3d0; }
+        .badge { border-radius: 999px; padding: .2rem .5rem; background: #1e293b; font-size: .8rem; }
+    </style>
+</head>
+<body>
+<nav class="topnav">
+    <a class="brand" href="/">NovaSteel Steel Factory Simulator
+        <small>Device&#8594;cloud synthetic OT telemetry</small></a>
+    <div class="nav-right">
+        <span class="fabric-led" title="Microsoft Fabric capacity">
+            <span id="fabricLed" class="led grey"></span>
+            <span id="fabricLedText">Fabric: &#8230;</span>
+        </span>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+    <div class="menu" id="navMenu">
+        <a href="/">Home</a>
+        <a href="/Settings">Settings</a>
+    </div>
+</nav>
+
+<main>
+    @RenderBody()
+</main>
+
+<script>
+    // Hamburger dropdown
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const navMenu = document.getElementById('navMenu');
+    hamburgerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = navMenu.classList.toggle('open');
+        hamburgerBtn.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('click', (e) => {
+        if (!navMenu.contains(e.target) && e.target !== hamburgerBtn) {
+            navMenu.classList.remove('open');
+            hamburgerBtn.setAttribute('aria-expanded', 'false');
+        }
+    });
+    // Highlight active menu item
+    for (const a of navMenu.querySelectorAll('a')) {
+        if (a.getAttribute('href') === window.location.pathname) a.classList.add('active');
+    }
+
+    // Fabric status LED: green = running (Active), red = paused (Paused), amber = transitioning
+    function applyFabricStatus(status) {
+        const led = document.getElementById('fabricLed');
+        const text = document.getElementById('fabricLedText');
+        const state = (status && status.state) || 'Unknown';
+        led.className = 'led ' + ({
+            Active: 'green', Paused: 'red', Pausing: 'amber', Resuming: 'amber',
+            NotConfigured: 'grey', Unknown: 'grey'
+        }[state] || 'grey');
+        text.textContent = 'Fabric: ' + (state === 'Active' ? 'Running'
+            : state === 'Paused' ? 'Paused' : state);
+        return status;
+    }
+    async function refreshFabricStatus() {
+        try {
+            const status = await (await fetch('/api/fabric/status')).json();
+            applyFabricStatus(status);
+            window.__fabricStatus = status;
+            document.dispatchEvent(new CustomEvent('fabric-status', { detail: status }));
+        } catch { applyFabricStatus({ state: 'Unknown' }); }
+    }
+    setInterval(refreshFabricStatus, 5000);
+    refreshFabricStatus();
+</script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

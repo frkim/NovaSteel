@@ -1,0 +1,53 @@
+{
+  "$schema": "https://fabric.microsoft.com/eventstream/schema.json",
+  "name": "es-telemetry",
+  "description": "T027 — NovaSteel telemetry hot path: Azure IoT Hub -> Fabric Eventstream -> Eventhouse (KQL DB). Device->cloud one-way only (Constitution IV). Provenance (origin/sourceId) is carried through unchanged (Constitution IX).",
+  "sources": [
+    {
+      "name": "iot-hub-telemetry",
+      "type": "AzureIoTHub",
+      "properties": {
+        "iotHubName": "iot-novastee-dev-ox26fi",
+        "consumerGroup": "fabric-rti",
+        "sharedAccessPolicyName": "service",
+        "dataFormat": "Json",
+        "note": "Connection secret resolved from Key Vault kvnovasteedevox26fi at bind time; device->cloud events only."
+      }
+    }
+  ],
+  "operators": [
+    {
+      "name": "require-provenance",
+      "type": "Filter",
+      "inputs": ["iot-hub-telemetry"],
+      "properties": {
+        "predicate": "origin IN ('Real','Synthetic') AND sourceId IS NOT NULL AND sourceId <> ''",
+        "note": "Fail-safe: readings without valid provenance are dropped here and captured by the Eventhouse quarantine update policy (Constitution IX)."
+      }
+    }
+  ],
+  "destinations": [
+    {
+      "name": "eventhouse-telemetryraw",
+      "type": "Eventhouse",
+      "inputs": ["require-provenance"],
+      "properties": {
+        "database": "novasteel-rti",
+        "table": "TelemetryRaw",
+        "ingestionMapping": "TelemetryRawMapping",
+        "inputDataFormat": "Json"
+      }
+    },
+    {
+      "name": "onelake-bronze",
+      "type": "Lakehouse",
+      "inputs": ["require-provenance"],
+      "properties": {
+        "workspace": "novasteel",
+        "lakehouse": "onelake_novasteel",
+        "deltaTable": "bronze_telemetry",
+        "note": "Durable append-only Bronze landing in OneLake; provenance preserved verbatim (T028)."
+      }
+    }
+  ]
+}

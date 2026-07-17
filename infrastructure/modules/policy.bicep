@@ -19,8 +19,8 @@ param allowedLocations array = [
 param enforcementMode string = 'Default'
 
 // Built-in policy definition IDs
-var allowedLocationsResourcesDef = subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'e56962a6-4747-49cd-b67b-bf8b01975c4c')
-var allowedLocationsResourceGroupsDef = subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'e765b5de-1225-4ba3-bd56-1ac6695af988')
+var allowedLocationsResourcesDef = tenantResourceId('Microsoft.Authorization/policyDefinitions', 'e56962a6-4747-49cd-b67b-bf8b01975c4c')
+var allowedLocationsResourceGroupsDef = tenantResourceId('Microsoft.Authorization/policyDefinitions', 'e765b5de-1225-4ba3-bd56-1ac6695af988')
 
 resource resourceLocations 'Microsoft.Authorization/policyAssignments@2024-04-01' = {
   name: 'novasteel-eu-locations'

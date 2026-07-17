@@ -22,6 +22,14 @@ param fabricAdminMembers array
 @description('Optional region override for Microsoft Purview (defaults to location). Some tenants restrict Purview regions.')
 param purviewLocation string = ''
 
+@description('Region for Azure IoT Hub. IoT Hub is not available in every EU region (e.g. not swedencentral), so it is placed in an EU region that supports it while keeping data EU-resident.')
+@allowed([
+  'westeurope'
+  'germanywestcentral'
+  'northeurope'
+])
+param iotHubLocation string = 'westeurope'
+
 @description('Deploy Microsoft Purview (governance/lineage). Disable where tenant/region constraints apply.')
 param deployPurview bool = true
 
@@ -65,6 +73,7 @@ var names = {
   containerEnv: 'cae-${short}-${env}-${token}'
   simulatorApp: 'sim-${short}-${env}-${token}'
   sqlServer: 'sql-${short}-${env}-${token}'
+  fabricPause: 'logic-${short}-fabricpause-${env}'
 }
 
 // ---------- Observability ----------
@@ -122,7 +131,7 @@ module acr 'modules/container-registry.bicep' = {
 module iotHub 'modules/iot-hub.bicep' = {
   name: 'iothub'
   params: {
-    location: location
+    location: iotHubLocation
     tags: tags
     name: names.iotHub
   }
@@ -147,6 +156,24 @@ module fabric 'modules/fabric.bicep' = {
     name: names.fabric
     skuName: fabricSkuName
     adminMembers: fabricAdminMembers
+  }
+}
+
+// ---------- Fabric nightly pause schedule ----------
+@description('Deploy the Logic App that pauses the Fabric capacity nightly at 02:00 (cost control).')
+param deployFabricPauseSchedule bool = true
+
+@description('Hour (0-23, W. Europe time) at which the Fabric capacity is paused.')
+param fabricPauseHour int = 2
+
+module fabricPause 'modules/fabric-pause-schedule.bicep' = if (deployFabricPauseSchedule) {
+  name: 'fabric-pause-schedule'
+  params: {
+    location: location
+    tags: tags
+    name: names.fabricPause
+    fabricCapacityName: fabric.outputs.name
+    scheduleHour: fabricPauseHour
   }
 }
 
@@ -184,7 +211,10 @@ module containerApps 'modules/container-apps.bicep' = {
   }
 }
 
-module simulatorApp 'modules/container-app-simulator.bicep' = {
+@description('Deploy the steel-factory simulator Container App. Disable to skip re-provisioning an already-deployed simulator (avoids ACA update lag).')
+param deploySimulator bool = true
+
+module simulatorApp 'modules/container-app-simulator.bicep' = if (deploySimulator) {
   name: 'simulator-containerapp'
   params: {
     location: location
@@ -249,12 +279,13 @@ output containerRegistryName string = acr.outputs.name
 output iotHubName string = iotHub.outputs.name
 output eventHubsNamespace string = eventHubs.outputs.namespaceName
 output fabricCapacityName string = fabric.outputs.name
+output fabricPauseWorkflowName string = deployFabricPauseSchedule ? fabricPause!.outputs.name : ''
 output foundryName string = foundry.outputs.name
 output foundryEndpoint string = foundry.outputs.endpoint
 output functionAppName string = functions.outputs.name
 output containerAppsEnvironmentName string = containerApps.outputs.environmentName
-output simulatorAppName string = simulatorApp.outputs.appName
-output simulatorAppFqdn string = simulatorApp.outputs.appFqdn
+output simulatorAppName string = deploySimulator ? simulatorApp!.outputs.appName : ''
+output simulatorAppFqdn string = deploySimulator ? simulatorApp!.outputs.appFqdn : ''
 output purviewName string = deployPurview ? purview!.outputs.name : ''
 output appStateServerName string = (deployAppState && !empty(sqlAadAdminObjectId)) ? appState!.outputs.serverName : ''
 output appStateDatabaseName string = (deployAppState && !empty(sqlAadAdminObjectId)) ? appState!.outputs.databaseName : ''

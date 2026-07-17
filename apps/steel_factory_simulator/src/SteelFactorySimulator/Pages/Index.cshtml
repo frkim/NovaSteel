@@ -1,85 +1,161 @@
 @page
 @model SteelFactorySimulator.Pages.IndexModel
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>NovaSteel Steel Factory Simulator</title>
-    <style>
-        :root { color-scheme: light dark; font-family: "Segoe UI", system-ui, sans-serif; }
-        body { margin: 0; background: #0f172a; color: #e2e8f0; }
-        header { padding: 1.25rem 2rem; background: #111827; border-bottom: 1px solid #334155; }
-        main { padding: 1.5rem 2rem; display: grid; gap: 1rem; }
-        button, input { padding: .55rem .75rem; border-radius: .45rem; border: 1px solid #475569; }
-        button { background: #2563eb; color: white; cursor: pointer; }
-        button.secondary { background: #475569; }
-        button.danger { background: #dc2626; }
-        section { background: #111827; border: 1px solid #334155; border-radius: .75rem; padding: 1rem; }
-        table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-        th, td { border-bottom: 1px solid #334155; padding: .45rem .5rem; text-align: left; }
-        th { color: #93c5fd; }
-        .toolbar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
-        .status { color: #a7f3d0; }
-        .badge { border-radius: 999px; padding: .2rem .5rem; background: #1e293b; }
-    </style>
-</head>
-<body>
-<header>
-    <h1>NovaSteel Steel Factory Simulator</h1>
-    <p>Device-side synthetic OT telemetry for blast furnaces, rolling mills, and utilities. Device→cloud only.</p>
-</header>
-<main>
-    <section>
-        <h2>Simulation control</h2>
-        <div class="toolbar">
-            <button onclick="post('/api/simulation/start')">Start</button>
-            <button class="secondary" onclick="post('/api/simulation/stop')">Stop</button>
-            <span id="status" class="status">Loading...</span>
-        </div>
-    </section>
+@{
+    ViewData["Title"] = "Home";
+}
 
-    <section>
-        <h2>Incident / failure injection</h2>
-        <div class="toolbar">
-            <label>Furnace asset <input id="assetId" value="LU-BF1" /></label>
-            <label>Horizon days <input id="horizonDays" type="number" min="21" value="30" /></label>
-            <button class="danger" onclick="injectDegradingFurnace()">Trigger degrading-furnace</button>
-            <button class="secondary" onclick="post('/api/scenarios/clear')">Clear scenario</button>
-        </div>
-        <p>The degrading-furnace scenario deterministically ramps heat flux, thermal signatures, and vibration so a ≥21-day trend is visible on replay.</p>
-    </section>
+<section>
+    <h2>Simulation control</h2>
+    <div class="toolbar">
+        <button onclick="post('/api/simulation/start')">Start</button>
+        <button class="secondary" onclick="post('/api/simulation/stop')">Stop</button>
+        <span id="status" class="status">Loading…</span>
+    </div>
+</section>
 
-    <section>
-        <h2>Sensor overview <span id="count" class="badge">0 readings</span></h2>
-        <table>
-            <thead>
-            <tr><th>Site</th><th>Asset</th><th>Type</th><th>Metric</th><th>Value</th><th>Unit</th><th>Quality</th><th>Origin</th><th>Source</th><th>Timestamp</th></tr>
-            </thead>
-            <tbody id="readings"></tbody>
-        </table>
-    </section>
-</main>
+<section>
+    <h2>Incident / failure injection</h2>
+    <div class="toolbar">
+        <label>Furnace asset <input id="assetId" value="LU-BF1" /></label>
+        <label>Horizon days <input id="horizonDays" type="number" min="21" value="30" /></label>
+        <button class="danger" onclick="injectDegradingFurnace()">Trigger degrading-furnace</button>
+        <button class="secondary" onclick="post('/api/scenarios/clear')">Clear scenario</button>
+    </div>
+    <p>The degrading-furnace scenario deterministically ramps heat flux, thermal signatures, and vibration so a &#8805;21-day trend is visible on replay.</p>
+</section>
+
+<section>
+    <h2>Sensor overview <span id="count" class="badge">0 readings</span></h2>
+    <div class="toolbar" style="margin-bottom:.75rem;">
+        <input id="search" type="search" placeholder="Search all columns…" style="min-width:16rem;" />
+        <label>Filter column
+            <select id="filterColumn">
+                <option value="">(any)</option>
+                <option value="site">Site</option>
+                <option value="assetId">Asset</option>
+                <option value="assetType">Type</option>
+                <option value="metric">Metric</option>
+                <option value="quality">Quality</option>
+                <option value="origin">Origin</option>
+            </select>
+        </label>
+        <span id="filterInfo" class="badge">0 / 0</span>
+    </div>
+    <table>
+        <thead>
+        <tr id="headerRow">
+            <th data-col="site">Site</th>
+            <th data-col="assetId">Asset</th>
+            <th data-col="assetType">Type</th>
+            <th data-col="metric">Metric</th>
+            <th data-col="value">Value</th>
+            <th data-col="unit">Unit</th>
+            <th data-col="quality">Quality</th>
+            <th data-col="origin">Origin</th>
+            <th data-col="sourceId">Source</th>
+            <th data-col="timestamp">Timestamp</th>
+        </tr>
+        </thead>
+        <tbody id="readings"></tbody>
+    </table>
+    <div class="toolbar" style="margin-top:.75rem; justify-content:space-between;">
+        <span id="pageInfo" class="badge">Page 1 / 1</span>
+        <span>
+            <button class="secondary" id="prevPage" onclick="changePage(-1)">&#8592; Prev</button>
+            <button class="secondary" id="nextPage" onclick="changePage(1)">Next &#8594;</button>
+        </span>
+    </div>
+</section>
+
+@section Scripts {
 <script>
-async function post(url, body) {
-    await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
-    await refresh();
-}
-async function injectDegradingFurnace() {
-    await post('/api/scenarios/degrading-furnace', {
-        assetId: document.getElementById('assetId').value,
-        horizonDays: Number(document.getElementById('horizonDays').value)
+    const PAGE_SIZE = 32;
+    const COLUMNS = ['site','assetId','assetType','metric','value','unit','quality','origin','sourceId','timestamp'];
+    let allReadings = [];
+    let sortCol = 'site';
+    let sortDir = 1;         // 1 = asc, -1 = desc
+    let page = 1;
+
+    async function post(url, body) {
+        await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+        await refresh();
+    }
+    async function injectDegradingFurnace() {
+        await post('/api/scenarios/degrading-furnace', {
+            assetId: document.getElementById('assetId').value,
+            horizonDays: Number(document.getElementById('horizonDays').value)
+        });
+    }
+
+    function getFiltered() {
+        const q = document.getElementById('search').value.trim().toLowerCase();
+        const col = document.getElementById('filterColumn').value;
+        let rows = allReadings;
+        if (q) {
+            rows = rows.filter(r => {
+                const fields = col ? [r[col]] : COLUMNS.map(c => r[c]);
+                return fields.some(v => String(v ?? '').toLowerCase().includes(q));
+            });
+        }
+        const dir = sortDir;
+        rows = [...rows].sort((a, b) => {
+            let x = a[sortCol], y = b[sortCol];
+            if (sortCol === 'value') { x = Number(x); y = Number(y); return (x - y) * dir; }
+            return String(x ?? '').localeCompare(String(y ?? '')) * dir;
+        });
+        return rows;
+    }
+
+    function render() {
+        const rows = getFiltered();
+        const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+        if (page > totalPages) page = totalPages;
+        if (page < 1) page = 1;
+        const start = (page - 1) * PAGE_SIZE;
+        const pageRows = rows.slice(start, start + PAGE_SIZE);
+
+        document.getElementById('readings').innerHTML = pageRows.map(r =>
+            `<tr><td>${r.site}</td><td>${r.assetId}</td><td>${r.assetType}</td><td>${r.metric}</td>` +
+            `<td>${r.value}</td><td>${r.unit}</td><td>${r.quality}</td><td>${r.origin}</td>` +
+            `<td>${r.sourceId}</td><td>${r.timestamp}</td></tr>`).join('');
+
+        document.getElementById('count').textContent = `${allReadings.length} readings`;
+        document.getElementById('filterInfo').textContent = `${rows.length} / ${allReadings.length}`;
+        document.getElementById('pageInfo').textContent = `Page ${page} / ${totalPages}`;
+        document.getElementById('prevPage').disabled = page <= 1;
+        document.getElementById('nextPage').disabled = page >= totalPages;
+
+        // Sort indicators on headers
+        for (const th of document.querySelectorAll('#headerRow th')) {
+            const c = th.getAttribute('data-col');
+            th.style.cursor = 'pointer';
+            th.textContent = th.textContent.replace(/ [\u25B2\u25BC]$/, '');
+            if (c === sortCol) th.textContent += sortDir === 1 ? ' \u25B2' : ' \u25BC';
+        }
+    }
+
+    function changePage(delta) { page += delta; render(); }
+
+    // Column header sorting
+    document.getElementById('headerRow').addEventListener('click', (e) => {
+        const th = e.target.closest('th');
+        if (!th) return;
+        const col = th.getAttribute('data-col');
+        if (col === sortCol) sortDir = -sortDir; else { sortCol = col; sortDir = 1; }
+        page = 1;
+        render();
     });
-}
-async function refresh() {
-    const status = await (await fetch('/api/status')).json();
-    document.getElementById('status').textContent = `${status.isRunning ? 'Running' : 'Stopped'} | step ${status.stepIndex} | scenario ${status.activeScenario ?? 'none'} | sim time ${status.simulationTime}`;
-    const readings = await (await fetch('/api/readings')).json();
-    document.getElementById('count').textContent = `${readings.length} readings`;
-    document.getElementById('readings').innerHTML = readings.map(r => `<tr><td>${r.site}</td><td>${r.assetId}</td><td>${r.assetType}</td><td>${r.metric}</td><td>${r.value}</td><td>${r.unit}</td><td>${r.quality}</td><td>${r.origin}</td><td>${r.sourceId}</td><td>${r.timestamp}</td></tr>`).join('');
-}
-setInterval(refresh, 1500);
-refresh();
+    document.getElementById('search').addEventListener('input', () => { page = 1; render(); });
+    document.getElementById('filterColumn').addEventListener('change', () => { page = 1; render(); });
+
+    async function refresh() {
+        const status = await (await fetch('/api/status')).json();
+        document.getElementById('status').textContent =
+            `${status.isRunning ? 'Running' : 'Stopped'} | step ${status.stepIndex} | scenario ${status.activeScenario ?? 'none'} | sim time ${status.simulationTime}`;
+        allReadings = await (await fetch('/api/readings')).json();
+        render();   // preserves current search / sort / page
+    }
+    setInterval(refresh, 1500);
+    refresh();
 </script>
-</body>
-</html>
+}
