@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.43.8.12551",
-      "templateHash": "9946043383576053555"
+      "templateHash": "3941919599922432460"
     },
     "description": "Top-level deployment for the NovaSteel AI-powered steel production optimization platform."
   },
@@ -420,7 +420,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.43.8.12551",
-              "templateHash": "96925810961466406"
+              "templateHash": "6210501555444672374"
             },
             "description": "Deploys the NovaSteel \"Project Ignition\" Azure platform (data, AI/ML, ingestion, apps, governance, security) into a resource group. Demo configuration: public network access, no private endpoints."
           },
@@ -758,7 +758,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.43.8.12551",
-                      "templateHash": "9038902931472807506"
+                      "templateHash": "3777624507855719607"
                     },
                     "description": "Observability hardening — model-drift and freshness/SLO alerts on the NovaSteel Log Analytics workspace (Constitution VI/observability). Alerts are advisory; they never actuate plant equipment."
                   },
@@ -803,9 +803,15 @@
                     },
                     "freshnessSloMinutes": {
                       "type": "int",
-                      "defaultValue": 20,
-                      "minValue": 5,
-                      "maxValue": 240,
+                      "defaultValue": 15,
+                      "allowedValues": [
+                        5,
+                        10,
+                        15,
+                        30,
+                        45,
+                        60
+                      ],
                       "metadata": {
                         "description": "Freshness SLO: alert if no simulator telemetry logs arrive within this many minutes."
                       }
@@ -838,7 +844,7 @@
                     {
                       "condition": "[parameters('enableAlerts')]",
                       "type": "Microsoft.Insights/scheduledQueryRules",
-                      "apiVersion": "2023-03-15",
+                      "apiVersion": "2023-12-01",
                       "name": "[format('alert-{0}-{1}-telemetry-freshness', parameters('namePrefix'), parameters('env'))]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]",
@@ -855,7 +861,7 @@
                         "criteria": {
                           "allOf": [
                             {
-                              "query": "ContainerAppConsoleLogs_CL\n| where Log_s has \"telemetry\" or Log_s has \"readings\"\n| summarize Count = count()",
+                              "query": "union isfuzzy=true ContainerAppConsoleLogs_CL\n| where Log_s has \"telemetry\" or Log_s has \"readings\"\n| summarize Count = count()",
                               "timeAggregation": "Total",
                               "metricMeasureColumn": "Count",
                               "operator": "LessThanOrEqual",
@@ -881,7 +887,7 @@
                     {
                       "condition": "[parameters('enableAlerts')]",
                       "type": "Microsoft.Insights/scheduledQueryRules",
-                      "apiVersion": "2023-03-15",
+                      "apiVersion": "2023-12-01",
                       "name": "[format('alert-{0}-{1}-model-drift', parameters('namePrefix'), parameters('env'))]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]",
@@ -898,7 +904,7 @@
                         "criteria": {
                           "allOf": [
                             {
-                              "query": "P1Predictions_CL\n| summarize AvgConfidence = avg(todouble(confidence_d))",
+                              "query": "union isfuzzy=true (datatable(confidence_d:real)[]), P1Predictions_CL\n| summarize AvgConfidence = avg(todouble(confidence_d))",
                               "timeAggregation": "Average",
                               "metricMeasureColumn": "AvgConfidence",
                               "operator": "LessThan",

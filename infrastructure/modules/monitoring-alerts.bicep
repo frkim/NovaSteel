@@ -20,9 +20,15 @@ param logAnalyticsId string
 param alertEmail string = ''
 
 @description('Freshness SLO: alert if no simulator telemetry logs arrive within this many minutes.')
-@minValue(5)
-@maxValue(240)
-param freshnessSloMinutes int = 20
+@allowed([
+  5
+  10
+  15
+  30
+  45
+  60
+])
+param freshnessSloMinutes int = 15
 
 @description('Enable the scheduled-query alert rules.')
 param enableAlerts bool = true
@@ -49,7 +55,7 @@ resource actionGroup 'Microsoft.Insights/actionGroups@2023-01-01' = {
 
 // SLO / freshness: the simulator (OT->IT one-way ingestion) must keep emitting. If no console
 // logs land within the SLO window, the pipeline may be stalled (Constitution IV/VI).
-resource freshnessAlert 'Microsoft.Insights/scheduledQueryRules@2023-03-15' = if (enableAlerts) {
+resource freshnessAlert 'Microsoft.Insights/scheduledQueryRules@2023-12-01' = if (enableAlerts) {
   name: 'alert-${namePrefix}-${env}-telemetry-freshness'
   location: location
   tags: tags
@@ -64,7 +70,7 @@ resource freshnessAlert 'Microsoft.Insights/scheduledQueryRules@2023-03-15' = if
     criteria: {
       allOf: [
         {
-          query: 'ContainerAppConsoleLogs_CL\n| where Log_s has "telemetry" or Log_s has "readings"\n| summarize Count = count()'
+          query: 'union isfuzzy=true ContainerAppConsoleLogs_CL\n| where Log_s has "telemetry" or Log_s has "readings"\n| summarize Count = count()'
           timeAggregation: 'Total'
           metricMeasureColumn: 'Count'
           operator: 'LessThanOrEqual'
@@ -85,7 +91,7 @@ resource freshnessAlert 'Microsoft.Insights/scheduledQueryRules@2023-03-15' = if
 
 // Model drift: watch P1 furnace-RUL prediction confidence. A sustained drop in mean confidence
 // signals feature/model drift and warrants human review of the model (Constitution VI).
-resource driftAlert 'Microsoft.Insights/scheduledQueryRules@2023-03-15' = if (enableAlerts) {
+resource driftAlert 'Microsoft.Insights/scheduledQueryRules@2023-12-01' = if (enableAlerts) {
   name: 'alert-${namePrefix}-${env}-model-drift'
   location: location
   tags: tags
@@ -100,7 +106,7 @@ resource driftAlert 'Microsoft.Insights/scheduledQueryRules@2023-03-15' = if (en
     criteria: {
       allOf: [
         {
-          query: 'P1Predictions_CL\n| summarize AvgConfidence = avg(todouble(confidence_d))'
+          query: 'union isfuzzy=true (datatable(confidence_d:real)[]), P1Predictions_CL\n| summarize AvgConfidence = avg(todouble(confidence_d))'
           timeAggregation: 'Average'
           metricMeasureColumn: 'AvgConfidence'
           operator: 'LessThan'
