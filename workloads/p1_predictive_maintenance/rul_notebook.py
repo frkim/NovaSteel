@@ -21,7 +21,10 @@ _DEFAULTS = {"assetType": "Furnace", "unit": "", "quality": "Good", "sourceId": 
 
 
 def _to_reading(row_dict: dict) -> TelemetryReading:
-    payload = {**_DEFAULTS, **{k: v for k, v in row_dict.items() if v is not None}}
+    # Silver columns are PascalCase (AssetId, Site, Metric, Value, Timestamp, ...);
+    # normalize to camelCase aliases the contract accepts. Extra columns are ignored.
+    norm = {k[:1].lower() + k[1:]: v for k, v in row_dict.items() if v is not None}
+    payload = {**_DEFAULTS, **norm}
     return TelemetryReading.model_validate(payload)
 
 
