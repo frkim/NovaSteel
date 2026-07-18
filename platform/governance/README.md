@@ -62,15 +62,31 @@ decision-support only (Constitution I).
   `gold_kpi_baseline`; point Power BI KPI cards at it. Improvement % via
   `improvement_vs_baseline`. Targets: P2 −14% energy / −22% CO2 (SC-001/002), P3 +8% yield
   (SC-004), P1 ≥21-day RUL lead time (SC-003).
+- **EU-ETS report**: `platform/governance/eu_ets.py::compute_ets_report` — verified annual tCO2
+  per installation; only Real+verified records count, synthetic excluded (Constitution IX).
+
+## 6b. Power BI Direct Lake (build spec)
+- **Spec**: `platform/bi/README.md` — Direct Lake semantic model over the Gold real marts, core
+  DAX measures, the three dashboards (Exec/ESG, Engineering, Operations) and per-site RLS roles.
+
+## 6c. ML uplift (Fabric Data Science, MLflow)
+- **P1**: `workloads/p1_predictive_maintenance/train_rul.py` — RUL regressor trained on Gold
+  furnace features, logged/registered to MLflow (uplift over the physics-linear estimator).
+- **P3**: `workloads/p3_quality/train_quality.py` — high-grade classifier on Gold quality features.
+- Both are decision-support; models promote to Production only after human review of logged metrics.
 
 ## 7. GDPR erasure runbook (Constitution II)
 - **Principle**: audit records are **exempt** from erasure (legal/traceability); raw personal
   content (e.g., operator interview transcripts in P4) **is** erasable.
+- **Code**: `platform/governance/gdpr.py::erase_subject` — removes raw personal content, retains
+  derived/de-identified content, and appends an append-only erasure audit (never deletes history).
+  P4 capture (`workloads/p4_knowledge_capture/capture.py`) separates the erasable raw transcript
+  from the de-identified `KnowledgeItem` at ingestion.
 - **Runbook**:
   1. Locate personal data via Purview classification search.
-  2. Erase raw personal content in OneLake/source; retain the derived, de-identified
-     knowledge item + its audit trail.
-  3. Record the erasure itself as an audit entry (append-only) — never delete audit history.
+  2. Call `erase_subject(subject_id, store, audit_log)` — raw personal content erased, derived
+     knowledge + audit trail retained.
+  3. The erasure itself is an audit entry (append-only) — never delete audit history.
 
 ## 8. Observability — drift & SLO alerts (Constitution VI)
 - **Infra**: `infrastructure/modules/monitoring.bicep` (Log Analytics + App Insights) and
@@ -87,6 +103,20 @@ decision-support only (Constitution I).
 - All resources in EU regions (Sweden Central / West Europe / Germany West Central); IoT Hub is
   pinned to an EU region that supports it via `iotHubLocation`. Enforced as policy-as-code in
   `infrastructure/modules/policy.bicep` (allowed-locations). Zero egress.
+
+## 10. Managed-identity auth posture (least standing secrets)
+- Service-to-service auth uses **managed identity + RBAC** rather than keys/connection strings
+  wherever supported:
+  - Functions runtime storage: identity-based `AzureWebJobsStorage__*` + Storage Blob/Queue/Table
+    Data role assignments (`infrastructure/modules/functions.bicep`).
+  - App code (Foundry chat/embeddings, Fabric capacity control, Content Safety) uses
+    `DefaultAzureCredential` (`workloads/.../foundry_client.py`, `content_safety.py`,
+    `Services/FabricCapacityService.cs`).
+  - Data-plane RBAC grants in `infrastructure/modules/rbac.bicep` (Storage/KeyVault/OpenAI/ACR).
+  - CI/CD uses GitHub OIDC federation (no stored cloud keys).
+- **Documented residual key usage** (no MI option): the Azure Files content share on Elastic
+  Premium Functions, the Container Apps built-in Log Analytics `sharedKey`, and the IoT Hub
+  **device** connection string (devices are not Entra principals) — the last is held in Key Vault.
 
 ---
 ### Test
