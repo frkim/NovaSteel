@@ -1,0 +1,114 @@
+@page
+@model SteelFactorySimulator.Pages.PersonasModel
+@{
+    ViewData["Title"] = "POC & Personas";
+}
+
+<h1>Project Ignition — POC walkthrough by persona</h1>
+
+<section>
+    <p style="margin:.2rem 0 .8rem;">
+        NovaSteel <strong>Project Ignition</strong> is an AI-powered, <strong>decision-support</strong>
+        platform across four EU steel sites — it advises, it never actuates. Four pillars turn live
+        synthetic OT telemetry into reviewable recommendations:
+    </p>
+    <div class="pillars">
+        <span class="badge">P1 · Predictive maintenance (RUL)</span>
+        <span class="badge">P2 · Energy dispatch (−energy/−CO₂)</span>
+        <span class="badge">P3 · Quality &amp; SPC (+yield)</span>
+        <span class="badge">P4 · Grounded knowledge assistant</span>
+    </div>
+    <p style="margin:.8rem 0 0; color:#94a3b8; font-size:.85rem;">
+        Every recommendation is <strong>human-in-the-loop</strong>, fully <strong>auditable</strong>,
+        <strong>EU-resident</strong>, and keeps telemetry flowing <strong>one-way</strong> out of the plant.
+        Select a persona to see what they do in the POC.
+    </p>
+</section>
+
+<section>
+    <div class="tabstrip" role="tablist">
+        @foreach (var (p, i) in Model.Personas.Select((p, i) => (p, i)))
+        {
+            <button class="tab @(i == 0 ? "active" : "")" role="tab" data-tab="@p.Key">
+                <span class="tab-ico">@p.Icon</span> @p.Name
+            </button>
+        }
+    </div>
+
+    @foreach (var (p, i) in Model.Personas.Select((p, i) => (p, i)))
+    {
+        <div class="panel @(i == 0 ? "active" : "")" id="panel-@p.Key" role="tabpanel">
+            <div class="persona-head">
+                <span class="persona-ico">@p.Icon</span>
+                <div>
+                    <h2 style="margin:0;">@p.Name</h2>
+                    <span class="badge">Role: @p.Role</span>
+                    <span class="badge">@p.Pillar</span>
+                </div>
+            </div>
+
+            <p class="objective"><strong>Objective.</strong> @p.Objective</p>
+
+            <div class="grid2">
+                <div>
+                    <h3>In this POC</h3>
+                    <ul>
+                        @foreach (var item in p.InThePoc)
+                        {
+                            <li>@item</li>
+                        }
+                    </ul>
+                </div>
+                <div>
+                    <h3>Guarantees</h3>
+                    <ul>
+                        @foreach (var g in p.Guarantees)
+                        {
+                            <li>@g</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <p class="sc"><strong>Success criteria.</strong> @p.SuccessCriteria</p>
+        </div>
+    }
+</section>
+
+<style>
+    .pillars { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .tabstrip { display: flex; flex-wrap: wrap; gap: .4rem; border-bottom: 1px solid #334155;
+                margin-bottom: 1rem; padding-bottom: .6rem; }
+    .tab { background: #1e293b; border: 1px solid #475569; color: #cbd5e1; border-radius: .5rem;
+           padding: .5rem .8rem; cursor: pointer; font-size: .86rem; }
+    .tab:hover { background: #334155; }
+    .tab.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .tab-ico { margin-right: .25rem; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .persona-head { display: flex; align-items: center; gap: 1rem; margin-bottom: .6rem; }
+    .persona-ico { font-size: 2.2rem; }
+    .objective { background: #0b1220; border-left: 3px solid #2563eb; padding: .6rem .9rem;
+                 border-radius: .4rem; margin: .5rem 0 1rem; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @@media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+    .panel h3 { margin: .2rem 0 .5rem; font-size: .95rem; color: #93c5fd; }
+    .panel ul { margin: 0; padding-left: 1.1rem; }
+    .panel li { margin: .3rem 0; font-size: .9rem; line-height: 1.35; }
+    .sc { margin-top: 1rem; background: #052e2b; border-left: 3px solid #22c55e; padding: .6rem .9rem;
+          border-radius: .4rem; color: #a7f3d0; font-size: .9rem; }
+    .persona-head .badge { margin-right: .4rem; }
+</style>
+
+@section Scripts {
+    <script>
+        for (const tab of document.querySelectorAll('.tab')) {
+            tab.addEventListener('click', () => {
+                const key = tab.getAttribute('data-tab');
+                document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+                document.querySelectorAll('.panel').forEach(p =>
+                    p.classList.toggle('active', p.id === 'panel-' + key));
+            });
+        }
+    </script>
+}
