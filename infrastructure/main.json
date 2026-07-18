@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.43.8.12551",
-      "templateHash": "6115036236883934833"
+      "templateHash": "9946043383576053555"
     },
     "description": "Top-level deployment for the NovaSteel AI-powered steel production optimization platform."
   },
@@ -420,7 +420,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.43.8.12551",
-              "templateHash": "8955758664412851528"
+              "templateHash": "96925810961466406"
             },
             "description": "Deploys the NovaSteel \"Project Ignition\" Azure platform (data, AI/ML, ingestion, apps, governance, security) into a resource group. Demo configuration: public network access, no private endpoints."
           },
@@ -2662,7 +2662,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.43.8.12551",
-                      "templateHash": "14575671052801511735"
+                      "templateHash": "4378576535112736127"
                     },
                     "description": "Deploys the NovaSteel steel-factory simulator Container App into the existing managed environment."
                   },
@@ -2706,9 +2706,9 @@
                     },
                     "containerImage": {
                       "type": "string",
-                      "defaultValue": "mcr.microsoft.com/k8se/quickstart:latest",
+                      "defaultValue": "acrnovasteedevox26fi.azurecr.io/steel-factory-simulator:personas",
                       "metadata": {
-                        "description": "Container image for the simulator app. Defaults to a public placeholder until CI builds/pushes the real image to ACR (then override this param)."
+                        "description": "Container image for the simulator app. Defaults to the ACR image built by CI (tag :personas is the current live revision). Override per deployment."
                       }
                     },
                     "simulatorDeviceId": {

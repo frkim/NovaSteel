@@ -19,8 +19,8 @@ param containerRegistryName string
 @description('Key Vault name containing the optional IoT Hub simulator device connection-string secret.')
 param keyVaultName string
 
-@description('Container image for the simulator app. Defaults to a public placeholder until CI builds/pushes the real image to ACR (then override this param).')
-param containerImage string = 'mcr.microsoft.com/k8se/quickstart:latest'
+@description('Container image for the simulator app. Defaults to the ACR image built by CI (tag :personas is the current live revision). Override per deployment.')
+param containerImage string = 'acrnovasteedevox26fi.azurecr.io/steel-factory-simulator:personas'
 
 @description('IoT Hub simulator device identity.')
 param simulatorDeviceId string = 'sim-steel-factory-simulator'
