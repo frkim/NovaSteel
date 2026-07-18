@@ -15,7 +15,7 @@ GOLD_QUALITY_TABLE = "gold_quality_features"
 LABEL_COLUMN = "actual_high_grade"  # back-filled from lab QA once results are in
 
 
-def train_quality_model(spark_session, experiment: str = "/NovaSteel/P3-Quality"):  # pragma: no cover - Fabric
+def train_quality_model(spark_session, experiment: str = "novasteel-p3-quality"):  # pragma: no cover - Fabric
     """Train + register a high-grade classifier from Gold quality features; return the run id."""
     import mlflow  # lazy
     from sklearn.ensemble import GradientBoostingClassifier

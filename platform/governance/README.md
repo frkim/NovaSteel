@@ -118,6 +118,23 @@ decision-support only (Constitution I).
   Premium Functions, the Container Apps built-in Log Analytics `sharedKey`, and the IoT Hub
   **device** connection string (devices are not Entra principals) — the last is held in Key Vault.
 
+## 11. Automated deployment (no manual portal steps, where possible)
+Everything below is deployable via IaC / REST / job triggers with a suitably-privileged identity
+(managed identity or `az login`); no keys.
+
+| Task | Command | Live status |
+|---|---|---|
+| Azure Monitor alerts | `az deployment group create -g rg-novasteel-dev --template-file infrastructure/modules/monitoring-alerts.bicep --parameters logAnalyticsId=<id> alertEmail=<you>` | ✅ Deployed (`ag-novasteel-dev` + freshness + drift rules) |
+| Train ML models (P1 RUL, P3 quality) | `python platform/scripts/train_models_live.py` (needs ≥F4) | ✅ Trained + MLflow-registered (`novasteel-p1-rul` MAE 0.23d, `novasteel-p3-quality` F1 1.0) |
+| Entra RBAC groups + Fabric roles | `python platform/scripts/provision_entra_rbac.py --apply` | ⚙️ Script ready (needs Graph `Group.ReadWrite.All` + Fabric admin) |
+| Purview source registration + scan | `python platform/scripts/register_purview_sources.py --apply` | ⚙️ Script ready (needs Purview roles + one-time Fabric→Purview tenant setting) |
+| Power BI Direct Lake semantic model + RLS | `python platform/scripts/deploy_powerbi_model.py --apply` (def: `platform/bi/semantic_model/`) | ⚙️ Script + starter TMDL ready (fill lakehouse SQL endpoint; needs ≥F4) |
+| Scheduled batch (bump→run→pause) | `.github/workflows/scheduled-batch.yml` (Azure OIDC) | ⚙️ Manual/cron-ready |
+
+**Irreducibly manual** (business input, not automatable): alert recipients, *who* belongs to each
+`ns-<persona>-<site>` group, the one-time Fabric→Purview tenant setting, real labelled data for
+production model quality, and final Power BI report *visual* design.
+
 ---
 ### Test
 ```

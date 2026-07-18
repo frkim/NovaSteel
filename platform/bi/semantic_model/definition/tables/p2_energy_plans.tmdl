@@ -1,0 +1,45 @@
+/// P2 energy plans (Direct Lake table over gold_market_signals-driven p2_energy_plans).
+table p2_energy_plans
+	lineageTag: novasteel-p2-energy-plans
+
+	column energy_plan_id
+		dataType: string
+		sourceColumn: energy_plan_id
+
+	column site
+		dataType: string
+		sourceColumn: site
+
+	column status
+		dataType: string
+		sourceColumn: status
+
+	column expected_energy_per_ton
+		dataType: double
+		sourceColumn: expected_energy_per_ton
+
+	column baseline_energy_per_ton
+		dataType: double
+		sourceColumn: baseline_energy_per_ton
+
+	column expected_co2_per_ton
+		dataType: double
+		sourceColumn: expected_co2_per_ton
+
+	column baseline_co2_per_ton
+		dataType: double
+		sourceColumn: baseline_co2_per_ton
+
+	measure 'Energy Saving %' = DIVIDE(SUM(p2_energy_plans[baseline_energy_per_ton]) - SUM(p2_energy_plans[expected_energy_per_ton]), SUM(p2_energy_plans[baseline_energy_per_ton]))
+		formatString: 0.0%
+
+	measure 'CO2 Saving %' = DIVIDE(SUM(p2_energy_plans[baseline_co2_per_ton]) - SUM(p2_energy_plans[expected_co2_per_ton]), SUM(p2_energy_plans[baseline_co2_per_ton]))
+		formatString: 0.0%
+
+	measure 'Open Energy Plans' = CALCULATE(COUNTROWS(p2_energy_plans), p2_energy_plans[status] = "Proposed")
+
+	partition p2_energy_plans = entity
+		mode: directLake
+		source
+			entityName: p2_energy_plans
+			expressionSource: DirectLakeSource

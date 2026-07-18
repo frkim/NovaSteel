@@ -16,7 +16,7 @@ GOLD_FEATURE_TABLE = "gold_furnace_features"
 LABEL_COLUMN = "time_to_failure_days"  # supervised label (from historical run-to-maintenance events)
 
 
-def train_rul_model(spark_session, experiment: str = "/NovaSteel/P1-RUL"):  # pragma: no cover - Fabric
+def train_rul_model(spark_session, experiment: str = "novasteel-p1-rul"):  # pragma: no cover - Fabric
     """Train + register a RUL regressor from Gold furnace features; return the run id.
 
     Expects a labelled feature table (features + observed time-to-failure). Logs metrics

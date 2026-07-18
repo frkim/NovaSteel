@@ -1,0 +1,36 @@
+/// P3 quality predictions (Direct Lake table).
+table p3_quality_predictions
+	lineageTag: novasteel-p3-quality-predictions
+
+	column prediction_id
+		dataType: string
+		sourceColumn: prediction_id
+
+	column heat_id
+		dataType: string
+		sourceColumn: heat_id
+
+	column site
+		dataType: string
+		sourceColumn: site
+
+	column kind
+		dataType: string
+		sourceColumn: kind
+
+	column confidence
+		dataType: double
+		sourceColumn: confidence
+
+	column status
+		dataType: string
+		sourceColumn: status
+
+	measure 'High-grade Yield' = DIVIDE(CALCULATE(COUNTROWS(p3_quality_predictions), p3_quality_predictions[kind] = "QualityOutcome", p3_quality_predictions[status] <> "Rejected"), COUNTROWS(p3_quality_predictions))
+		formatString: 0.0%
+
+	partition p3_quality_predictions = entity
+		mode: directLake
+		source
+			entityName: p3_quality_predictions
+			expressionSource: DirectLakeSource

@@ -1,0 +1,45 @@
+/// NovaSteel Direct Lake semantic model (starter TMDL).
+/// Deploy with platform/scripts/deploy_powerbi_model.py --apply.
+/// FILL IN the Direct Lake source: replace <<SQL_ENDPOINT_SERVER>> and <<LAKEHOUSE_SQL_DB>> with
+/// the lakehouse SQL analytics endpoint (Workspace settings -> onelake_novasteel -> SQL endpoint).
+/// Per-site row-level security roles enforce Constitution VII (no cross-site bleed).
+
+model NovaSteel
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+
+	annotation __PBI_TimeIntelligenceEnabled = 0
+
+/// Direct Lake source over the onelake_novasteel lakehouse SQL endpoint.
+expression DirectLakeSource =
+		let
+			Source = Sql.Database("<<SQL_ENDPOINT_SERVER>>", "<<LAKEHOUSE_SQL_DB>>")
+		in
+			Source
+	lineageTag: novasteel-directlake-source
+
+ref table p2_energy_plans
+ref table p3_quality_predictions
+ref table gold_kpi_baseline
+
+/// Per-site RLS: one role per site; the filter keys every table on [site].
+role RLS_LU
+	modelPermission: read
+	tablePermission p2_energy_plans = "[site] = ""LU"""
+	tablePermission p3_quality_predictions = "[site] = ""LU"""
+
+role RLS_DE
+	modelPermission: read
+	tablePermission p2_energy_plans = "[site] = ""DE"""
+	tablePermission p3_quality_predictions = "[site] = ""DE"""
+
+role RLS_BE
+	modelPermission: read
+	tablePermission p2_energy_plans = "[site] = ""BE"""
+	tablePermission p3_quality_predictions = "[site] = ""BE"""
+
+role RLS_ES
+	modelPermission: read
+	tablePermission p2_energy_plans = "[site] = ""ES"""
+	tablePermission p3_quality_predictions = "[site] = ""ES"""
