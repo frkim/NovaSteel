@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Install Python deps
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -e libs/novasteel_core pytest
+          # workloads is imported from the repo root (namespace package); medallion/kpi tests
+          # add platform/ to sys.path themselves.
+
+      - name: Run Python test suite
+        run: python3 -m pytest -q
+
+  dotnet-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5.0.0
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Test solution (contracts + simulator)
+        run: dotnet test NovaSteel.slnx --configuration Release
+
+  bicep-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Validate Bicep (az bicep build)
+        run: |
+          az bicep install
+          az bicep build --file infrastructure/main.bicep --stdout > /dev/null
+          az bicep build --file infrastructure/modules/monitoring-alerts.bicep --stdout > /dev/null
