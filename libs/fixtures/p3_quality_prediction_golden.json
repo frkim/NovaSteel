@@ -1,0 +1,35 @@
+{
+  "predictionId": "47e861b2-a584-5322-8f3d-a49b84496154",
+  "pillar": "Quality",
+  "site": "DE",
+  "assetId": null,
+  "heatId": "HEAT-DE-004",
+  "kind": "QualityOutcome",
+  "timeToFailureDays": null,
+  "predictedAt": "2026-04-06T09:00:00Z",
+  "confidence": 0.254,
+  "evidence": [
+    {
+      "metric": "SulfurPct",
+      "value": 0.01492,
+      "weight": 0.4,
+      "note": "Spec max 0.010%."
+    },
+    {
+      "metric": "InclusionIndex",
+      "value": 2.695,
+      "weight": 0.35,
+      "note": "Spec max 2.0."
+    },
+    {
+      "metric": "TappingTempC",
+      "value": 1651.71,
+      "weight": 0.25,
+      "note": "Spec band 1630-1670 C."
+    }
+  ],
+  "modelVersion": "quality-rules-v1",
+  "inputWindowRef": "gold_quality_features/DE/HEAT-DE-004",
+  "origin": "Synthetic",
+  "status": "Raised"
+}

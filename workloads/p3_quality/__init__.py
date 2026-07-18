@@ -9,6 +9,7 @@ from workloads.p3_quality.decision_service import (
     audit_quality_prediction,
     record_quality_decision,
 )
+from workloads.p3_quality.explainer import QualityExplainer, RootCauseExplanation
 from workloads.p3_quality.generate_quality_scenario import (
     Heat,
     generate_quality_scenario,
@@ -30,6 +31,8 @@ __all__ = [
     "Heat",
     "MODEL_VERSION",
     "QualityAssessment",
+    "QualityExplainer",
+    "RootCauseExplanation",
     "audit_quality_prediction",
     "baseline_yield",
     "control_limits",

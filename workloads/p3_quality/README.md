@@ -31,6 +31,24 @@ auto-fix.
 - SPC drift is detected on the reference batch at `HEAT-DE-016` (3-sigma), demonstrating early
   warning before the grade band is breached.
 
+## Explainability (Principle VI)
+- `explainer.py` — `QualityExplainer` produces a grounded **root-cause narrative** for a heat using
+  **only** its evidence metrics (sulphur/inclusion/tapping temp vs spec), states **uncertainty**
+  from the model confidence, references the recommended fix, passes Content Safety, and **declines**
+  rather than fabricates. Injectable `ChatClient`; unit-tested with a fake.
+- Advisory only — the prediction stays `Raised` for metallurgist review (Principle I).
+
+## Simulator telemetry (P3.1)
+The simulator emits the quality signals this pillar consumes on each blast furnace —
+`TappingTemp`, `SulfurPct`, `InclusionIndex` — with in-spec baselines inside the automotive
+DP800 bands (sulphur ≤ 0.010 %, inclusion ≤ 2.0, tapping 1630–1670 °C). SPC control limits are
+computed downstream in `spc.py` from an in-control window. See
+`apps/steel_factory_simulator/.../AssetCatalog.cs`.
+
+## Golden fixture
+`libs/fixtures/p3_quality_prediction_golden.json` — the deterministic `Prediction` for a known
+at-risk heat; `test_p3_golden.py` regression-guards the model output.
+
 ## Test
 ```
 python -m pytest workloads/p3_quality/tests -q

@@ -32,6 +32,23 @@ and moving the campaign into the overnight low-carbon trough.
 - `Solver.Heuristic` by default; a MILP (PuLP/CBC) refinement can replace `optimize_dispatch`
   without changing the contract.
 
+## Explainability (Principle VI)
+- `explainer.py` — `EnergyPlanExplainer` produces a grounded, operator-facing rationale for a plan
+  using **only** the plan's own numbers, always states **uncertainty**, passes Content Safety, and
+  **declines** rather than fabricates. Injectable `ChatClient` (the deployed
+  `p4_knowledge_capture.foundry_client.FoundryClient` satisfies it); unit-tested with a fake.
+- Advisory only — the plan stays `Proposed` for human approval (Principle I).
+
+## Simulator telemetry (P2.1)
+The steel-factory simulator emits the energy inputs this pillar consumes: `PowerDrawKw` (furnace
+power draw) on every asset, plus a diurnal **grid tariff** signal at the utility interface —
+`SpotPriceEurMwh` and `GridCarbonGPerKwh` (the load-shift windows). See
+`apps/steel_factory_simulator/.../AssetCatalog.cs`.
+
+## Golden fixture
+`libs/fixtures/p2_energy_plan_golden.json` — the deterministic `EnergyPlan` produced by the
+reference scenario; `test_p2_golden.py` regression-guards the model output shape and values.
+
 ## Test
 ```
 python -m pytest workloads/p2_energy_dispatch/tests -q

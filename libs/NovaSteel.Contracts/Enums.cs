@@ -10,7 +10,22 @@ public enum Site { LU = 0, DE, BE, ES }
 public enum Quality { Good = 0, Suspect, Bad }
 
 /// <summary>Measured signal type.</summary>
-public enum Metric { Unknown = 0, ThermocoupleTemp, HeatFlux, Vibration, Throughput, PowerDrawKw }
+public enum Metric
+{
+    Unknown = 0,
+    ThermocoupleTemp,
+    HeatFlux,
+    Vibration,
+    Throughput,
+    PowerDrawKw,
+    // Quality (P3): tap-chemistry & casting quality signals.
+    TappingTemp,
+    SulfurPct,
+    InclusionIndex,
+    // Energy/tariff (P2): grid market conditions at the utility interface.
+    SpotPriceEurMwh,
+    GridCarbonGPerKwh,
+}
 
 /// <summary>Telemetry provenance marker preserved end-to-end.</summary>
 public enum Origin { Real = 0, Synthetic }

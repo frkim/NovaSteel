@@ -14,14 +14,17 @@ from workloads.p2_energy_dispatch.dispatch_model import (
     energy_savings_pct,
     optimize_dispatch,
 )
+from workloads.p2_energy_dispatch.explainer import EnergyPlanExplainer, PlanExplanation
 from workloads.p2_energy_dispatch.generate_energy_scenario import (
     EnergyScenario,
     generate_energy_scenario,
 )
 
 __all__ = [
+    "EnergyPlanExplainer",
     "EnergyScenario",
     "Job",
+    "PlanExplanation",
     "build_energy_plan",
     "co2_savings_pct",
     "cost_savings_pct",

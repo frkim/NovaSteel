@@ -1,0 +1,50 @@
+{
+  "energyPlanId": "f906d485-34ce-5d55-bedd-b4e8e42d3e49",
+  "site": "LU",
+  "planningHorizon": {
+    "from": "2026-03-02T00:00:00Z",
+    "to": "2026-03-04T00:00:00Z"
+  },
+  "scheduledJobs": [
+    {
+      "jobId": "HEAT-LU-01",
+      "slotStart": "2026-03-02T23:00:00Z",
+      "slotEnd": "2026-03-03T01:00:00Z",
+      "deadline": "2026-03-04T00:00:00Z",
+      "energyMwh": 26.0
+    },
+    {
+      "jobId": "HEAT-LU-02",
+      "slotStart": "2026-03-03T01:00:00Z",
+      "slotEnd": "2026-03-03T03:00:00Z",
+      "deadline": "2026-03-04T00:00:00Z",
+      "energyMwh": 20.0
+    },
+    {
+      "jobId": "HEAT-LU-03",
+      "slotStart": "2026-03-03T03:00:00Z",
+      "slotEnd": "2026-03-03T05:00:00Z",
+      "deadline": "2026-03-04T00:00:00Z",
+      "energyMwh": 20.0
+    },
+    {
+      "jobId": "HEAT-LU-04",
+      "slotStart": "2026-03-03T05:00:00Z",
+      "slotEnd": "2026-03-03T07:00:00Z",
+      "deadline": "2026-03-04T00:00:00Z",
+      "energyMwh": 20.0
+    }
+  ],
+  "expectedEnergyPerTon": 0.143333,
+  "expectedCo2PerTon": 23.526667,
+  "expectedCostEur": 3295.0,
+  "baselineComparison": {
+    "baselineEnergyPerTon": 0.173333,
+    "baselineCo2PerTon": 48.860363,
+    "baselineCostEur": 6854.7386
+  },
+  "deadlineBreaches": [],
+  "solver": "Heuristic",
+  "origin": "Synthetic",
+  "status": "Proposed"
+}
