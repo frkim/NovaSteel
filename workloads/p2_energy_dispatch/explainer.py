@@ -17,6 +17,7 @@ from typing import Protocol
 
 from novasteel_core.models import EnergyPlan, Solver
 
+from workloads.content_safety import AllowAll, ContentSafetyChecker
 from workloads.p2_energy_dispatch.dispatch_model import (
     DispatchResult,
     co2_savings_pct,
@@ -79,8 +80,9 @@ def _facts(plan: EnergyPlan, energy_savings: float, co2_savings: float) -> str:
 
 
 class EnergyPlanExplainer:
-    def __init__(self, chat: ChatClient) -> None:
+    def __init__(self, chat: ChatClient, content_safety: ContentSafetyChecker | None = None) -> None:
         self._chat = chat
+        self._safety = content_safety or AllowAll()
 
     def explain(
         self,
@@ -109,20 +111,22 @@ class EnergyPlanExplainer:
             return PlanExplanation(plan.energy_plan_id, declined=True,
                                    text="Model reported insufficient grounded context; declined.",
                                    evidence=evidence, uncertainty=_uncertainty(plan))
+        safe = self._safety.is_safe(answer)
+        if not safe:
+            # Content Safety blocked the generation — never surface it (Constitution VI).
+            return PlanExplanation(plan.energy_plan_id, declined=True,
+                                   text="Generated explanation failed Content Safety; withheld.",
+                                   evidence=evidence, uncertainty=_uncertainty(plan),
+                                   content_safety_passed=False)
         return PlanExplanation(
             energy_plan_id=plan.energy_plan_id,
             declined=False,
             text=answer,
             evidence=evidence,
             uncertainty=_uncertainty(plan),
-            content_safety_passed=_content_safety_ok(answer),
+            content_safety_passed=True,
         )
 
 
 def _pct(before: float, after: float) -> float:
     return 0.0 if before <= 0 else round((before - after) / before * 100.0, 4)
-
-
-def _content_safety_ok(_text: str) -> bool:
-    """Hook for Azure AI Content Safety (Constitution VI); wire the real API before go-live."""
-    return True

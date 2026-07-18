@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.43.8.12551",
-      "templateHash": "13214927668805433796"
+      "templateHash": "6115036236883934833"
     },
     "description": "Top-level deployment for the NovaSteel AI-powered steel production optimization platform."
   },
@@ -420,7 +420,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.43.8.12551",
-              "templateHash": "3300084425870803532"
+              "templateHash": "8955758664412851528"
             },
             "description": "Deploys the NovaSteel \"Project Ignition\" Azure platform (data, AI/ML, ingestion, apps, governance, security) into a resource group. Demo configuration: public network access, no private endpoints."
           },
@@ -2217,7 +2217,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.43.8.12551",
-                      "templateHash": "17784914177407455106"
+                      "templateHash": "6265552097467420536"
                     },
                     "description": "Premium (Elastic) Function App for the energy-dispatch optimization agent, with its own storage account."
                   },
@@ -2280,6 +2280,13 @@
                       }
                     }
                   },
+                  "variables": {
+                    "storageRoles": {
+                      "blobOwner": "b7e6dc6d-f1e8-4753-8033-0f276bb0955b",
+                      "queueContributor": "974c5e8b-45b9-4653-ba55-5f855dd0fb88",
+                      "tableContributor": "0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3"
+                    }
+                  },
                   "resources": [
                     {
                       "type": "Microsoft.Storage/storageAccounts",
@@ -2332,8 +2339,20 @@
                           "minTlsVersion": "1.2",
                           "appSettings": [
                             {
-                              "name": "AzureWebJobsStorage",
-                              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', parameters('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2025-06-01').keys[0].value)]"
+                              "name": "AzureWebJobsStorage__accountName",
+                              "value": "[parameters('storageAccountName')]"
+                            },
+                            {
+                              "name": "AzureWebJobsStorage__blobServiceUri",
+                              "value": "[format('https://{0}.blob.{1}', parameters('storageAccountName'), environment().suffixes.storage)]"
+                            },
+                            {
+                              "name": "AzureWebJobsStorage__queueServiceUri",
+                              "value": "[format('https://{0}.queue.{1}', parameters('storageAccountName'), environment().suffixes.storage)]"
+                            },
+                            {
+                              "name": "AzureWebJobsStorage__tableServiceUri",
+                              "value": "[format('https://{0}.table.{1}', parameters('storageAccountName'), environment().suffixes.storage)]"
                             },
                             {
                               "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
@@ -2360,6 +2379,51 @@
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Web/serverfarms', parameters('planName'))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), resourceId('Microsoft.Web/sites', parameters('name')), variables('storageRoles').blobOwner)]",
+                      "properties": {
+                        "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('name')), '2024-11-01', 'full').identity.principalId]",
+                        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('storageRoles').blobOwner)]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', parameters('name'))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), resourceId('Microsoft.Web/sites', parameters('name')), variables('storageRoles').queueContributor)]",
+                      "properties": {
+                        "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('name')), '2024-11-01', 'full').identity.principalId]",
+                        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('storageRoles').queueContributor)]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', parameters('name'))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), resourceId('Microsoft.Web/sites', parameters('name')), variables('storageRoles').tableContributor)]",
+                      "properties": {
+                        "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('name')), '2024-11-01', 'full').identity.principalId]",
+                        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('storageRoles').tableContributor)]",
+                        "principalType": "ServicePrincipal"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', parameters('name'))]",
                         "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
                       ]
                     }

@@ -28,6 +28,9 @@ resource environment 'Microsoft.App/managedEnvironments@2025-01-01' = {
   location: location
   tags: tags
   properties: {
+    // The Container Apps built-in Log Analytics destination requires customerId + sharedKey;
+    // it has no managed-identity option. (For MI-only logging, switch to Azure Monitor
+    // diagnostic settings instead of the built-in appLogsConfiguration.)
     appLogsConfiguration: {
       destination: 'log-analytics'
       logAnalyticsConfiguration: {

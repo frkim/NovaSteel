@@ -53,13 +53,15 @@ class AssistantAnswer:
 class KnowledgeAssistant:
     def __init__(self, chat: ChatClient, library: list[KnowledgeItem],
                  site: str = "LU", top_k: int = 3, min_score: float = 0.2,
-                 embed_client=None) -> None:
+                 embed_client=None, content_safety=None) -> None:
         self._chat = chat
         self._library = library
         self._site = site
         self._top_k = top_k
         self._min_score = min_score
         self._embed = embed_client
+        from workloads.content_safety import AllowAll
+        self._safety = content_safety or AllowAll()
 
     def ask(self, question: str) -> AssistantAnswer:
         hits = retrieve(question, self._library, self._top_k, self._min_score, self._embed)
@@ -87,6 +89,12 @@ class KnowledgeAssistant:
                                    text="Answer lacked citations; rejected as ungrounded.")
 
         citations = [Citation(source_id=it.source_id, title=it.title) for it in cited_items]
+        content_safe = self._safety.is_safe(answer)
+        if not content_safe:
+            # Unsafe generation is never published, even if grounded (Constitution VI).
+            return AssistantAnswer(question=question, declined=True,
+                                   text="Answer failed Content Safety; withheld.",
+                                   used_sources=[it.source_id for it in cited_items])
         rec = Recommendation(
             recommendation_id=str(uuid.uuid4()),
             pillar=RecommendationPillar.Knowledge,
@@ -94,16 +102,9 @@ class KnowledgeAssistant:
             summary=answer,
             rationale="Grounded answer over cited operator procedures; awaiting human review.",
             citations=citations,
-            content_safety_passed=self._content_safety_ok(answer),
+            content_safety_passed=content_safe,
             status=RecommendationStatus.Proposed,  # human-in-the-loop gate (Constitution I)
         )
         return AssistantAnswer(question=question, declined=False, text=answer,
                                recommendation=rec,
                                used_sources=[it.source_id for it in cited_items])
-
-    @staticmethod
-    def _content_safety_ok(_text: str) -> bool:
-        """Hook for Azure AI Content Safety. In production, call the Content Safety API and
-        block unsafe generations (Constitution VI). The seed procedures are safe operational
-        guidance, so this returns True; wire the real check before go-live."""
-        return True

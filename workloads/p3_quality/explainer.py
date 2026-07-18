@@ -11,6 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Protocol
 
+from workloads.content_safety import AllowAll, ContentSafetyChecker
 from workloads.p3_quality.quality_model import QualityAssessment
 
 INSUFFICIENT = "INSUFFICIENT_CONTEXT"
@@ -68,8 +69,9 @@ def _uncertainty(assessment: QualityAssessment) -> str:
 
 
 class QualityExplainer:
-    def __init__(self, chat: ChatClient) -> None:
+    def __init__(self, chat: ChatClient, content_safety: ContentSafetyChecker | None = None) -> None:
         self._chat = chat
+        self._safety = content_safety or AllowAll()
 
     def explain(self, assessment: QualityAssessment) -> RootCauseExplanation:
         answer = self._chat.complete(SYSTEM_PROMPT, _facts(assessment)).strip()
@@ -80,6 +82,13 @@ class QualityExplainer:
                                         drivers=_drivers(assessment),
                                         confidence=assessment.prediction.confidence,
                                         uncertainty=_uncertainty(assessment))
+        if not self._safety.is_safe(answer):
+            return RootCauseExplanation(heat_id, declined=True,
+                                        text="Generated explanation failed Content Safety; withheld.",
+                                        drivers=_drivers(assessment),
+                                        confidence=assessment.prediction.confidence,
+                                        uncertainty=_uncertainty(assessment),
+                                        content_safety_passed=False)
         return RootCauseExplanation(
             heat_id=heat_id,
             declined=False,
@@ -87,10 +96,5 @@ class QualityExplainer:
             drivers=_drivers(assessment),
             confidence=assessment.prediction.confidence,
             uncertainty=_uncertainty(assessment),
-            content_safety_passed=_content_safety_ok(answer),
+            content_safety_passed=True,
         )
-
-
-def _content_safety_ok(_text: str) -> bool:
-    """Hook for Azure AI Content Safety (Constitution VI); wire the real API before go-live."""
-    return True
