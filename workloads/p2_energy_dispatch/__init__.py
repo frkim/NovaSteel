@@ -15,6 +15,7 @@ from workloads.p2_energy_dispatch.dispatch_model import (
     optimize_dispatch,
 )
 from workloads.p2_energy_dispatch.explainer import EnergyPlanExplainer, PlanExplanation
+from workloads.p2_energy_dispatch.from_gold import job_from_row, market_signal_from_row
 from workloads.p2_energy_dispatch.generate_energy_scenario import (
     EnergyScenario,
     generate_energy_scenario,
@@ -30,5 +31,7 @@ __all__ = [
     "cost_savings_pct",
     "energy_savings_pct",
     "generate_energy_scenario",
+    "job_from_row",
+    "market_signal_from_row",
     "optimize_dispatch",
 ]

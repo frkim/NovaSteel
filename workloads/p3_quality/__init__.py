@@ -10,6 +10,7 @@ from workloads.p3_quality.decision_service import (
     record_quality_decision,
 )
 from workloads.p3_quality.explainer import QualityExplainer, RootCauseExplanation
+from workloads.p3_quality.from_gold import heat_from_row, heats_from_rows
 from workloads.p3_quality.generate_quality_scenario import (
     Heat,
     generate_quality_scenario,
@@ -39,6 +40,8 @@ __all__ = [
     "detect_drift",
     "first_drift",
     "generate_quality_scenario",
+    "heat_from_row",
+    "heats_from_rows",
     "predict_heat",
     "recommended_yield",
     "record_quality_decision",
