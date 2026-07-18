@@ -114,3 +114,80 @@ def to_gold_kpi(silver_rows: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
             "_layer": "gold",
         })
     return marts
+
+
+# P2 / P3 metric names emitted by the simulator (see AssetCatalog.cs).
+MARKET_METRICS = ("SpotPriceEurMwh", "GridCarbonGPerKwh")
+QUALITY_METRICS = ("TappingTemp", "SulfurPct", "InclusionIndex")
+
+
+def to_gold_market_signals(silver_rows: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Pivot grid-tariff telemetry into MarketSignal-shaped Gold rows for P2 (per site, timestamp).
+
+    Emits only when BOTH the spot-price and grid-carbon signals exist for the (site, timestamp),
+    so downstream dispatch never sees a half-populated market point. Provenance is preserved
+    (Constitution IX): the row's `origin` is Synthetic if any contributing reading is synthetic.
+    """
+    grouped: dict[tuple[str, datetime], dict[str, Any]] = {}
+    for rec in silver_rows:
+        if rec["metric"] not in MARKET_METRICS:
+            continue
+        key = (rec["site"], _aware(rec["timestamp"]))
+        grouped.setdefault(key, {"metrics": {}, "origins": set(), "source_ids": set()})
+        grouped[key]["metrics"][rec["metric"]] = rec["value"]
+        grouped[key]["origins"].add(rec.get("origin"))
+        grouped[key]["source_ids"].add(rec.get("source_id", ""))
+
+    out: list[dict[str, Any]] = []
+    for (site, ts), agg in grouped.items():
+        m = agg["metrics"]
+        if "SpotPriceEurMwh" not in m or "GridCarbonGPerKwh" not in m:
+            continue
+        out.append({
+            "market": site,
+            "timestamp": ts,
+            "spot_price_eur_mwh": m["SpotPriceEurMwh"],
+            "grid_carbon_grams_per_kwh": m["GridCarbonGPerKwh"],
+            "origin": Origin.Synthetic.value if Origin.Synthetic.value in agg["origins"] else Origin.Real.value,
+            "source_ids": sorted(s for s in agg["source_ids"] if s),
+            "_layer": "gold",
+        })
+    out.sort(key=lambda r: (r["market"], _aware(r["timestamp"])))
+    return out
+
+
+def to_gold_quality_features(silver_rows: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Pivot tap-chemistry telemetry into per-heat quality feature rows for P3.
+
+    Groups by (site, asset_id, timestamp) and pivots TappingTemp/SulfurPct/InclusionIndex into one
+    feature row. Provenance preserved; only rows with all three signals are emitted so the quality
+    model never scores a partially-observed heat.
+    """
+    grouped: dict[tuple[str, str, datetime], dict[str, Any]] = {}
+    for rec in silver_rows:
+        if rec["metric"] not in QUALITY_METRICS:
+            continue
+        key = (rec["site"], rec["asset_id"], _aware(rec["timestamp"]))
+        grouped.setdefault(key, {"metrics": {}, "origins": set(), "source_ids": set()})
+        grouped[key]["metrics"][rec["metric"]] = rec["value"]
+        grouped[key]["origins"].add(rec.get("origin"))
+        grouped[key]["source_ids"].add(rec.get("source_id", ""))
+
+    out: list[dict[str, Any]] = []
+    for (site, asset_id, ts), agg in grouped.items():
+        m = agg["metrics"]
+        if not all(k in m for k in QUALITY_METRICS):
+            continue
+        out.append({
+            "site": site,
+            "asset_id": asset_id,
+            "timestamp": ts,
+            "tapping_temp_c": m["TappingTemp"],
+            "sulfur_pct": m["SulfurPct"],
+            "inclusion_index": m["InclusionIndex"],
+            "origin": Origin.Synthetic.value if Origin.Synthetic.value in agg["origins"] else Origin.Real.value,
+            "source_ids": sorted(s for s in agg["source_ids"] if s),
+            "_layer": "gold",
+        })
+    out.sort(key=lambda r: (r["site"], r["asset_id"], _aware(r["timestamp"])))
+    return out

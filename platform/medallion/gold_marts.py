@@ -51,7 +51,37 @@ furnace_features.write.format("delta").mode("overwrite").option("overwriteSchema
     "gold_furnace_features"
 )
 
+# --- P2 market signals: pivot the grid-tariff telemetry per (site, timestamp) ---
+# Mirrors platform/medallion/transforms.py::to_gold_market_signals. Only fully-observed
+# points (both spot price AND grid carbon) are emitted; provenance preserved.
+market = (
+    silver.where(F.col("Metric").isin("SpotPriceEurMwh", "GridCarbonGPerKwh"))
+    .groupBy(F.col("Site").alias("market"), "Timestamp")
+    .agg(
+        F.first(F.when(F.col("Metric") == "SpotPriceEurMwh", F.col("Value")), ignorenulls=True).alias("spot_price_eur_mwh"),
+        F.first(F.when(F.col("Metric") == "GridCarbonGPerKwh", F.col("Value")), ignorenulls=True).alias("grid_carbon_grams_per_kwh"),
+        F.min("Origin").alias("origin"),
+        F.collect_set("SourceId").alias("source_ids"),
+    )
+    .where(F.col("spot_price_eur_mwh").isNotNull() & F.col("grid_carbon_grams_per_kwh").isNotNull())
+)
+market.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("gold_market_signals")
+
+# --- P3 quality features: pivot tap-chemistry per (site, asset, timestamp) ---
+# Mirrors transforms.py::to_gold_quality_features. Only heats with all three signals emitted.
+quality = (
+    silver.where(F.col("Metric").isin("TappingTemp", "SulfurPct", "InclusionIndex"))
+    .groupBy("Site", "AssetId", "Timestamp")
+    .pivot("Metric", ["TappingTemp", "SulfurPct", "InclusionIndex"])
+    .agg(F.avg("Value"))
+    .where(F.col("TappingTemp").isNotNull() & F.col("SulfurPct").isNotNull() & F.col("InclusionIndex").isNotNull())
+    .withColumnRenamed("TappingTemp", "tapping_temp_c")
+    .withColumnRenamed("SulfurPct", "sulfur_pct")
+    .withColumnRenamed("InclusionIndex", "inclusion_index")
+)
+quality.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("gold_quality_features")
+
 # Gate: no synthetic source may appear in the real KPI mart (Constitution IX).
 leak = kpi_real.where(F.array_contains(F.expr("transform(source_ids, s -> startswith(s, 'sim:'))"), True))
 assert leak.count() == 0, "synthetic source leaked into real KPI mart"
-print("Gold marts written: gold_kpi_real, gold_kpi_synthetic, gold_furnace_features")
+print("Gold marts written: gold_kpi_real, gold_kpi_synthetic, gold_furnace_features, gold_market_signals, gold_quality_features")
