@@ -15,6 +15,8 @@ dependencies = [
 [project.optional-dependencies]
 test = ["pytest>=8.0"]
 genai = ["openai>=1.30"]
+milp = ["pulp>=2.7"]
+contentsafety = ["azure-identity>=1.16", "requests>=2.31"]
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -22,9 +24,15 @@ include = ["workloads*"]
 
 [tool.pytest.ini_options]
 # Run the full Python suite from the repo root: contracts, medallion transforms and workloads.
+filterwarnings = [
+    "ignore::DeprecationWarning:pulp",
+    "ignore::DeprecationWarning:pulp.pulp",
+    "ignore::DeprecationWarning:pulp.apis.coin_api",
+]
 testpaths = [
     "libs/novasteel_core/tests",
     "platform/medallion/tests",
     "platform/kpi/tests",
+    "platform/governance/tests",
     "workloads",
 ]
