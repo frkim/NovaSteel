@@ -126,9 +126,9 @@ Everything below is deployable via IaC / REST / job triggers with a suitably-pri
 |---|---|---|
 | Azure Monitor alerts | `az deployment group create -g rg-novasteel-dev --template-file infrastructure/modules/monitoring-alerts.bicep --parameters logAnalyticsId=<id> alertEmail=<you>` | ✅ Deployed (`ag-novasteel-dev` + freshness + drift rules) |
 | Train ML models (P1 RUL, P3 quality) | `python platform/scripts/train_models_live.py` (needs ≥F4) | ✅ Trained + MLflow-registered (`novasteel-p1-rul` MAE 0.23d, `novasteel-p3-quality` F1 1.0) |
-| Entra RBAC groups + Fabric roles | `python platform/scripts/provision_entra_rbac.py --apply` | ⚙️ Script ready (needs Graph `Group.ReadWrite.All` + Fabric admin) |
-| Purview source registration + scan | `python platform/scripts/register_purview_sources.py --apply` | ⚙️ Script ready (needs Purview roles + one-time Fabric→Purview tenant setting) |
-| Power BI Direct Lake semantic model + RLS | `python platform/scripts/deploy_powerbi_model.py --apply` (def: `platform/bi/semantic_model/`) | ⚙️ Script + starter TMDL ready (fill lakehouse SQL endpoint; needs ≥F4) |
+| Entra RBAC groups + Fabric roles | `python platform/scripts/provision_entra_rbac.py --apply` | ✅ Deployed (24 `ns-<persona>-<site>` groups + 24 Fabric workspace role bindings) |
+| Purview source registration + scan | `python platform/scripts/register_purview_sources.py --apply` | ⛔ Blocked — no Purview account in the RG; deploy `infrastructure/modules/purview.bicep` first, then run |
+| Power BI Direct Lake semantic model + RLS | `python platform/scripts/deploy_powerbi_model.py --apply` (def: `platform/bi/semantic_model/`) | ✅ Deployed (Direct Lake model "NovaSteel" + per-site RLS roles) |
 | Scheduled batch (bump→run→pause) | `.github/workflows/scheduled-batch.yml` (Azure OIDC) | ⚙️ Manual/cron-ready |
 
 **Irreducibly manual** (business input, not automatable): alert recipients, *who* belongs to each

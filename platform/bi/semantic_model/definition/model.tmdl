@@ -1,9 +1,3 @@
-/// NovaSteel Direct Lake semantic model (starter TMDL).
-/// Deploy with platform/scripts/deploy_powerbi_model.py --apply.
-/// FILL IN the Direct Lake source: replace <<SQL_ENDPOINT_SERVER>> and <<LAKEHOUSE_SQL_DB>> with
-/// the lakehouse SQL analytics endpoint (Workspace settings -> onelake_novasteel -> SQL endpoint).
-/// Per-site row-level security roles enforce Constitution VII (no cross-site bleed).
-
 model NovaSteel
 	culture: en-US
 	defaultPowerBIDataSourceVersion: powerBI_V3
@@ -14,14 +8,13 @@ model NovaSteel
 /// Direct Lake source over the onelake_novasteel lakehouse SQL endpoint.
 expression DirectLakeSource =
 		let
-			Source = Sql.Database("<<SQL_ENDPOINT_SERVER>>", "<<LAKEHOUSE_SQL_DB>>")
+			Source = Sql.Database("n3vzjhk62qcu7pa32c55eqqvme-fjoabgu4c3luzl3fp4exxugfxa.datawarehouse.fabric.microsoft.com", "onelake_novasteel")
 		in
 			Source
 	lineageTag: novasteel-directlake-source
 
 ref table p2_energy_plans
 ref table p3_quality_predictions
-ref table gold_kpi_baseline
 
 /// Per-site RLS: one role per site; the filter keys every table on [site].
 role RLS_LU
