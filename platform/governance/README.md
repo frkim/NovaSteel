@@ -130,6 +130,8 @@ decision-support only (Constitution I).
   **device** connection string (devices are not Entra principals) — the last is held in Key Vault.
 
 ## 11. Automated deployment (no manual portal steps, where possible)
+> **The remaining manual / admin-gated steps are consolidated in [`MANUAL_STEPS.md`](../../MANUAL_STEPS.md) (repo root).**
+
 Everything below is deployable via IaC / REST / job triggers with a suitably-privileged identity
 (managed identity or `az login`); no keys.
 

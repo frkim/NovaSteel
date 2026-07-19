@@ -48,6 +48,8 @@ medallion + pillar notebooks.
 5. Point KPI cards at the measures vs the frozen baseline.
 
 ## Deployed status (live)
+> Remaining manual/portal steps for BI are consolidated in [`MANUAL_STEPS.md`](../../MANUAL_STEPS.md) (§3 labels, §4 report visuals).
+
 - ✅ **Semantic model** "NovaSteel" (Direct Lake) deployed via `deploy_powerbi_model.py`
   (`platform/bi/semantic_model/`): `p2_energy_plans` + `p3_quality_predictions` tables, DAX
   measures, and per-site RLS roles `RLS_LU/DE/BE/ES`.
