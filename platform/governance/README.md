@@ -8,19 +8,26 @@ decision-support only (Constitution I).
 ## 1. End-to-end lineage — EU-resident (Constitution II + III)
 - **What**: sensor → Bronze → Silver → Gold feature → model prediction → recommendation →
   human decision → report, captured as an immutable, queryable lineage graph.
-- **Residency constraint**: classic Microsoft Purview (`Microsoft.Purview/accounts`) is **US-only in
-  this tenant** (no EU service location), so it is **intentionally NOT deployed** — an EU-region
-  Purview account is impossible and a US one would violate Principle III (NON-NEGOTIABLE). The
-  Bicep module + `register_purview_sources.py` remain for tenants where Purview is EU-available.
-- **EU-resident lineage instead** (all within the Sweden Central / West Europe footprint):
+- **Residency constraint**: an **account-backed** Microsoft Purview Data Map
+  (`Microsoft.Purview/accounts`) **cannot be provisioned in this tenant**, verified live:
+  - West Europe → rejected (`39002`): not in the tenant's allowed Purview *service* locations.
+  - Sweden Central (an allowed EU service location) → rejected (`21010`): the **"MCAPSGov Deny
+    Policies"** management-group assignment denies Purview's auto-created managed resources
+    (managed storage / Event Hub). This is a corporate governance guardrail above the subscription
+    and is not modifiable from here.
+  Deploying it therefore isn't possible; a US region would also violate Principle III. The
+  `purview.bicep` module + `register_purview_sources.py` remain for tenants without these blocks.
+- **Microsoft Purview (unified SaaS, purview.microsoft.com)** — the tenant-managed experience that
+  does **not** create per-subscription managed resources — is the only Purview path here; enabling
+  it is a **tenant-admin portal** action (M365 governance), not an ARM/API deploy.
+- **EU-resident lineage delivered instead** (all within the Sweden Central / West Europe footprint):
   1. **Fabric OneLake data hub / catalog** — item-to-item lineage across the workspace
      (Eventhouse → shortcut → Bronze → Silver → Gold → semantic model) is captured natively and
-     stays EU-resident.
+     stays EU-resident, with no managed resources and no policy conflict.
   2. **Immutable audit trail** in code (`libs/novasteel_core/novasteel_core/audit.py`): every
      prediction/recommendation/decision carries inputs, model version, reviewer, timestamp and
      rationale (Constitution II), append-only.
-  3. **Microsoft Purview (unified, tenant-scoped)** can be layered on later where its EU data
-     boundary is honored — it is not a per-RG account resource.
+  3. Fabric **sensitivity labels + endorsement** for classification (portal/tenant-configured).
 - Tag `gold_kpi_synthetic` with the **Synthetic** classification so provenance is queryable
   wherever data lands (Constitution IX).
 
@@ -131,7 +138,7 @@ Everything below is deployable via IaC / REST / job triggers with a suitably-pri
 | Azure Monitor alerts | `az deployment group create -g rg-novasteel-dev --template-file infrastructure/modules/monitoring-alerts.bicep --parameters logAnalyticsId=<id> alertEmail=<you>` | ✅ Deployed (`ag-novasteel-dev` + freshness + drift rules) |
 | Train ML models (P1 RUL, P3 quality) | `python platform/scripts/train_models_live.py` (needs ≥F4) | ✅ Trained + MLflow-registered (`novasteel-p1-rul` MAE 0.23d, `novasteel-p3-quality` F1 1.0) |
 | Entra RBAC groups + Fabric roles | `python platform/scripts/provision_entra_rbac.py --apply` | ✅ Deployed (24 `ns-<persona>-<site>` groups + 24 Fabric workspace role bindings) |
-| Purview source registration + scan | `python platform/scripts/register_purview_sources.py --apply` | ⛔ **Not deployed — EU-residency conflict.** Classic Purview is US-only in this tenant (no EU service location), so deploying it would violate Principle III (NON-NEGOTIABLE). Use the EU-resident alternative below. |
+| Purview source registration + scan | `python platform/scripts/register_purview_sources.py --apply` | ⛔ **Not possible in this tenant.** Account-backed Purview is blocked: West Europe residency-rejected (`39002`); Sweden Central denied (`21010`) by the management-group **MCAPSGov Deny Policies** on Purview managed resources. Use Fabric-native lineage (§1) / unified Purview SaaS (tenant-admin portal). |
 | Power BI Direct Lake semantic model + RLS | `python platform/scripts/deploy_powerbi_model.py --apply` (def: `platform/bi/semantic_model/`) | ✅ Deployed (Direct Lake model "NovaSteel" + per-site RLS roles) |
 | Scheduled batch (bump→run→pause) | `.github/workflows/scheduled-batch.yml` (Azure OIDC) | ⚙️ Manual/cron-ready |
 
