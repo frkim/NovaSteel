@@ -46,3 +46,16 @@ medallion + pillar notebooks.
 3. Define the RLS roles + map Entra groups.
 4. Build the three report pages; publish to a workspace app with per-site audiences.
 5. Point KPI cards at the measures vs the frozen baseline.
+
+## Deployed status (live)
+- ✅ **Semantic model** "NovaSteel" (Direct Lake) deployed via `deploy_powerbi_model.py`
+  (`platform/bi/semantic_model/`): `p2_energy_plans` + `p3_quality_predictions` tables, DAX
+  measures, and per-site RLS roles `RLS_LU/DE/BE/ES`.
+- ✅ **Frozen KPI baseline** `gold_kpi_baseline` materialized (4 sites) — the executive reference.
+- ✅ **Report scaffold** "NovaSteel Executive" deployed (`platform/bi/report/`), bound to the model
+  with an "Executive / ESG" page.
+- ⚙️ **Report visuals** — authoring the cards/charts on the pages is **Power BI Desktop / portal**
+  design work (open the deployed report, drag the measures). The model + RLS + reference table are
+  all in place.
+- ⚙️ **Sensitivity labels** — configuring the MIP label taxonomy and applying labels is a
+  **tenant-admin** action; endorsement (Promote/Certify) likewise needs authorized-certifier setup.
