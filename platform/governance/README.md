@@ -5,20 +5,24 @@ hardening. Every item maps to a constitutional principle and, where code/infra e
 file that implements it. Nothing here actuates plant equipment — the platform is
 decision-support only (Constitution I).
 
-## 1. End-to-end lineage — Microsoft Purview (Constitution II)
+## 1. End-to-end lineage — EU-resident (Constitution II + III)
 - **What**: sensor → Bronze → Silver → Gold feature → model prediction → recommendation →
   human decision → report, captured as an immutable, queryable lineage graph.
-- **Infra**: `infrastructure/modules/purview.bicep` (deployed via `resources.bicep`, gated by
-  `deployPurview`).
-- **Runbook**:
-  1. Register OneLake, the Eventhouse (KQL DB) and the Fabric workspace as Purview sources.
-  2. Scan the medallion lakehouse; confirm `telemetry_raw_kql → bronze → silver → gold_*`
-     lineage edges appear.
-  3. Tag `gold_kpi_synthetic` with the **Synthetic** classification so provenance is queryable
-     wherever data lands (Constitution IX).
-- **Audit immutability** is enforced in code by the append-only log
-  (`libs/novasteel_core/novasteel_core/audit.py`); audit records are exempt from GDPR erasure,
-  raw personal content is not (see §7).
+- **Residency constraint**: classic Microsoft Purview (`Microsoft.Purview/accounts`) is **US-only in
+  this tenant** (no EU service location), so it is **intentionally NOT deployed** — an EU-region
+  Purview account is impossible and a US one would violate Principle III (NON-NEGOTIABLE). The
+  Bicep module + `register_purview_sources.py` remain for tenants where Purview is EU-available.
+- **EU-resident lineage instead** (all within the Sweden Central / West Europe footprint):
+  1. **Fabric OneLake data hub / catalog** — item-to-item lineage across the workspace
+     (Eventhouse → shortcut → Bronze → Silver → Gold → semantic model) is captured natively and
+     stays EU-resident.
+  2. **Immutable audit trail** in code (`libs/novasteel_core/novasteel_core/audit.py`): every
+     prediction/recommendation/decision carries inputs, model version, reviewer, timestamp and
+     rationale (Constitution II), append-only.
+  3. **Microsoft Purview (unified, tenant-scoped)** can be layered on later where its EU data
+     boundary is honored — it is not a per-RG account resource.
+- Tag `gold_kpi_synthetic` with the **Synthetic** classification so provenance is queryable
+  wherever data lands (Constitution IX).
 
 ## 2. Role-based access & per-site isolation (Constitution VII)
 - **Personas → least-privilege roles** via Microsoft Entra ID: Operator, Maintenance, Energy,
@@ -127,7 +131,7 @@ Everything below is deployable via IaC / REST / job triggers with a suitably-pri
 | Azure Monitor alerts | `az deployment group create -g rg-novasteel-dev --template-file infrastructure/modules/monitoring-alerts.bicep --parameters logAnalyticsId=<id> alertEmail=<you>` | ✅ Deployed (`ag-novasteel-dev` + freshness + drift rules) |
 | Train ML models (P1 RUL, P3 quality) | `python platform/scripts/train_models_live.py` (needs ≥F4) | ✅ Trained + MLflow-registered (`novasteel-p1-rul` MAE 0.23d, `novasteel-p3-quality` F1 1.0) |
 | Entra RBAC groups + Fabric roles | `python platform/scripts/provision_entra_rbac.py --apply` | ✅ Deployed (24 `ns-<persona>-<site>` groups + 24 Fabric workspace role bindings) |
-| Purview source registration + scan | `python platform/scripts/register_purview_sources.py --apply` | ⛔ Blocked — no Purview account in the RG; deploy `infrastructure/modules/purview.bicep` first, then run |
+| Purview source registration + scan | `python platform/scripts/register_purview_sources.py --apply` | ⛔ **Not deployed — EU-residency conflict.** Classic Purview is US-only in this tenant (no EU service location), so deploying it would violate Principle III (NON-NEGOTIABLE). Use the EU-resident alternative below. |
 | Power BI Direct Lake semantic model + RLS | `python platform/scripts/deploy_powerbi_model.py --apply` (def: `platform/bi/semantic_model/`) | ✅ Deployed (Direct Lake model "NovaSteel" + per-site RLS roles) |
 | Scheduled batch (bump→run→pause) | `.github/workflows/scheduled-batch.yml` (Azure OIDC) | ⚙️ Manual/cron-ready |
 

@@ -1,5 +1,5 @@
 // Microsoft Purview account for data governance, lineage and classification.
-metadata description = 'Microsoft Purview account providing end-to-end lineage, classification and EU AI Act traceability.'
+metadata description = 'Microsoft Purview account for lineage/classification. NOTE: classic Purview is region-restricted per tenant and may not have an EU service location — deploy ONLY where an EU region is supported, else Principle III (EU residency) is violated. Where Purview is US-only, use Fabric OneLake catalog lineage + the immutable audit trail instead (see platform/governance/README.md §1).'
 
 @description('Azure region.')
 param location string
