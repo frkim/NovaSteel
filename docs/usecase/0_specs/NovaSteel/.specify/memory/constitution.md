@@ -1,11 +1,18 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: (none) → 1.0.0  (INITIAL RATIFICATION)
-Bump rationale: First concrete constitution replacing the unfilled template; MAJOR
-  baseline established at 1.0.0 per ratification request.
+Version change: 1.0.0 → 2.0.0  (AMENDMENT — 2026-07-20)
+Bump rationale: MAJOR — redefines a NON-NEGOTIABLE principle. Principle III "EU Data
+  Residency" is relaxed from absolute "EU-only, zero egress" to "EU-default with governed,
+  documented, minimized, time-bounded last-resort exceptions" for required services that are
+  genuinely unavailable in every permitted EU region.
 
-Modified principles: N/A (initial adoption)
+Modified principles (this amendment):
+  III. EU Data Residency (NON-NEGOTIABLE) — retitled "EU-Default with Governed Exceptions".
+       EU remains the enforced default; a documented, minimized, labelled, time-bounded
+       exception now permits a non-EU region strictly as a last resort.
+
+Prior baseline (v1.0.0) principles: N/A (initial adoption)
 Added principles:
   I.    Human-in-the-Loop (NON-NEGOTIABLE)
   II.   End-to-End Traceability (NON-NEGOTIABLE)
@@ -84,17 +91,36 @@ output can be reconstructed and explained after the fact. Lineage and immutable 
 are the mechanism that makes accountability verifiable rather than asserted. (Trace:
 NFR-003, FR-017, FR-024, NFR-008.)
 
-### III. EU Data Residency (NON-NEGOTIABLE)
+### III. EU Data Residency — EU-Default with Governed Exceptions (NON-NEGOTIABLE)
 
-ALL data — telemetry, models, operator interviews, and audit logs — MUST be stored and
-processed within EU regions (Sweden Central / West Europe / Germany West Central).
-There MUST be zero data egress or processing outside the EU. Region pinning MUST be
-enforced by Azure Policy, not by convention or developer discipline.
+EU regions (Sweden Central / West Europe / Germany West Central / France Central) are the
+**default and strongly preferred** location for storing and processing ALL data —
+telemetry, models, operator interviews, and audit logs. EU residency MUST be the default
+and MUST be enforced by Azure Policy (allowed-locations), not by convention or developer
+discipline.
 
-**Rationale**: NovaSteel operates under EU data-sovereignty expectations across four
-member states; residency cannot depend on human vigilance and MUST be enforced as
-policy-as-code so violations fail deployment rather than reaching production. (Trace:
-NFR-002, SC-006.)
+A non-EU region MAY be used **only as a last resort**, and ONLY when a required in-scope
+capability is genuinely unavailable in every permitted EU region (for example, a managed
+service whose tenant/provider service location is non-EU). Every such deviation MUST:
+
+1. be **documented** as an explicit exception (a Complexity-Tracking entry) recording the
+   service, the EU region(s) checked, and why none is available;
+2. be **minimized** — scope the non-EU footprint to only the unavoidable component, keep
+   everything else EU-resident, and prefer metadata-only / data-minimized configurations
+   that avoid egressing personal or sensitive plant data;
+3. carry a **residency exception label/tag** on the affected resources so the deviation is
+   queryable; and
+4. be **revisited** — replaced with an EU-resident option as soon as one becomes available.
+
+Absent a documented exception meeting all of the above, deploying or processing outside the
+EU is a violation and MUST fail review.
+
+**Rationale**: NovaSteel operates under EU data-sovereignty expectations across four member
+states, so EU residency remains the enforced default and cannot depend on human vigilance.
+But some required managed services are region-constrained by the tenant or provider; a
+narrow, documented, minimized, time-bounded last-resort exception keeps the programme
+deliverable without turning residency into a silent, unmanaged compromise. (Trace: NFR-002,
+SC-006.)
 
 ### IV. One-Way OT→IT Boundary (NON-NEGOTIABLE)
 
@@ -242,4 +268,4 @@ confirm Principles I–IX explicitly; unresolved NON-NEGOTIABLE violations are n
 mergeable. This constitution is the runtime governance guide for all NovaSteel
 development.
 
-**Version**: 1.0.0 | **Ratified**: 2026-06-23 | **Last Amended**: 2026-06-23
+**Version**: 2.0.0 | **Ratified**: 2026-06-23 | **Last Amended**: 2026-07-20

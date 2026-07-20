@@ -1,14 +1,19 @@
 // Azure Policy: EU data-residency guardrail (subscription scope).
-// Constitution III — residency MUST be enforced by Azure Policy, not convention.
-metadata description = 'Assigns built-in Allowed Locations policies to restrict all resources and resource groups to approved EU regions.'
+// Constitution III (v2.0.0 — EU-Default with Governed Exceptions): EU regions are the
+// enforced DEFAULT for resource deployment. A non-EU region is permitted only as a
+// documented, minimized, labelled, time-bounded LAST RESORT when a required service is
+// unavailable in every EU region — implemented operationally as a per-case policy
+// exemption / notScopes on these assignments (not by widening the default list).
+metadata description = 'Assigns built-in Allowed Locations policies so EU regions are the default for all resources and resource groups; non-EU requires a documented last-resort exception (Constitution III v2.0.0).'
 
 targetScope = 'subscription'
 
-@description('Approved EU regions for all resources and resource groups (data residency).')
+@description('Approved EU regions (the enforced default) for all resources and resource groups. Non-EU last-resort deviations are handled via documented per-resource exemptions, not by editing this list.')
 param allowedLocations array = [
   'swedencentral'
   'westeurope'
   'germanywestcentral'
+  'francecentral'
 ]
 
 @description('Policy assignment enforcement mode. Use DoNotEnforce to audit-only before turning on enforcement.')
@@ -26,7 +31,7 @@ resource resourceLocations 'Microsoft.Authorization/policyAssignments@2024-04-01
   name: 'novasteel-eu-locations'
   properties: {
     displayName: 'NovaSteel — allowed locations (EU residency)'
-    description: 'Restricts resource deployment to approved EU regions (Constitution III — EU data residency).'
+    description: 'EU regions are the enforced default for resource deployment (Constitution III v2.0.0). Non-EU is permitted only as a documented last-resort exemption when no EU region supports a required service.'
     policyDefinitionId: allowedLocationsResourcesDef
     enforcementMode: enforcementMode
     parameters: {
@@ -41,7 +46,7 @@ resource resourceGroupLocations 'Microsoft.Authorization/policyAssignments@2024-
   name: 'novasteel-eu-rg-locations'
   properties: {
     displayName: 'NovaSteel — allowed locations for resource groups (EU residency)'
-    description: 'Restricts resource-group creation to approved EU regions (Constitution III — EU data residency).'
+    description: 'EU regions are the enforced default for resource-group creation (Constitution III v2.0.0). Non-EU is permitted only as a documented last-resort exemption.'
     policyDefinitionId: allowedLocationsResourceGroupsDef
     enforcementMode: enforcementMode
     parameters: {

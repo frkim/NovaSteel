@@ -13,7 +13,7 @@ maintenance → P2 energy dispatch → P3 quality optimization → P4 knowledge 
 **Active feature**: `001-steel-optimization-platform`
 (`specs/001-steel-optimization-platform/spec.md`).
 
-**Constitution**: v1.0.0 (ratified 2026-06-23) —
+**Constitution**: v2.0.0 (ratified 2026-06-23; last amended 2026-07-20) —
 `.specify/memory/constitution.md`. Every plan, pull request, and review MUST verify
 compliance. A violation of any NON-NEGOTIABLE principle (I–IX) BLOCKS merge; any
 deviation requires a Complexity Tracking entry.
@@ -25,8 +25,11 @@ deviation requires a Complexity Tracking entry.
 - **II. End-to-End Traceability** — immutable, queryable audit record (inputs, model
   version, output, reviewer, timestamp, rationale); lineage in Microsoft Purview;
   audit records exempt from GDPR erasure, raw personal content stays erasable.
-- **III. EU Data Residency** — all data stored/processed in EU regions (Sweden
-  Central / West Europe / Germany West Central); zero egress; enforced by Azure Policy.
+- **III. EU Data Residency (EU-default with governed exceptions)** — EU regions (Sweden
+  Central / West Europe / Germany West Central / France Central) are the enforced default
+  (Azure Policy allowed-locations); a non-EU region is permitted ONLY as a documented,
+  minimized, labelled, time-bounded last resort when a required service is unavailable in
+  every EU region.
 - **IV. One-Way OT→IT Boundary** — telemetry flows one-way out of OT; NO control/command
   path back into OT/SCADA; cloud-direct ingestion via Azure IoT Hub (no plant-side edge).
 - **V. Scoped, Unified Stack** — only in-scope services (see tech stack below) may be

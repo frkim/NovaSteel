@@ -4,7 +4,7 @@
 
 **Input**: Feature specification from `specs/001-steel-optimization-platform/spec.md`
 
-**Constitution**: NovaSteel Platform Constitution v1.0.0 (`.specify/memory/constitution.md`)
+**Constitution**: NovaSteel Platform Constitution v2.0.0 (`.specify/memory/constitution.md`)
 
 ## Summary
 
@@ -104,7 +104,7 @@ a first-class deployable Container App (the device side of IoT Hub).
 **Constraints**:
 - Decision-support only — no equipment actuation under any pillar (FR-015, Constitution I).
 - One-way OT→IT — no reverse command path may exist (NFR-004, Constitution IV).
-- EU residency, zero egress, policy-enforced (NFR-002, Constitution III).
+- EU residency policy-enforced as the default; non-EU only as a documented last resort (NFR-002, Constitution III v2.0.0).
 - Immutable audit + Purview lineage for every prediction/recommendation/decision
   (FR-017, NFR-003, Constitution II).
 - Degraded/missing/stale telemetry MUST be flagged, never presented as current

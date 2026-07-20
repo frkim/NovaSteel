@@ -88,8 +88,8 @@ systems that interact with people or generate content), and **minimal-risk**
 - **"What about retiring operators' data?"** — Covered by a DPIA, lawful basis,
   minimisation, retention limits and erasure support.
 - **"How are DPO obligations enforced?"** — Through DPIA sign-off, documented
-  retention/deletion controls, data-subject rights handling, and EU-only data
-  residency for personal data.
+  retention/deletion controls, data-subject rights handling, and EU-default data
+  residency with personal data kept EU-resident (Constitution III v2.0.0).
 
 ## 7. Open items to confirm
 

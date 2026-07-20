@@ -34,7 +34,7 @@ Default region is **Sweden Central** (`swedencentral`) for EU data residency.
 | `functions.bicep` | Azure Functions (Elastic Premium) | Energy-dispatch optimization agent |
 | `container-apps.bicep` | Container Apps | Energy-dispatch microservice + steel factory simulator |
 | `purview.bicep` | Microsoft Purview | Governance, lineage, EU AI Act traceability |
-| `policy.bicep` | Azure Policy (allowed locations) | EU data-residency guardrail (Constitution III) |
+| `policy.bicep` | Azure Policy (allowed locations) | EU data-residency guardrail — EU-default; non-EU only as a documented exception (Constitution III v2.0.0, see [`residency-exceptions.md`](residency-exceptions.md)) |
 | `app-state.bicep` | Azure SQL (serverless) | Immutable audit records + app/workflow state (opt-in) |
 | `defender.bicep` | Microsoft Defender for Cloud | Subscription-wide posture & workload protection |
 | `rbac.bicep` | Role assignments | Least-privilege data-plane access wiring |

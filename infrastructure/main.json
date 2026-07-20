@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.43.8.12551",
-      "templateHash": "3941919599922432460"
+      "templateHash": "16712386039398271378"
     },
     "description": "Top-level deployment for the NovaSteel AI-powered steel production optimization platform."
   },
@@ -274,9 +274,9 @@
             "_generator": {
               "name": "bicep",
               "version": "0.43.8.12551",
-              "templateHash": "10602475935543189366"
+              "templateHash": "15468575239930688894"
             },
-            "description": "Assigns built-in Allowed Locations policies to restrict all resources and resource groups to approved EU regions."
+            "description": "Assigns built-in Allowed Locations policies so EU regions are the default for all resources and resource groups; non-EU requires a documented last-resort exception (Constitution III v2.0.0)."
           },
           "parameters": {
             "allowedLocations": {
@@ -284,10 +284,11 @@
               "defaultValue": [
                 "swedencentral",
                 "westeurope",
-                "germanywestcentral"
+                "germanywestcentral",
+                "francecentral"
               ],
               "metadata": {
-                "description": "Approved EU regions for all resources and resource groups (data residency)."
+                "description": "Approved EU regions (the enforced default) for all resources and resource groups. Non-EU last-resort deviations are handled via documented per-resource exemptions, not by editing this list."
               }
             },
             "enforcementMode": {
@@ -313,7 +314,7 @@
               "name": "novasteel-eu-locations",
               "properties": {
                 "displayName": "NovaSteel — allowed locations (EU residency)",
-                "description": "Restricts resource deployment to approved EU regions (Constitution III — EU data residency).",
+                "description": "EU regions are the enforced default for resource deployment (Constitution III v2.0.0). Non-EU is permitted only as a documented last-resort exemption when no EU region supports a required service.",
                 "policyDefinitionId": "[variables('allowedLocationsResourcesDef')]",
                 "enforcementMode": "[parameters('enforcementMode')]",
                 "parameters": {
@@ -329,7 +330,7 @@
               "name": "novasteel-eu-rg-locations",
               "properties": {
                 "displayName": "NovaSteel — allowed locations for resource groups (EU residency)",
-                "description": "Restricts resource-group creation to approved EU regions (Constitution III — EU data residency).",
+                "description": "EU regions are the enforced default for resource-group creation (Constitution III v2.0.0). Non-EU is permitted only as a documented last-resort exemption.",
                 "policyDefinitionId": "[variables('allowedLocationsResourceGroupsDef')]",
                 "enforcementMode": "[parameters('enforcementMode')]",
                 "parameters": {
@@ -420,7 +421,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.43.8.12551",
-              "templateHash": "6210501555444672374"
+              "templateHash": "13214200104982835104"
             },
             "description": "Deploys the NovaSteel \"Project Ignition\" Azure platform (data, AI/ML, ingestion, apps, governance, security) into a resource group. Demo configuration: public network access, no private endpoints."
           },
@@ -2915,9 +2916,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.43.8.12551",
-                      "templateHash": "10486227352248347050"
+                      "templateHash": "13476492170606516382"
                     },
-                    "description": "Microsoft Purview account providing end-to-end lineage, classification and EU AI Act traceability."
+                    "description": "Microsoft Purview account for lineage/classification. NOTE: classic Purview is region-restricted per tenant and may not have an EU service location — deploy ONLY where an EU region is supported, else Principle III (EU residency) is violated. Where Purview is US-only, use Fabric OneLake catalog lineage + the immutable audit trail instead (see platform/governance/README.md §1)."
                   },
                   "parameters": {
                     "location": {

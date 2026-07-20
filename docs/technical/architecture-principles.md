@@ -2,7 +2,7 @@
 
 > **Purpose.** This page explains the **choices and reasoning** behind the NovaSteel
 > "Project Ignition" platform principles in plain language. It is a companion to the
-> authoritative, normative source — the **Constitution v1.0.0**
+> authoritative, normative source — the **Constitution v2.0.0**
 > ([`docs/usecase/0_specs/NovaSteel/.specify/memory/constitution.md`](../usecase/0_specs/NovaSteel/.specify/memory/constitution.md)).
 > Where this page and the Constitution differ, **the Constitution prevails.**
 
@@ -24,7 +24,7 @@ against the principles below.
 |---|-----------|---------------|----------------|
 | I | Human-in-the-Loop | Advise, never actuate; every recommendation needs human approval | Safety & EU AI Act oversight |
 | II | End-to-End Traceability | Immutable audit record + Purview lineage for every decision | Regulatory defensibility & trust |
-| III | EU Data Residency | All data stored/processed in EU regions, enforced by Azure Policy | EU data sovereignty |
+| III | EU Data Residency (EU-default, governed exceptions) | EU regions are the enforced default; non-EU only as a documented last resort | EU data sovereignty |
 | IV | One-Way OT→IT Boundary | Telemetry flows out of OT only; no command path back to OT/SCADA | Plant safety & attack surface |
 | V | Scoped, Unified Stack | Only the in-scope Fabric + Foundry + IoT/PaaS service set | Governability, cost, lineage |
 | VI | Explainability & Responsible AI | Evidence, uncertainty, grounded GenAI, Content Safety | Trustworthy human oversight |
@@ -75,20 +75,27 @@ Purview; GDPR erasure logic distinguishes audit vs. raw personal content.
 
 ---
 
-## III. EU Data Residency (NON-NEGOTIABLE)
+## III. EU Data Residency — EU-Default with Governed Exceptions (NON-NEGOTIABLE)
 
-**The rule.** **All** data — telemetry, models, operator interviews, audit logs — is stored
-and processed within EU regions (**Sweden Central / West Europe / Germany West Central**).
-Zero egress or processing outside the EU. Region pinning is **enforced by Azure Policy**,
-not by convention.
+**The rule.** EU regions (**Sweden Central / West Europe / Germany West Central / France
+Central**) are the **default and enforced** location for **all** data — telemetry, models,
+operator interviews, audit logs. EU residency is the default, **enforced by Azure Policy**
+(allowed-locations), not by convention. A non-EU region is permitted **only as a last
+resort** when a required service is genuinely unavailable in every EU region, and only via a
+**documented, minimized, labelled, time-bounded exception** (Complexity Tracking).
 
 **Why this choice.** NovaSteel operates under EU data-sovereignty expectations across four
-member states. Residency cannot depend on human vigilance, so it is enforced as
-**policy-as-code** — violations fail deployment rather than reaching production.
+member states, so EU residency stays the enforced default and cannot depend on human
+vigilance. But some required managed services are region-constrained by the tenant/provider;
+a narrow, documented, minimized last-resort exception keeps the programme deliverable
+without turning residency into a silent, unmanaged compromise.
 
 **In practice.** An allowed-locations Azure Policy is assigned at subscription scope
-(`enforceEuResidencyPolicy`). Region-constrained services (e.g. IoT Hub, which is not
-available in Sweden Central) are pinned to another EU region rather than leaving the EU.
+(`enforceEuResidencyPolicy`) and lists the EU regions. Region-constrained services are first
+pinned to another **EU** region (e.g. IoT Hub → West Europe, since it is not available in
+Sweden Central). Only where **no** EU region supports a required service (e.g. a managed
+service whose tenant service location is non-EU) may a non-EU region be used, via a
+documented policy exemption/`notScopes` exception tagged as a residency exception.
 *(Trace: NFR-002, SC-006.)*
 
 ---
@@ -287,7 +294,7 @@ templates and agent-context guidance for alignment.
 
 ---
 
-**Source of truth:** Constitution **v1.0.0** — Ratified 2026-06-23 · Last Amended 2026-06-23
+**Source of truth:** Constitution **v2.0.0** — Ratified 2026-06-23 · Last Amended 2026-07-20
 · [`docs/usecase/0_specs/NovaSteel/.specify/memory/constitution.md`](../usecase/0_specs/NovaSteel/.specify/memory/constitution.md).
 This page is explanatory; if it drifts from the Constitution, update it or open an
 amendment.
