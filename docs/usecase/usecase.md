@@ -1,4 +1,4 @@
-> **Note:** This is an current use case
+> **Note:** This is the current use case
 
 # **NovaSteel — AI‑Powered Steel Production Optimization Platform**
 
